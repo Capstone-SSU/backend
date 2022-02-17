@@ -1,17 +1,26 @@
 package com.example.demo.auth;
 
 import com.example.demo.domain.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 //Spring Security에서 아래의 객체에 User Entity 정보를 삽입, Authentication 형태로 SeurityContext에 저장한다. -> 이걸로 로그인 상태 관리
-public class CustomUserDetails implements UserDetails {
+@Getter
+@Setter
+public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private final User user; // Authentication 안에 넣을 User 정보 entity
+
+    //github 소셜 로그인 시 거기서 얻어온 정보 저장하기 위한 것
+    private Map<String,Object> attributes;
 
     public CustomUserDetails(User user){
         this.user=user;
@@ -61,5 +70,10 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return user.getUserName();
     }
 }
