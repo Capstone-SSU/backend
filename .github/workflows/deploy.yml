@@ -27,7 +27,7 @@ jobs:
       - uses: mirromutth/mysql-action@v1.1
         with:
           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
-          mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
+          mysql database: 'jdbc:mysql://database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com:3306/capstone2' # Optional, default value is "test". The specified database which will be create
           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
 
