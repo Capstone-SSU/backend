@@ -1,55 +1,83 @@
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch: # 수동실행
+
+# name: Deploy String boot to Amazon EC2
+# env:
+#   PROJECT_NAME: action_codedeploy
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-18.04
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
+        
+# #       - uses: samin/mysql-action@v1
+# #         with:
+# #           entryPoint: database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
+# #           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
+# #           mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
+# #           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
+# #           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
+
+# #       - uses: mirromutth/mysql-action@v1.1
+# #         with:
+# #           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
+# #           mysql database: 'jdbc:mysql://database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com:3306/capstone2' # Optional, default value is "test". The specified database which will be create
+# #           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
+# #           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
+
+# #       - uses: gtadam/mysql-deploy-action@v1
+# #         with:
+# #           DATABASE_HOST: 'database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com'
+# #           DATABASE_PORT: '3306'
+# #           DATABASE_NAME: 'capstone2'
+# #           DATABASE_USERNAME: 'admin'
+# #           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+
+#       - name: Set up JDK 11
+#         uses: actions/setup-java@v1
+#         with:
+#           java-version: '11'
+#           java-package: jdk
+          
+
+#       - name: Grant execute permission for gradlew
+#         run: chmod +x gradlew
+#         shell: bash
+
+#       - name: Build with Gradle
+#         run: ./gradlew build
+#         shell: bash
+name: Spring Boot & Gradle CI/CD 
+
+# Event Trigger
+# master branch에 push 또는 pull request가 발생할 경우 동작
+# branch 단위 외에도, tag나 cron 식 등을 사용할 수 있음 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch: # 수동실행
-
-name: Deploy String boot to Amazon EC2
-env:
-  PROJECT_NAME: action_codedeploy
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    # 실행 환경 지정
+    runs-on: ubuntu-latest
 
+    # Task의 sequence를 명시한다.
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        
-#       - uses: samin/mysql-action@v1
-#         with:
-#           entryPoint: database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
-#           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
-#           mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
-#           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
-#           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
-
-#       - uses: mirromutth/mysql-action@v1.1
-#         with:
-#           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
-#           mysql database: 'jdbc:mysql://database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com:3306/capstone2' # Optional, default value is "test". The specified database which will be create
-#           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Can use secrets, too
-#           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
-
-#       - uses: gtadam/mysql-deploy-action@v1
-#         with:
-#           DATABASE_HOST: 'database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com'
-#           DATABASE_PORT: '3306'
-#           DATABASE_NAME: 'capstone2'
-#           DATABASE_USERNAME: 'admin'
-#           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: '11'
-          java-package: jdk
-          
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        shell: bash
-
-      - name: Build with Gradle
-        run: ./gradlew build
-        shell: bash
+    - uses: actions/checkout@v2
+    
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    - name: Build with Gradle
+      run: ./gradlew clean build
