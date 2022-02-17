@@ -39,3 +39,6 @@ out/
 
 ### mysql ###
 application-mysql.properties
+
+### oauth ###
+application-oauth.properties

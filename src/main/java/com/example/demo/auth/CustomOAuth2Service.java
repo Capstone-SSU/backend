@@ -1,0 +1,94 @@
+package com.example.demo.auth;
+
+import com.example.demo.domain.User;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+@Service
+
+public class CustomOAuth2Service extends DefaultOAuth2UserService {
+    private final UserDetailsServiceImpl userDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public CustomOAuth2Service(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
+
+
+    //Oauth 소셜 로그인 후처리 담당 메소드
+    //로그인 성공 -> 깃허브로 부터 access token을 받아온거 까지가 파라미터인 userRequest
+    //userRequest에 담긴 정보로 깃허브를 통해 회원 프로필을 받아오는게 loadUser 메소드의 역할! -> loadUser가 어디서 호출되는건지,,,,,
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
+//        System.out.println("clientRegistration: "+userRequest.getClientRegistration()); // -> registrationId: 어떤 oauth 로그인인지
+//        System.out.println("accessToken: "+userRequest.getAccessToken());
+        /**
+          * 깃헙 로그인 클릭 -> 깃허브의 로그인 창이 뜨고 -> 로그인 성공하고 -> code를 return하고 ->
+          *그 code를 oauth library가 받고 -> access token을 요청하고
+          *까지가 UserRequest 정보!
+          *이제부터 loadUser를 사용해서 userRequest 정보를 사용해서 회원 프로필을 받아와야 한다
+        */
+
+//        System.out.println("getAttributes: "+super.loadUser(userRequest).getAttributes());
+        OAuth2User oAuth2User=super.loadUser(userRequest);
+        return getOAuth2UserInfo(userRequest,oAuth2User); //OAuth2User를 return 한다 -> GithubOAuth2User로 바꿔주고 프론트에 값을 넘긴다!
+    }
+
+    private CustomUserDetails getOAuth2UserInfo(OAuth2UserRequest userRequest,OAuth2User oAuth2User){
+        String provider=userRequest.getClientRegistration().getClientId();
+        System.out.println("provider = " + provider);
+//        if(!provider.equals("github")){
+//            throw new InternalAuthenticationServiceException(String.format("Only Github OAuth2 provider is supported"));
+//        }
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        String nickname=attributes.get("login").toString();
+        String email=nickname+"@github.com";
+        if(attributes.get("email")!=null){
+            email=attributes.get("email").toString();
+        }
+        String profileUrl=null;
+        if(attributes.get("avatar_url")!=null){
+            profileUrl=attributes.get("avatar_url").toString();
+        }
+        String name=attributes.get("name").toString();
+        String company=null;
+        if(attributes.get("company")!=null){
+            company=attributes.get("company").toString();
+        }
+        String nodeId=attributes.get("node_id").toString();
+        String pwd=bCryptPasswordEncoder.encode(nodeId);
+
+        User user=userDetailsService.findUserByEmail(email);
+        if(user==null){
+            user=new User(name,nickname,email,pwd);
+            user.updateUserCompany(company);
+            user.updateProfileImage(profileUrl);
+            userDetailsService.saveUser(user);
+        }else{
+            user.updateByGithubLogin(name,nickname,email,profileUrl);
+            user.updateUserCompany(company);
+            userDetailsService.updateUserByGithub(user);
+        }
+
+        CustomUserDetails customUserDetails=new CustomUserDetails(user);
+        customUserDetails.setAttributes(oAuth2User.getAttributes()); // 나중에 여기서 필요 정보 빼가서 쓸 수 있음
+
+        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
+        //Authentication(==CustomUserDetails의 data type이라고 생각하는게 편하다) 을 SecurityContext에 저장 -> 나중에 SecurityContext에서 찾으면 로그인 중인 사용자 찾고, 권한 확인 가능
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        return customUserDetails;
+
+    }
+
+}
