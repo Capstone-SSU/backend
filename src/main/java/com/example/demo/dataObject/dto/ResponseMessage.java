@@ -20,7 +20,7 @@ public class ResponseMessage {
     }
 
     //data, status, msg 다 보낼 때: ResponseMessage.withMsg(params)
-    public static ResponseMessage withMsg(final int status, final String msg, final Object data) {
+    public static ResponseMessage withData(final int status, final String msg, final Object data) {
         return ResponseMessage.builder()
                 .data(data)
                 .message(msg)

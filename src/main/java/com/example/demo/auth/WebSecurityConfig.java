@@ -3,6 +3,7 @@ package com.example.demo.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,6 +17,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
    @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    //AuthenticationManagerBean 등록 -> 하단의 configure에서 LoginForm을 이용한 자동 처리 사용 X, 수동으로 Authentication을 만들어서 SecurityContext에 저장!
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean()  throws Exception{
+       return super.authenticationManagerBean();
     }
 
     @Override
@@ -33,6 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .anyRequest().authenticated(); //위를 제외한 다른 모든 요청은 권한 확인
 //                .and()
 //                .formLogin()
+//                .loginPage("/signin")
 //                .loginProcessingUrl("/signin");
 
 
