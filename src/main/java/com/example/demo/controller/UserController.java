@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.auth.CustomUserDetails;
 import com.example.demo.dataObject.vo.SigninVO;
 import com.example.demo.dataObject.vo.SignupVO;
 import com.example.demo.domain.User;
@@ -76,6 +77,7 @@ public class UserController {
         if(auth!=null){
             //login success
             SecurityContextHolder.getContext().setAuthentication(auth);
+            //고유값인 이메일, 거기에 매칭되는 pwd로 AuthenticationToken을 만들면 거기에 매칭되는 CustomUserDetails객체 (Authentication type이라 생각하는게 편하다) 를 SecurityContext에 저장한다!
             Object principal=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             //SecurityContext에 Authentication 정보 저장
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", principal),HttpStatus.OK);
@@ -94,9 +96,14 @@ public class UserController {
     public String test(){
         //로그인 상태 유지 확인 테스트 성공
         Object principal=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetails userDetails=(UserDetails) principal;
+        CustomUserDetails userDetails=(CustomUserDetails) principal;
         String username = userDetails.getUsername();
-        System.out.println("username = " + username);
+        System.out.println("email = " + username); // email이 반환됨
+        User user=userDetails.getUser();
+        String nickname=user.getUserNickname();
+        String imageUrl=user.getUserProfileImg();
+        System.out.println("nickname = " + nickname);
+        System.out.println("imageUrl = " + imageUrl);
         return "success";
     }
 }
