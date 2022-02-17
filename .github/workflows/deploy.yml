@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # 수동실행
 
 name: Deploy String boot to Amazon EC2
 env:
@@ -15,18 +16,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      - uses: samin/mysql-action@v1
-        with:
-          entryPoint: database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
-          mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
-          mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
-          mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
-          mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
+#       - uses: samin/mysql-action@v1
+#         with:
+#           entryPoint: database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
+#           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
+#           mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
+#           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
+#           mysql password: ${{ secrets.DATABASE_PASSWORD }} # Required if "mysql user" exists. The password for the "mysql user"
 
-      - name: Set up JDK 1.11
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.11
+          java-version: 11
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
