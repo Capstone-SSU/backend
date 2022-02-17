@@ -19,7 +19,6 @@ jobs:
       - uses: samin/mysql-action@v1
         with:
           entryPoint: database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
-          host port: 3306 # Optional, default value is 3306. The port of host
           mysql version: '8.0.27' # Optional, default value is "latest". The version of the MySQL
           mysql database: 'capstone2' # Optional, default value is "test". The specified database which will be create
           mysql user: 'admin' # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
