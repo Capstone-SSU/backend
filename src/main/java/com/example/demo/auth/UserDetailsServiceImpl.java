@@ -2,6 +2,8 @@ package com.example.demo.auth;
 
 import com.example.demo.domain.User;
 import com.example.demo.repository.UserRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -21,11 +25,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final AuthenticationManager authManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserDetailsServiceImpl(UserRepository userRepository,AuthenticationManager authManager,BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder) {
 
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
+    }
+
+    public User findUserByEmail(String email){
+        return userRepository.findByUserEmail(email); //없으면 null, 있으면 user 객체 return
     }
 
     public String checkEmailValidate(String email){
@@ -65,6 +73,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         //여기서 username: 중복되지 않는 고유값 -> email로 대체하여 사용
         UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
         return authManager.authenticate(authToken);
+    }
+
+    public String updateUserByGithub(User updateUser){
+        userRepository.save(updateUser);
+        return "success";
     }
 
     @Override
