@@ -50,19 +50,23 @@ public class UserController {
         return "signup success";
     }
 
-    @GetMapping("/signup")
-    public  ResponseEntity<ResponseMessage> emailCheck(@RequestParam("email") String email){
+    @GetMapping("/signup/{email:.+}/")
+    public  ResponseEntity<ResponseMessage> emailCheck(@PathVariable("email") String email){
+//        System.out.println("email = " + email);
         String valid=userService.checkEmailValidate(email);
-        if(valid.equals("email validate")){
+        if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
+        }else if(valid.equals("email github")){
+            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.BAD_REQUEST);
+        }else{
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.CONFLICT);
     }
 
     @GetMapping("/signup/{nickname}")
     public ResponseEntity<ResponseMessage> nicknameCheck(@PathVariable String nickname){
         String valid=userService.checkNicknameValidate(nickname);
-        if(valid.equals("nickname validate")){
+        if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
@@ -76,11 +80,13 @@ public class UserController {
 //        System.out.println("authentication: "+auth.getPrincipal());
         if(auth!=null){
             //login success
+            //User 정보 빼오는 부분 중복 코드 없애기
             SecurityContextHolder.getContext().setAuthentication(auth);
             //고유값인 이메일, 거기에 매칭되는 pwd로 AuthenticationToken을 만들면 거기에 매칭되는 CustomUserDetails객체 (Authentication type이라 생각하는게 편하다) 를 SecurityContext에 저장한다!
-            Object principal=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            CustomUserDetails principal=(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user=principal.getUser();
             //SecurityContext에 Authentication 정보 저장
-            return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", principal),HttpStatus.OK);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", user),HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
@@ -89,7 +95,7 @@ public class UserController {
 
     @GetMapping("/")
     public String landing(){
-    return "landing page";
+        return "landing page";
     }
 
     @GetMapping("/review")

@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 
 
 @Service
@@ -38,10 +37,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public String checkEmailValidate(String email){
         User user=userRepository.findByUserEmail(email);
-        if(user!=null){
-            return "email conflict";
+        if(user==null){
+            return "email valid";
+        }else if(user.getLoginProvider()!=null&&user.getLoginProvider().equals("GITHUB")){
+            return "email github";
         }else{
-            return "email validate";
+            return "email conflict";
         }
     }
 
@@ -50,7 +51,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(user!=null){
             return "nickname conflict";
         }else{
-            return "nickname validate";
+            return "nickname valid";
         }
     }
 
@@ -78,6 +79,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public String updateUserByGithub(User updateUser){
         userRepository.save(updateUser);
         return "success";
+    }
+
+    private boolean checkIfGithub(String provider){
+        return provider.equals("GITHUB");
     }
 
     @Override
