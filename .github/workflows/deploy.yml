@@ -118,7 +118,7 @@ jobs:
       run: aws deploy create-deployment --application-name capstone2
         --deployment-config-name CodeDeployDefault.OneAtATime
         --deployment-group-name qa
-        --s3-location bucket=deploy ,bundleType=zip,key=$GITHUB_SHA.zip
+        --s3-location bucket=capstone2-building-owner,bundleType=zip,key=deploy/$GITHUB_SHA.zip
 #     - name: Publish Unit Test Results # test 후 result를 보기 위해 추가
 #       uses: EnricoMi/publish-unit-test-result-action@v1
 #       if: ${{ always() }} # test가 실패해도 report를 남기기 위해 설정
