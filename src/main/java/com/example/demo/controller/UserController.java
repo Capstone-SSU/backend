@@ -10,13 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Security;
-import java.util.Collection;
 
 @RestController
 public class UserController {
@@ -32,11 +29,6 @@ public class UserController {
 
     @PostMapping("/signup")
     public String test(@RequestBody SignupVO signupVO){
-//        HashMap<String, Object> params
-//        System.out.println("params = " + params);
-//        String name=(String) params.get("name");
-//        String nickname=(String) params.get("nickname");
-//        String email=(String) params.get("email");
         String pwd= signupVO.getPassword();
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
         String imgUrl=signupVO.getImageUrl();
@@ -72,6 +64,7 @@ public class UserController {
         return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
     }
 
+
     @PostMapping("/signin")
     public ResponseEntity<ResponseMessage> signin(@RequestBody SigninVO signinVO){
         String email=signinVO.getEmail();
@@ -99,17 +92,9 @@ public class UserController {
     }
 
     @GetMapping("/review")
-    public String test(){
+    public ResponseEntity<ResponseMessage> test(@AuthenticationPrincipal CustomUserDetails customUserDetails){
         //로그인 상태 유지 확인 테스트 성공
-        Object principal=SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        CustomUserDetails userDetails=(CustomUserDetails) principal;
-        String username = userDetails.getUsername();
-        System.out.println("email = " + username); // email이 반환됨
-        User user=userDetails.getUser();
-        String nickname=user.getUserNickname();
-        String imageUrl=user.getUserProfileImg();
-        System.out.println("nickname = " + nickname);
-        System.out.println("imageUrl = " + imageUrl);
-        return "success";
+        User user=customUserDetails.getUser();
+        return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", user),HttpStatus.OK);
     }
 }
