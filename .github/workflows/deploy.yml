@@ -99,6 +99,26 @@ jobs:
     - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
       run: ./gradlew build -x test
 
+      # 추가
+    - name: Make zip file #1
+      run: zip -qq -r ./$GITHUB_SHA.zip .
+      shell: bash
+
+    - name: Configure AWS credentials #2
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.ACCESS_KEY_SECRET }}
+        aws-region: ap-northeast-2
+
+    - name: Upload to S3 #3
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://deploy/$GITHUB_SHA.zip
+
+    - name: Code Deploy #4 // 1.code deploy 애플리케이션 이름/ 2. 배포 방법 설정 (한번에 배포) / 3. codedeploy 배포그룹명 / 4. s3위치
+      run: aws deploy create-deployment --application-name capstone2
+        --deployment-config-name CodeDeployDefault.OneAtATime
+        --deployment-group-name qa
+        --s3-location bucket=deploy ,bundleType=zip,key=$GITHUB_SHA.zip
 #     - name: Publish Unit Test Results # test 후 result를 보기 위해 추가
 #       uses: EnricoMi/publish-unit-test-result-action@v1
 #       if: ${{ always() }} # test가 실패해도 report를 남기기 위해 설정
