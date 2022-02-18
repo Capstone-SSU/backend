@@ -112,7 +112,7 @@ jobs:
         aws-region: ap-northeast-2
 
     - name: Upload to S3 #3
-      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://deploy/$GITHUB_SHA.zip
+      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://capstone2-building-owner/deploy/$GITHUB_SHA.zip
 
     - name: Code Deploy #4 // 1.code deploy 애플리케이션 이름/ 2. 배포 방법 설정 (한번에 배포) / 3. codedeploy 배포그룹명 / 4. s3위치
       run: aws deploy create-deployment --application-name capstone2
