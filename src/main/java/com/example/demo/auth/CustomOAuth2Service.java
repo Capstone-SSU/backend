@@ -67,23 +67,18 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
             profileUrl=attributes.get("avatar_url").toString();
         }
         String name=attributes.get("name").toString();
-        String company=null;
-        if(attributes.get("company")!=null){
-            company=attributes.get("company").toString();
-        }
+
         String nodeId=attributes.get("node_id").toString();
         String pwd=bCryptPasswordEncoder.encode(nodeId);
 
         User user=userDetailsService.findUserByEmail(email);
         if(user==null){
             user=new User(name,nickname,email,pwd);
-            user.updateUserCompany(company);
             user.updateProfileImage(profileUrl);
             user.setGithubProvider("GITHUB");
             userDetailsService.saveUser(user);
         }else{
             user.updateByGithubLogin(name,nickname,email,profileUrl);
-            user.updateUserCompany(company);
             userDetailsService.updateUserByGithub(user);
         }
 

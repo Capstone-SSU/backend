@@ -43,13 +43,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin").permitAll()
+                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/lectures","/lectures/**","/studies","/studies/**","/roadmaps","/roadmaps/**").permitAll()
                 .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
                 .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
                 .anyRequest().authenticated() //위를 제외한 다른 모든 요청은 권한 확인
                 .and()
-                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService);
+                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
+                .and()
+                .defaultSuccessUrl("/nickname",true); // 이게 oauth에만 적용되는건지, 기본 로그인에도 적용인지 찾아봐아햠
 
 //                .and()
 //                .formLogin()
