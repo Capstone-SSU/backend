@@ -43,21 +43,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
+                .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Preflight Request 허용해주기
                 .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/lectures","/lectures/**","/studies","/studies/**","/roadmaps","/roadmaps/**").permitAll()
                 .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
                 .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
                 .anyRequest().authenticated() //위를 제외한 다른 모든 요청은 권한 확인
+//                .and()
+//                .formLogin()
+//                .loginPage("http://localhost:3000/login") // 권한 없는 사용자가 페이지에 접근하면? -> 프론트의 login 라우터로 연결 (로그인 페이지)
                 .and()
                 .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
                 .and()
-                .defaultSuccessUrl("/nickname",true); // 이게 oauth에만 적용되는건지, 기본 로그인에도 적용인지 찾아봐아햠
-
-//                .and()
-//                .formLogin()
-//                .loginPage("/signin")
-//                .loginProcessingUrl("/signin");
-
+                .defaultSuccessUrl("/temp-login-success",true); //깃허브 로그인 후 중복 닉네임 체크 코드 -> 프론트 라우터 완성되면 주석 해제
 
     }
 }

@@ -58,10 +58,13 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
 //        }
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String nickname=attributes.get("login").toString();
+        String githubUsername=nickname;
         String email=nickname+"@github.com";
         if(attributes.get("email")!=null){
             email=attributes.get("email").toString();
         }
+        String nodeId=attributes.get("node_id").toString(); // password 대신에 사용자별 고유값 node_id를 암호화하여 password 필드에 저장
+        String pwd=bCryptPasswordEncoder.encode(nodeId);
 
         User user=userDetailsService.findUserByEmail(email);
 
@@ -73,12 +76,17 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
             }
             String name=attributes.get("name").toString();
 
-            String nodeId=attributes.get("node_id").toString(); // password 대신에 사용자별 고유값 node_id를 암호화하여 password 필드에 저장
-            String pwd=bCryptPasswordEncoder.encode(nodeId);
+            String nicknameCheck=userDetailsService.checkNicknameValidate(nickname);
+            if(nicknameCheck.equals("nickname conflict")){
+                //새롭게 회원가입한 회원의 깃허브 username이 이미 디비에 있는 닉네임과 충돌된다면?
+                nickname=nickname+"_CONFLICT";
+            }
+
+
             user=new User(name,nickname,email,pwd);
             user.updateProfileImage(profileUrl);
             user.setGithubProvider("GITHUB");
-            user.updateGithubUrlName(nickname); //nickname == username (깃허브 사용자는 자동으로 등록)
+            user.updateGithubUrlName(githubUsername); //nickname == username (깃허브 사용자는 자동으로 등록)
             userDetailsService.saveUser(user);
         }
 
