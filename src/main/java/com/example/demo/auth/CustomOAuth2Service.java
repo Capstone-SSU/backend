@@ -28,6 +28,12 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
     //Oauth 소셜 로그인 후처리 담당 메소드
     //로그인 성공 -> 깃허브로 부터 access token을 받아온거 까지가 파라미터인 userRequest
     //userRequest에 담긴 정보로 깃허브를 통해 회원 프로필을 받아오는게 loadUser 메소드의 역할! -> loadUser가 어디서 호출되는건지,,,,,
+
+    /**
+     * loadUser의 return값인 CustomUserDetail 객체가 Authentication으로 Spring Security Context에 저장된다! -> 세션에 저장된다 생각하면 됨
+     * 따라서, 저장하기 전에 사용자의 정보를 다시 입력받으려면 (회원가입 창에 정보를 넣어두고 거기에 추가 정보를 입력받는것) loadUser 메소드가 return되기 전에 처리해야하는데,,,,,, 이걸 도대체 어케하지
+     * */
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
 //        System.out.println("clientRegistration: "+userRequest.getClientRegistration()); // -> registrationId: 어떤 oauth 로그인인지
@@ -36,7 +42,7 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
           * 깃헙 로그인 클릭 -> 깃허브의 로그인 창이 뜨고 -> 로그인 성공하고 -> code를 return하고 ->
           *그 code를 oauth library가 받고 -> access token을 요청하고
           *까지가 UserRequest 정보!
-          *이제부터 loadUser를 사용해서 userRequest 정보를 사용해서 회원 프로필을 받아와야 한다
+          *이제부터 loadUser를 사용해서 userRequest 정보를 사용해서 회원 프로필, accessToken을 받아와야 한다
         */
 
 //        System.out.println("getAttributes: "+super.loadUser(userRequest).getAttributes());
@@ -73,6 +79,7 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
             user=new User(name,nickname,email,pwd);
             user.updateUserCompany(company);
             user.updateProfileImage(profileUrl);
+            user.setGithubProvider("GITHUB");
             userDetailsService.saveUser(user);
         }else{
             user.updateByGithubLogin(name,nickname,email,profileUrl);
@@ -83,9 +90,9 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
         CustomUserDetails customUserDetails=new CustomUserDetails(user);
         customUserDetails.setAttributes(oAuth2User.getAttributes()); // 나중에 여기서 필요 정보 빼가서 쓸 수 있음
 
-        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
+//        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
         //Authentication(==CustomUserDetails의 data type이라고 생각하는게 편하다) 을 SecurityContext에 저장 -> 나중에 SecurityContext에서 찾으면 로그인 중인 사용자 찾고, 권한 확인 가능
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+//        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         return customUserDetails;
 
