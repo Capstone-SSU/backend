@@ -2,11 +2,11 @@ package com.example.demo.auth;
 
 import com.example.demo.domain.User;
 import com.example.demo.repository.UserRepository;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 
 
 @Service
@@ -23,16 +24,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     private final AuthenticationManager authManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider) {
 
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public User findUserByEmail(String email){
         return userRepository.findByUserEmail(email); //없으면 null, 있으면 user 객체 return
+    }
+
+    public User findUserById(Long id){
+        Optional<User> user=userRepository.findById(id);
+        return user.orElse(null);
     }
 
     public String checkEmailValidate(String email){
@@ -59,8 +67,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.save(user).getUserId();
     }
 
-
-    public Authentication verifyLoginInfo(String email, String pwd){
+    public String authenticateLogin(String email, String pwd){
         User user=userRepository.findByUserEmail(email);
         if(user==null){
             return null;
@@ -73,17 +80,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         //Authentication Token 생성 (username, password) 사용
         //여기서 username: 중복되지 않는 고유값 -> email로 대체하여 사용
         UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
-        return authManager.authenticate(authToken);
+        Authentication auth=authManager.authenticate(authToken);
+//        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        return jwtTokenProvider.generateJwtToken(auth);
+
     }
 
-    public String updateUserByGithub(User updateUser){
-        userRepository.save(updateUser);
-        return "success";
-    }
-
-    private boolean checkIfGithub(String provider){
-        return provider.equals("GITHUB");
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

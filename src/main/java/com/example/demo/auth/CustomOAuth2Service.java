@@ -58,34 +58,39 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
 //        }
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String nickname=attributes.get("login").toString();
+        String githubUsername=nickname;
         String email=nickname+"@github.com";
         if(attributes.get("email")!=null){
             email=attributes.get("email").toString();
         }
-        String profileUrl=null;
-        if(attributes.get("avatar_url")!=null){
-            profileUrl=attributes.get("avatar_url").toString();
-        }
-        String name=attributes.get("name").toString();
-        String company=null;
-        if(attributes.get("company")!=null){
-            company=attributes.get("company").toString();
-        }
-        String nodeId=attributes.get("node_id").toString();
+        String nodeId=attributes.get("node_id").toString(); // password 대신에 사용자별 고유값 node_id를 암호화하여 password 필드에 저장
         String pwd=bCryptPasswordEncoder.encode(nodeId);
 
         User user=userDetailsService.findUserByEmail(email);
+
         if(user==null){
+            //새로운 회원, 즉 회원가입일 경우에만 유저 저장
+            String profileUrl=null;
+            if(attributes.get("avatar_url")!=null){
+                profileUrl=attributes.get("avatar_url").toString();
+            }
+            String name=attributes.get("name").toString();
+
+            String nicknameCheck=userDetailsService.checkNicknameValidate(nickname);
+            if(nicknameCheck.equals("nickname conflict")){
+                //새롭게 회원가입한 회원의 깃허브 username이 이미 디비에 있는 닉네임과 충돌된다면?
+                nickname=nickname+"_CONFLICT";
+            }
+
+
             user=new User(name,nickname,email,pwd);
-            user.updateUserCompany(company);
             user.updateProfileImage(profileUrl);
             user.setGithubProvider("GITHUB");
+            user.updateGithubUrlName(githubUsername); //nickname == username (깃허브 사용자는 자동으로 등록)
             userDetailsService.saveUser(user);
-        }else{
-            user.updateByGithubLogin(name,nickname,email,profileUrl);
-            user.updateUserCompany(company);
-            userDetailsService.updateUserByGithub(user);
         }
+
+        //새로운 회원이 아닌 경우에는 바로 CustomUserDetails에 반영
 
         CustomUserDetails customUserDetails=new CustomUserDetails(user);
         customUserDetails.setAttributes(oAuth2User.getAttributes()); // 나중에 여기서 필요 정보 빼가서 쓸 수 있음

@@ -8,16 +8,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 //스프링 시큐리티와 관련한 Config를 모두 이곳에 작성
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프링 웹 보안 설정
 
     private final CustomOAuth2Service customOAuth2UserService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService) {
+    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customOAuth2UserService = customOAuth2UserService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     //비밀번호 암호화를 위해 Spring Security에서 제공하는 모듈듈
@@ -43,18 +47,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin").permitAll()
+                .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Preflight Request 허용해주기
+                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/lectures","/lectures/**","/studies","/studies/**","/roadmaps","/roadmaps/**").permitAll()
                 .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
                 .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
                 .anyRequest().authenticated() //위를 제외한 다른 모든 요청은 권한 확인
-                .and()
-                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService);
-
 //                .and()
 //                .formLogin()
-//                .loginPage("/signin")
-//                .loginProcessingUrl("/signin");
+//                .loginPage("http://localhost:3000/login") // 권한 없는 사용자가 페이지에 접근하면? -> 프론트의 login 라우터로 연결 (로그인 페이지)
+                .and()
+                .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
+                .and()
+                .defaultSuccessUrl("/temp-login-success",true) // 추후 url 변경 (localhost:3000/프론트라우터)
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 
     }
