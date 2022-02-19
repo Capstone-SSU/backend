@@ -75,13 +75,6 @@ public class User {
         this.userCompany=company;
     }
 
-    public void updateByGithubLogin(String name,String nickname,String email,String profileUrl){
-        this.userName=name;
-        this.userNickname=nickname;
-        this.userEmail=email;
-        this.userProfileImg=profileUrl;
-    }
-
     public void setGithubProvider(String provider){
         this.loginProvider=provider;
     }

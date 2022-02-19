@@ -62,25 +62,26 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
         if(attributes.get("email")!=null){
             email=attributes.get("email").toString();
         }
-        String profileUrl=null;
-        if(attributes.get("avatar_url")!=null){
-            profileUrl=attributes.get("avatar_url").toString();
-        }
-        String name=attributes.get("name").toString();
-
-        String nodeId=attributes.get("node_id").toString();
-        String pwd=bCryptPasswordEncoder.encode(nodeId);
 
         User user=userDetailsService.findUserByEmail(email);
+
         if(user==null){
+            //새로운 회원, 즉 회원가입일 경우에만 유저 저장
+            String profileUrl=null;
+            if(attributes.get("avatar_url")!=null){
+                profileUrl=attributes.get("avatar_url").toString();
+            }
+            String name=attributes.get("name").toString();
+
+            String nodeId=attributes.get("node_id").toString(); // password 대신에 사용자별 고유값 node_id를 암호화하여 password 필드에 저장
+            String pwd=bCryptPasswordEncoder.encode(nodeId);
             user=new User(name,nickname,email,pwd);
             user.updateProfileImage(profileUrl);
             user.setGithubProvider("GITHUB");
             userDetailsService.saveUser(user);
-        }else{
-            user.updateByGithubLogin(name,nickname,email,profileUrl);
-            userDetailsService.updateUserByGithub(user);
         }
+
+        //새로운 회원이 아닌 경우에는 바로 CustomUserDetails에 반영
 
         CustomUserDetails customUserDetails=new CustomUserDetails(user);
         customUserDetails.setAttributes(oAuth2User.getAttributes()); // 나중에 여기서 필요 정보 빼가서 쓸 수 있음

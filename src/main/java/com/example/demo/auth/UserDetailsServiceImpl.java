@@ -76,15 +76,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return authManager.authenticate(authToken);
     }
 
-    public String updateUserByGithub(User updateUser){
-        userRepository.save(updateUser);
-        return "success";
-    }
-
-    private boolean checkIfGithub(String provider){
-        return provider.equals("GITHUB");
-    }
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         //spring security에서 로그인 된 사용자의 정보를 이 메소드를 통해 가져와, security context에 저장한다!
