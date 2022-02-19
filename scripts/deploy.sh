@@ -1,4 +1,4 @@
-REPOSITORY=/opt/capstone2
+REPOSITORY=/home/ubuntu/app
 cd $REPOSITORY
 
 APP_NAME=demo
