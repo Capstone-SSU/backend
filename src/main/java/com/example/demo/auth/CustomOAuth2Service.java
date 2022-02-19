@@ -78,6 +78,7 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
             user=new User(name,nickname,email,pwd);
             user.updateProfileImage(profileUrl);
             user.setGithubProvider("GITHUB");
+            user.updateGithubUrlName(nickname); //nickname == username (깃허브 사용자는 자동으로 등록)
             userDetailsService.saveUser(user);
         }
 

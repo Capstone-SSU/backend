@@ -52,6 +52,9 @@ public class User {
     @Column
     private String loginProvider;
 
+    @Column(unique=true)
+    private String githubUrlName;
+
     @Builder
     public User(String name, String nickname, String email, String pwd){
         this.userName=name;
@@ -77,6 +80,10 @@ public class User {
 
     public void setGithubProvider(String provider){
         this.loginProvider=provider;
+    }
+
+    public void updateGithubUrlName(String userName){
+        this.githubUrlName=userName;
     }
 
     // 소속인증 (userCompany) 은 처음 User 데이터 생성 시에 들어가는 걊이 아니므로 생략
