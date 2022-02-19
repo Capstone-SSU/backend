@@ -8,16 +8,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 //스프링 시큐리티와 관련한 Config를 모두 이곳에 작성
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프링 웹 보안 설정
 
     private final CustomOAuth2Service customOAuth2UserService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService) {
+    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customOAuth2UserService = customOAuth2UserService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     //비밀번호 암호화를 위해 Spring Security에서 제공하는 모듈듈
@@ -55,7 +59,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .and()
                 .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
                 .and()
-                .defaultSuccessUrl("/temp-login-success",true); //깃허브 로그인 후 중복 닉네임 체크 코드 -> 프론트 라우터 완성되면 주석 해제
+                .defaultSuccessUrl("/temp-login-success",true) // 추후 url 변경 (localhost:3000/프론트라우터)
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
 
     }
 }
