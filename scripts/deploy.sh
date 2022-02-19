@@ -1,4 +1,4 @@
-REPOSITORY=/home/ubuntu/app
+REPOSITORY=/opt/capstone2
 cd $REPOSITORY
 
 APP_NAME=demo
@@ -17,4 +17,5 @@ else
 fi
 
 echo "> $JAR_PATH 배포" #3
-nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
+nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
+#nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
