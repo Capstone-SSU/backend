@@ -137,21 +137,16 @@ public class UserController {
         }else{
             //닉네임이 정상인 회원 (자체 회원가입 or 깃허브 username 중복없는 새 회원 or 깃허브 이미 등록 -> 이번에 로그인한 회원)
             //그냥 로그인 후 페이지로 자동 redirect
-            System.out.println("enter github login, no nickname check");
             String jwtToken=userService.authenticateLogin(user.getUserEmail(),null);
-
-            if(user.getLoginProvider().equals("GITHUB")){
-                URI yahoo = new URI(redirect_uri);
-                httpHeaders = new HttpHeaders();
-                httpHeaders.setLocation(yahoo);
-
-            }
+            redirect_uri+="/landing";
+            httpHeaders.setLocation(new URI(redirect_uri));
 //            redirect_uri+="/main"; // 프론트에서 설정한 로그인 후 첫 페이지
             System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
 //            response.sendRedirect(redirect_uri);
-            return new ResponseEntity<>(jwtToken,httpHeaders,HttpStatus.OK);
+            return new ResponseEntity<>(jwtToken,httpHeaders,HttpStatus.OK); //토큰 string, 헤더에는 목적지 프론트 라우터, status 200
         }
         //중복 닉네임이면 닉네임에 username_CONFLICT를 저장
+        //프론트에서 fetch를 통해 Response 받아올 수 있음
     }
 
 
