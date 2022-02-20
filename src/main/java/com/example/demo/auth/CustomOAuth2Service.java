@@ -1,9 +1,6 @@
 package com.example.demo.auth;
 
 import com.example.demo.domain.User;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -11,6 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 @Service
@@ -18,10 +16,12 @@ import java.util.Map;
 public class CustomOAuth2Service extends DefaultOAuth2UserService {
     private final UserDetailsServiceImpl userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final HttpSession httpSession;
 
-    public CustomOAuth2Service(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public CustomOAuth2Service(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder, HttpSession httpSession) {
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.httpSession = httpSession;
     }
 
 
@@ -95,9 +95,9 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
         CustomUserDetails customUserDetails=new CustomUserDetails(user);
         customUserDetails.setAttributes(oAuth2User.getAttributes()); // 나중에 여기서 필요 정보 빼가서 쓸 수 있음
 
-//        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
-        //Authentication(==CustomUserDetails의 data type이라고 생각하는게 편하다) 을 SecurityContext에 저장 -> 나중에 SecurityContext에서 찾으면 로그인 중인 사용자 찾고, 권한 확인 가능
-//        SecurityContextHolder.getContext().setAuthentication(authToken);
+        httpSession.setAttribute("user",user); // /nickname에서 방금 로그인 한 사용자 정보 찾기 위해
+        httpSession.setAttribute("nodeId",nodeId);
+
 
         return customUserDetails;
 
