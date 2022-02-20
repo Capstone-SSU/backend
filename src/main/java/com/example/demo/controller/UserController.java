@@ -150,7 +150,7 @@ public class UserController {
     }
 
     @PostMapping("/deploy-test")
-    public ResponseEntity<ResponseMessage> deployTest(@RequestBody SigninVO signinVO){
+    public ResponseEntity<ResponseMessage> deployTEST(@RequestBody SigninVO signinVO){
         String email=signinVO.getEmail();
         String password=signinVO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
