@@ -1,6 +1,8 @@
-package com.example.demo.auth;
+package com.example.demo.security;
 
 
+import com.example.demo.security.jwt.JwtAuthenticationFilter;
+import com.example.demo.security.oauth.CustomOAuth2Service;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
@@ -48,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .and()
                 .authorizeRequests()
                 .mvcMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Preflight Request 허용해주기
-                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**").permitAll()
+                .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**","/nickname","/login/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/lectures","/lectures/**","/studies","/studies/**","/roadmaps","/roadmaps/**").permitAll()
                 .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
                 .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
@@ -59,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .and()
                 .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
                 .and()
-                .defaultSuccessUrl("/temp-login-success",true) // 추후 url 변경 (localhost:3000/프론트라우터)
+                .defaultSuccessUrl("/nickname",true) // GetMapping의 /nickname으로 가서 깃허브 유저네임 중복 체크!
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
