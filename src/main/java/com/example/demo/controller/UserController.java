@@ -58,9 +58,9 @@ public class UserController {
         if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
         }else if(valid.equals("email github")){
-            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.OK);
         }
     }
 
@@ -70,11 +70,11 @@ public class UserController {
         if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
     }
 
     @GetMapping("/signup/{userId}/{nickname}")
-    public ResponseEntity<ResponseMessage> nicknameUpdate(@PathVariable Long userId, @PathVariable String nickname, @AuthenticationPrincipal CustomUserDetails customUserPrincipal){
+    public ResponseEntity<ResponseMessage> nicknameUpdate(@PathVariable Long userId, @PathVariable String nickname){
         String valid=userService.checkNicknameValidate(nickname);
 
         if(valid.equals("nickname valid")){
@@ -86,10 +86,15 @@ public class UserController {
 
             user=userService.findUserById(userId);
             String newNickname=user.getUserNickname();
+            String email=user.getUserEmail();
+            String pwd=user.getUserPassword();
 
-            return new ResponseEntity<>(new ResponseMessage(200,"닉네임 변경 완료, "+newNickname), HttpStatus.OK);
+            String jwtToken=userService.authenticateLogin(email,pwd);
+            AuthResponse authResponse=new AuthResponse(jwtToken);
+
+            return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
     }
 
 
@@ -104,7 +109,7 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
 
     @GetMapping("/temp-login-success")
@@ -158,7 +163,7 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
 
 }
