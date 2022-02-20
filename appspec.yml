@@ -1,16 +1,16 @@
-version: 0.0
-os: linux
+# version: 0.0
+# os: linux
 
-files:
-  - source: /
-    destination: /home/ubuntu/app # 인스턴스에서 파일이 저장될 위치
-permissions:
-  - object: /home/ubuntu/app
-    owner: ubuntu
-    group: ubuntu
-    mode: 755
-hooks:
-  AfterInstall:
-    - location: scripts/deploy.sh
-      timeout: 180
-      runas: root
+# files:
+#   - source: /
+#     destination: /home/ubuntu/app # 인스턴스에서 파일이 저장될 위치
+# permissions:
+#   - object: /home/ubuntu/app
+#     owner: ubuntu
+#     group: ubuntu
+#     mode: 755
+# hooks:
+#   AfterInstall:
+#     - location: scripts/deploy.sh
+#       timeout: 180
+#       runas: root
