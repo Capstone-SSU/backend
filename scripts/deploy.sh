@@ -24,10 +24,11 @@ echo "> 배포 파일 경로 : $JAR_PATH"
 #     /home/ubuntu/app/src/main/resources/application-mysql.properties, \
 #     /home/ubuntu/app/src/main/resources/application-oauth.properties > /dev/null 2> /dev/null < /dev/null &
     
-nohup java -jar $JAR_PATH\
+nohup java -jar \
 -Dspring.config.location=classpath:/application.properties,\
 classpath:/application-oauth.properties,\
-classpath:/application-mysql.properties $REPOSITORY/build/libs > /dev/null 2> /dev/null < /dev/null &
+classpath:/application-mysql.properties\
+$JAR_PATH > /dev/null 2> /dev/null < /dev/null &
 
     
 #nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
