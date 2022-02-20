@@ -1,9 +1,8 @@
-package com.example.demo.auth;
+package com.example.demo.security;
 
 import com.example.demo.domain.User;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;

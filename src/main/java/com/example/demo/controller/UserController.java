@@ -1,25 +1,21 @@
 package com.example.demo.controller;
 
-import com.example.demo.auth.CustomUserDetails;
 import com.example.demo.dataObject.dto.AuthResponse;
 import com.example.demo.dataObject.vo.SigninVO;
 import com.example.demo.dataObject.vo.SignupVO;
 import com.example.demo.domain.User;
 import com.example.demo.dataObject.dto.ResponseMessage;
-import com.example.demo.auth.UserDetailsServiceImpl;
+import com.example.demo.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 @RestController
 public class UserController {
@@ -57,23 +53,24 @@ public class UserController {
         if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
         }else if(valid.equals("email github")){
-            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.OK);
         }
     }
 
     @GetMapping("/signup/{nickname}")
     public ResponseEntity<ResponseMessage> nicknameCheck(@PathVariable String nickname){
+
         String valid=userService.checkNicknameValidate(nickname);
         if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
     }
 
     @GetMapping("/signup/{userId}/{nickname}")
-    public ResponseEntity<ResponseMessage> nicknameUpdate(@PathVariable Long userId, @PathVariable String nickname, @AuthenticationPrincipal CustomUserDetails customUserPrincipal){
+    public ResponseEntity<ResponseMessage> nicknameUpdate(@PathVariable Long userId, @PathVariable String nickname){
         String valid=userService.checkNicknameValidate(nickname);
 
         if(valid.equals("nickname valid")){
@@ -85,10 +82,15 @@ public class UserController {
 
             user=userService.findUserById(userId);
             String newNickname=user.getUserNickname();
+            String email=user.getUserEmail();
+            String pwd=user.getUserPassword();
 
-            return new ResponseEntity<>(new ResponseMessage(200,"닉네임 변경 완료, "+newNickname), HttpStatus.OK);
+            String jwtToken=userService.authenticateLogin(email,pwd);
+            AuthResponse authResponse=new AuthResponse(jwtToken);
+
+            return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
     }
 
 
@@ -103,11 +105,11 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
 
     @GetMapping("/temp-login-success")
-    public ResponseEntity<ResponseMessage> test(HttpServletResponse response) throws IOException{
+    public ResponseEntity<ResponseMessage> test(HttpServletResponse response) {
 
 
         //로그인 상태 유지 확인 테스트 성공
@@ -117,33 +119,31 @@ public class UserController {
 
     // 깃허브 회원가입시 닉네임 중복을 체크하는 API -> 프론트에서 해당 라우터가 완성되면 동작하도록 해당 api를 호출하는 코드는 주석처리 해둠
     @GetMapping("/nickname")
-    public ResponseEntity<String> checkGithubJoinNicknameConflict(@AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException, URISyntaxException {
-        //SecurityContext에 User 정보가 저장된 후 여기로 넘어오는 것임
-        Long savedUserId=customUserDetails.getUser().getUserId(); // 방금 깃허브 회원가입으로 인해 저장된 User의 계정
-        User user=userService.findUserById(savedUserId);
+    public void checkGithubJoinNicknameConflict(HttpServletRequest request,HttpServletResponse response) throws IOException {
+
+        User user=(User)request.getSession().getAttribute("user");
+        Long savedUserId=user.getUserId();
+        String nodeId=(String)request.getSession().getAttribute("nodeId");
 
         String userNickname=user.getUserNickname();
-        String redirect_uri="http://localhost:3000"; // http://localhost:3000/{react route} -> 로그인 후 디폴트 페이지가 들어감
-        HttpHeaders httpHeaders=new HttpHeaders();
+        String redirect_uri="http://localhost:3000"; // http://localhost:3000/{react route}
+
         if(userNickname.contains("_CONFLICT")){
             //중복 닉네임이 있는 유저라는 의미이므로, 새로운 닉네임 폼으로 보내주어야 한다
             redirect_uri+="/nickname/"+savedUserId; // 닉네임폼(프론트에서 제작한)
-            httpHeaders.setLocation(new URI(redirect_uri));
             System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
-//            response.sendRedirect(redirect_uri);
-            return new ResponseEntity<>("nickname reset needed",httpHeaders,HttpStatus.OK);
+            response.sendRedirect(redirect_uri);
+
             // 프론트에서 닉네임입력폼을 /nickname/{userId}로 라우팅 해놓았다면, 여기로 redirect 요청을 보냈을 때 해당 페이지가 띄워지는가 (즉 스프링에서 리액트의 router에 요청을 보낼 수 있는가)
             //이후 프론트의 닉네임폼에서 닉네임을 새롭게 입력하고 -> /signup/{userId}/{nickname} 으로 GET 요청
         }else{
             //닉네임이 정상인 회원 (자체 회원가입 or 깃허브 username 중복없는 새 회원 or 깃허브 이미 등록 -> 이번에 로그인한 회원)
             //그냥 로그인 후 페이지로 자동 redirect
-            String jwtToken=userService.authenticateLogin(user.getUserEmail(),null);
-            redirect_uri+="/landing";
-            httpHeaders.setLocation(new URI(redirect_uri));
-//            redirect_uri+="/main"; // 프론트에서 설정한 로그인 후 첫 페이지
+            String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
+            redirect_uri+="/github-login/"+jwtToken; // token 암호화 추가
             System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
-//            response.sendRedirect(redirect_uri);
-            return new ResponseEntity<>(jwtToken,httpHeaders,HttpStatus.OK); //토큰 string, 헤더에는 목적지 프론트 라우터, status 200
+            response.sendRedirect(redirect_uri);
+
         }
         //중복 닉네임이면 닉네임에 username_CONFLICT를 저장
         //프론트에서 fetch를 통해 Response 받아올 수 있음
@@ -159,7 +159,7 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
 
 }
