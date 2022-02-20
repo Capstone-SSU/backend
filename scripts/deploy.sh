@@ -23,9 +23,9 @@ echo "> $JAR_PATH 배포"
     
 nohup java -jar \
   -Dspring.config.location=classpath:/application.properties, \
-  /home/ubuntu/properties/application-oauth.properties \
+  /home/ubuntu/properties/application-oauth.properties, \
   /home/ubuntu/properties/application-mysql.properties 
-  $REPOSITORY/$PROJECT_NAME/build/libs/$JAR_NAME 2>&1 &
+  $REPOSITORY/$APP_NAME/build/libs/$JAR_NAME 2>&1 &
     
 #nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
 #### 1:17 / 
