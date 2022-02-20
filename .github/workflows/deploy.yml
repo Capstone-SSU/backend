@@ -93,8 +93,8 @@ jobs:
 #           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 #           DATABASE_SCRIPT: mysql -u admin -p --host database.ciqb044yewhm.ap-northeast-2.rds.amazonaws.com
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+#     - name: Grant execute permission for gradlew
+#       run: chmod +x gradlew
           
     - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
       run: ./gradlew build -x test
