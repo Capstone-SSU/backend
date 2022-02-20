@@ -1,3 +1,4 @@
+# appspec.yml : CodeDeploy의 설정파일로, 배포 시점에 특정한 쉘을 실행시킬 수 있음.
 version: 0.0
 os: linux
 
@@ -10,7 +11,7 @@ permissions:
     group: ubuntu
     mode: 755
 hooks:
-  AfterInstall:
+  AfterInstall: # 설치가 된 이후에 deploy.sh 라는 스크립트 실행하도록 함
     - location: scripts/deploy.sh
       timeout: 60
       runas: root
