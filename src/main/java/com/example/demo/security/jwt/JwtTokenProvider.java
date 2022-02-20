@@ -1,6 +1,8 @@
-package com.example.demo.auth;
+package com.example.demo.security.jwt;
 
 import com.example.demo.domain.User;
+import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -23,7 +25,6 @@ public class JwtTokenProvider {
     // 나중에 app.properties에 값 지정하고 @Value로 넣어주기
 
     private long tokenValidTime = 1000L * 60 * 60; // 위와 마찬가지
-
 
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -57,7 +58,7 @@ public class JwtTokenProvider {
                 .signWith(Keys.hmacShaKeyFor(signKey), SignatureAlgorithm.HS512)
                 .setId(UUID.randomUUID().toString())
                 .setIssuer("PickIT")
-                .setHeaderParam("type","JWT")
+                .setHeaderParam("typ","JWT")
                 .claim("email",userEmail)
                 .claim("userId",userId)
                 .claim("role",userRole)

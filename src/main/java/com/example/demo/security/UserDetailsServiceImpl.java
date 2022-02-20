@@ -1,12 +1,13 @@
-package com.example.demo.auth;
+package com.example.demo.security;
 
 import com.example.demo.domain.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
