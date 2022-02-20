@@ -1,17 +1,14 @@
 package com.example.demo.controller;
 
-import com.example.demo.auth.CustomUserDetails;
 import com.example.demo.dataObject.dto.AuthResponse;
 import com.example.demo.dataObject.vo.SigninVO;
 import com.example.demo.dataObject.vo.SignupVO;
 import com.example.demo.domain.User;
 import com.example.demo.dataObject.dto.ResponseMessage;
-import com.example.demo.auth.UserDetailsServiceImpl;
+import com.example.demo.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 @RestController
 public class UserController {
@@ -66,6 +61,7 @@ public class UserController {
 
     @GetMapping("/signup/{nickname}")
     public ResponseEntity<ResponseMessage> nicknameCheck(@PathVariable String nickname){
+
         String valid=userService.checkNicknameValidate(nickname);
         if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
