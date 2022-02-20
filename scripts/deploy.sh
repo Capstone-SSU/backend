@@ -26,8 +26,8 @@ echo "> 배포 파일 경로 : $JAR_PATH"
     
 nohup java -jar $JAR_PATH\
 -Dspring.config.location=classpath:/application.properties,\
-/home/ubuntu/properties/application-oauth.properties,\
-/home/ubuntu/properties/application-mysql.properties $REPOSITORY/build/libs > /dev/null 2> /dev/null < /dev/null &
+classpath:/application-oauth.properties,\
+classpath:/application-mysql.properties $REPOSITORY/build/libs > /dev/null 2> /dev/null < /dev/null &
 
     
 #nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
