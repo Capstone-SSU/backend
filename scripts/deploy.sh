@@ -3,7 +3,7 @@ cd $REPOSITORY
 
 APP_NAME=demo # demo-0.0.1-SNAPSHOT.jar 이런식으로 구성되기 때문에 demo만 입력
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
-JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+JAR_PATH=$REPOSITORY/build/libs
 
 # 현재 구동 중인 프로세스가 있는지 없는지 판단해서 기능을 수행, 프로세스가 있으면 종료
 CURRENT_PID=$(pgrep -f $APP_NAME)
@@ -25,7 +25,7 @@ nohup java -jar \
   -Dspring.config.location=classpath:/application.properties, \
   /home/ubuntu/properties/application-oauth.properties, \
   /home/ubuntu/properties/application-mysql.properties 
-  $REPOSITORY/$APP_NAME/build/libs/$JAR_NAME 2>&1 &
+  $REPOSITORY/$APP_NAME/build/libs 2>&1 &
     
 #nohup java -jar /home/ubuntu/app/build/libs/demo-0.0.1-SNAPSHOT.jar
 #### 1:17 / 
