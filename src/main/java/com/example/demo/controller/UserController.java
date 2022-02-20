@@ -102,7 +102,7 @@ public class UserController {
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
             AuthResponse authResponse=new AuthResponse(jwtToken);
-            return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공입니다", authResponse),HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
