@@ -1,6 +1,8 @@
-package com.example.demo.auth;
+package com.example.demo.security.oauth;
 
 import com.example.demo.domain.User;
+import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.UserDetailsServiceImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -50,7 +52,7 @@ public class CustomOAuth2Service extends DefaultOAuth2UserService {
         return getOAuth2UserInfo(userRequest,oAuth2User); //OAuth2User를 return 한다 -> GithubOAuth2User로 바꿔주고 프론트에 값을 넘긴다!
     }
 
-    private CustomUserDetails getOAuth2UserInfo(OAuth2UserRequest userRequest,OAuth2User oAuth2User){
+    private CustomUserDetails getOAuth2UserInfo(OAuth2UserRequest userRequest, OAuth2User oAuth2User){
         String provider=userRequest.getClientRegistration().getClientId();
         System.out.println("provider = " + provider);
 //        if(!provider.equals("github")){

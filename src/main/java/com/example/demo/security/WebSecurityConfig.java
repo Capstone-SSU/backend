@@ -1,6 +1,8 @@
-package com.example.demo.auth;
+package com.example.demo.security;
 
 
+import com.example.demo.security.jwt.JwtAuthenticationFilter;
+import com.example.demo.security.oauth.CustomOAuth2Service;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
