@@ -19,6 +19,9 @@ else
   sleep 5
 fi
 
+cd $REPOSITORY/build/libs
+
+
 echo "> 배포 파일 경로 : $JAR_PATH"
 # nohup java -jar $JAR_PATH -Dspring.config.location=classpath:/application.properties, \
 #     /home/ubuntu/app/src/main/resources/application-mysql.properties, \
@@ -31,11 +34,9 @@ echo "> 배포 파일 경로 : $JAR_PATH"
 #     -Dspring.config.location=classpath:/application2.properties \
 #     $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 
-nohup java -jar \
-  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties,\
-  /home/ubuntu/app/src/main/resources/application-mysql.properties,\
-  /home/ubuntu/app/src/main/resources/application-oauth.properties \
-  $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+nohup java -jar $JAR_NAME \
+  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties
+  > $REPOSITORY/nohup.out 2>&1 &
 
 
 # nohup java -jar \
