@@ -1,5 +1,4 @@
 package com.example.demo.controller;
-import com.example.demo.dataObject.dto.LectureDto;
 import com.example.demo.service.LectureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,9 +22,9 @@ public class LectureController {
         return "hi";
     }
 
-    @PostMapping("/lectures")
-    public void createLecture(LectureDto lectureDto){
-        System.out.println("\"hie\" = " + "hie");
+//    @PostMapping("/lectures")
+//    public void createLecture(LectureDto lectureDto){
+//        System.out.println("\"hie\" = " + "hie");
 //        System.out.println("lectureDto = " + lectureDto);
 //        String lectureUrl = lectureDto.getLectureUrl();
 //        String lectureTitle = lectureDto.getLectureTitle();
@@ -44,4 +43,4 @@ public class LectureController {
 //        return "success lecture";
 //        return new ResponseEntity<>(new ResponseMessage(201,"강의 리뷰가 등록되었습니다."), HttpStatus.OK);
     }
-}
+

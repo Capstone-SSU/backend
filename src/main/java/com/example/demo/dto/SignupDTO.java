@@ -1,11 +1,11 @@
-package com.example.demo.dataObject.vo;
+package com.example.demo.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SignupVO {
+public class SignupDTO {
     private String email;
     private String nickname;
     private String name;
