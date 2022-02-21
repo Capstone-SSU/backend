@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,10 @@ import java.util.UUID;
 @Component
 public class JwtTokenProvider {
 
-    private String secretKey = "bea86c63ded6f54bb30b78ba21556739dadabcfa96b706187af38668c5ab65b7b0343e7a6b151a4146e4fe089fe3387151ac79e93300dd4064c8cd5ea99e971e";
-    // 나중에 app.properties에 값 지정하고 @Value로 넣어주기
+//    private String secretKey = "bea86c63ded6f54bb30b78ba21556739dadabcfa96b706187af38668c5ab65b7b0343e7a6b151a4146e4fe089fe3387151ac79e93300dd4064c8cd5ea99e971e";
+    @Value("${auth.jwtSecret}")
+    private  String secretKey;
+
 
     private long tokenValidTime = 1000L * 60 * 60; // 위와 마찬가지
 
@@ -34,6 +37,7 @@ public class JwtTokenProvider {
 
     // JWT 토큰 생성
     public String generateJwtToken(Authentication auth) {
+        System.out.println("token secret key: "+secretKey);
 
         //authencitaion에서 로그인한 user의 정보 가져오기
         CustomUserDetails customUserDetails=(CustomUserDetails) auth.getPrincipal();
@@ -70,7 +74,7 @@ public class JwtTokenProvider {
         String token;
         String tokenHeader=request.getHeader("Authorization"); // axios.defaults.header.common['Authorization']='Bearer "+token -> front
         if(StringUtils.hasText(tokenHeader)&&tokenHeader.startsWith("Bearer ")){
-            System.out.println("found token starts with bearer");
+//            System.out.println("found token starts with bearer");
             token=tokenHeader.replace("Bearer ","");
             return token;
         }
@@ -81,7 +85,7 @@ public class JwtTokenProvider {
     // 토큰의 유효성 + 만료일자 확인
     public Jws<Claims> validateToken(String jwtToken) {
         try {
-            System.out.println("jwtToken = " + jwtToken);
+//            System.out.println("jwtToken = " + jwtToken);
             byte[] signKey=secretKey.getBytes(StandardCharsets.UTF_8);
             return Jwts.parserBuilder()
                     .setSigningKey(signKey)

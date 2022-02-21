@@ -1,10 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.dataObject.dto.AuthResponse;
-import com.example.demo.dataObject.vo.SigninVO;
-import com.example.demo.dataObject.vo.SignupVO;
+import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.SigninDTO;
+import com.example.demo.dto.SignupDTO;
 import com.example.demo.domain.User;
-import com.example.demo.dataObject.dto.ResponseMessage;
+import com.example.demo.dto.ResponseMessage;
 import com.example.demo.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,12 +32,12 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String test(@RequestBody SignupVO signupVO){
-        String pwd= signupVO.getPassword();
+    public String test(@RequestBody SignupDTO signupDTO){
+        String pwd= signupDTO.getPassword();
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
-        String imgUrl=signupVO.getImageUrl();
+        String imgUrl= signupDTO.getImageUrl();
 
-        User user= new User(signupVO.getName(),signupVO.getNickname(),signupVO.getEmail(),encodedPwd);
+        User user= new User(signupDTO.getName(), signupDTO.getNickname(), signupDTO.getEmail(),encodedPwd);
         if(imgUrl!=null){
             user.updateProfileImage(imgUrl);
         }
@@ -96,9 +96,9 @@ public class UserController {
 
     // signin을 하면서 email과 password가 동일하면 client에게 token을 return 해준다.
     @PostMapping("/signin")
-    public ResponseEntity<ResponseMessage> signin(@RequestBody SigninVO signinVO){
-        String email=signinVO.getEmail();
-        String password=signinVO.getPassword();
+    public ResponseEntity<ResponseMessage> signin(@RequestBody SigninDTO signinDTO){
+        String email= signinDTO.getEmail();
+        String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
             AuthResponse authResponse=new AuthResponse(jwtToken);
@@ -150,9 +150,9 @@ public class UserController {
     }
 
     @PostMapping("/deploy-test")
-    public ResponseEntity<ResponseMessage> deployTEST(@RequestBody SigninVO signinVO){
-        String email=signinVO.getEmail();
-        String password=signinVO.getPassword();
+    public ResponseEntity<ResponseMessage> deployTEST(@RequestBody SigninDTO signinDTO){
+        String email= signinDTO.getEmail();
+        String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
             AuthResponse authResponse=new AuthResponse(jwtToken);
