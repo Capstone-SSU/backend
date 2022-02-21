@@ -85,7 +85,7 @@ public class JwtTokenProvider {
     // 토큰의 유효성 + 만료일자 확인
     public Jws<Claims> validateToken(String jwtToken) {
         try {
-            System.out.println("jwtToken = " + jwtToken);
+//            System.out.println("jwtToken = " + jwtToken);
             byte[] signKey=secretKey.getBytes(StandardCharsets.UTF_8);
             return Jwts.parserBuilder()
                     .setSigningKey(signKey)
