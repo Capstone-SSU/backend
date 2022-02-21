@@ -56,6 +56,9 @@ public class User {
     @Column(unique=true)
     private String githubUrlName;
 
+  /*  @Column()
+    @OneToMany(mappedBy="lecture")
+    private List<Lecture> lectures = new ArrayList<>();*/
     @OneToMany(mappedBy = "user", targetEntity = StudyPost.class) // StudyPost와의 양방향 매핑을 위해 추가, 연관관계의 주인은 studyPost entity
     @JsonBackReference
     private List<StudyPost> studyPostList=new ArrayList<>();
