@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="user")
@@ -39,9 +43,6 @@ public class User {
     @Column
     private String userCompany;
 
-//    @Column(unique = true)
-//    private String userGithub;
-
     @Column
     private String userProfileImg;
 
@@ -54,6 +55,10 @@ public class User {
 
     @Column(unique=true)
     private String githubUrlName;
+
+    @OneToMany(mappedBy = "user", targetEntity = StudyPost.class) // StudyPost와의 양방향 매핑을 위해 추가, 연관관계의 주인은 studyPost entity
+    @JsonBackReference
+    private List<StudyPost> studyPostList=new ArrayList<>();
 
     @Builder
     public User(String name, String nickname, String email, String pwd){
