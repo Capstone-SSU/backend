@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="user")
@@ -54,6 +56,10 @@ public class User {
 
     @Column(unique=true)
     private String githubUrlName;
+
+  /*  @Column()
+    @OneToMany(mappedBy="lecture")
+    private List<Lecture> lectures = new ArrayList<>();*/
 
     @Builder
     public User(String name, String nickname, String email, String pwd){
