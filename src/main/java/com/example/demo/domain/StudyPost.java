@@ -1,7 +1,6 @@
 package com.example.demo.domain;
 
 
-import antlr.CommonAST;
 import com.example.demo.dto.StudyPostDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -9,8 +8,6 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.tomcat.jni.Local;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -77,6 +74,10 @@ public class StudyPost {
     @OneToMany(mappedBy = "studyPost", targetEntity = Report.class) // 하나의 스터디글에 여러개의 신고, Report 엔티티의 studyPost 라는 컬럼과 연결되어 있음
     @JsonManagedReference
     private List<Report> reports=new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyPost",targetEntity = Interested.class)
+    @JsonManagedReference
+    private List<Interested> interestedList =new ArrayList<>();
 
 
     @Builder

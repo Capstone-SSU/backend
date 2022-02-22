@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.Interested;
 import com.example.demo.domain.Report;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.StudyPostDTO;
 import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.service.InterestedService;
 import com.example.demo.service.ReportService;
 import com.example.demo.service.StudyPostService;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,7 @@ public class StudyController {
     private final StudyPostService studyPostService;
     private final UserDetailsServiceImpl userDetailsService;
     private final ReportService reportService;
+    private final InterestedService interestedService;
     @PersistenceContext
     private final EntityManager em;
 
@@ -99,6 +102,23 @@ public class StudyController {
 
         studyPostService.saveStudyPost(post); // 신고내역 update 후 저장
         return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 글 신고 완료"),HttpStatus.OK);
+    }
+
+    @PostMapping("/studies/{studyId}/likes")
+    public ResponseEntity<ResponseMessage> likeStudy(@PathVariable Long studyId,Principal principal){
+        StudyPost post=studyPostService.findStudyPostById(studyId);
+        if(post!=null&&post.getStudyStatus()==1){ // post글이 있고, 삭제된 글이 아닐 때
+            String userEmail=principal.getName();
+            User user=userDetailsService.findUserByEmail(userEmail);
+
+            Interested interested =new Interested(user,0); //스터디글은 0번 -> enum으로 빼두기
+            interested.setStudyPost(post);
+            em.persist(interested);
+            interestedService.saveInterest(interested);
+
+            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
+        }
+        return new ResponseEntity<>(new ResponseMessage(404,"잘못된 요청"),HttpStatus.OK);
     }
 
 
