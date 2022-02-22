@@ -15,6 +15,8 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,11 +28,6 @@ public class StudyPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long studyPostId;
-
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class) // M:1 관계일 때, M 에 해당하는 테이블에 해당 annotation 이 붙는다. (한 명의 유저에게 M개의 스터디글)
-    @JoinColumn(name="user_userId") // join이 이루어지는 기준, 즉 외래키에 대한 설정 name: 매핑할 테이블 이름_그 테이블의 연결할 컬럼 이름
-    @JsonBackReference
-    private User user;
 
     @Column
     @NotNull
@@ -71,6 +68,15 @@ public class StudyPost {
     @Column(columnDefinition = "integer default 0")
     @NotNull
     private Integer studyReportCount=0;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class) // M:1 관계일 때, M 에 해당하는 테이블에 해당 annotation 이 붙는다. (한 명의 유저에게 M개의 스터디글)
+    @JoinColumn(name="user_userId") // join이 이루어지는 기준, 즉 외래키에 대한 설정 name: 매핑할 테이블 이름_그 테이블의 연결할 컬럼 이름
+    @JsonBackReference
+    private User user;
+
+    @OneToMany(mappedBy = "studyPost", targetEntity = Report.class) // 하나의 스터디글에 여러개의 신고, Report 엔티티의 studyPost 라는 컬럼과 연결되어 있음
+    @JsonManagedReference
+    private List<Report> reports=new ArrayList<>();
 
 
     @Builder

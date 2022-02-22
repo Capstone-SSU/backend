@@ -37,7 +37,7 @@ public class JwtTokenProvider {
 
     // JWT 토큰 생성
     public String generateJwtToken(Authentication auth) {
-        System.out.println("token secret key: "+secretKey);
+//        System.out.println("token secret key: "+secretKey);
 
         //authencitaion에서 로그인한 user의 정보 가져오기
         CustomUserDetails customUserDetails=(CustomUserDetails) auth.getPrincipal();
