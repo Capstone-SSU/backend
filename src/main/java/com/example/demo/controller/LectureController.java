@@ -25,7 +25,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @Transactional
-//@RequestMapping("/lectures")
+@RequestMapping("/lectures")
 public class LectureController {
     private final LectureService lectureService;
     private final UserDetailsServiceImpl userDetailsService;
@@ -36,7 +36,7 @@ public class LectureController {
 //        return "hi";
 //    }
 
-    @PostMapping("/lectures")
+    @PostMapping("")
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
         String email = principal.getName(); // 동작됨
         String lectureUrl = lectureDto.getLectureUrl();
