@@ -1,6 +1,5 @@
 package com.example.demo.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
@@ -67,6 +66,11 @@ public class User {
     @OneToMany(mappedBy = "user", targetEntity = StudyPost.class) // StudyPost와의 양방향 매핑을 위해 추가, 연관관계의 주인은 studyPost entity
     @JsonManagedReference
     private List<StudyPost> studyPostList=new ArrayList<>();
+
+    //한 명의 user가 여러개의 관심글 -> 1이 User
+    @OneToMany(mappedBy = "user", targetEntity = Interested.class)
+    @JsonManagedReference
+    private List<Interested> interestedList =new ArrayList<>();
 
     @Builder
     public User(String name, String nickname, String email, String pwd){
