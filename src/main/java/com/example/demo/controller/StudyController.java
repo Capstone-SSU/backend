@@ -65,4 +65,16 @@ public class StudyController {
             return new ResponseEntity<>(new ResponseMessage(400,"잘못된 수정 요청"),HttpStatus.OK);
         }
     }
+
+    @DeleteMapping("/studies/{id}")
+    public ResponseEntity<ResponseMessage> deletePost(@PathVariable Long id){
+        StudyPost post=studyPostService.findStudyPostById(id);
+        if(post!=null){
+            post.updateStudyStatus(0); // 0이면 삭제된 글
+            studyPostService.saveStudyPost(post); //삭제한 정보를 반영
+            return new ResponseEntity<>(new ResponseMessage(200,id+"번 글 삭제 성공"),HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(new ResponseMessage(400,"잘못된 삭제 요청"),HttpStatus.OK);
+        }
+    }
 }
