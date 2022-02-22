@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.security.Principal;
 
 @RestController
 @AllArgsConstructor
@@ -29,12 +30,12 @@ public class StudyController {
 
 
     @PostMapping("/studies")
-    public ResponseEntity<ResponseMessage> uploadStudyPost(@RequestBody StudyPostDTO postDto){
+    public ResponseEntity<ResponseMessage> uploadStudyPost(@RequestBody StudyPostDTO postDto, Principal principal){
         //StudyPost 객체를 그대로 반환
         StudyPost newPost = new StudyPost(postDto);
 
-        Long writerId=postDto.getUserId();
-        User user=userDetailsService.findUserById(writerId);
+        String email=principal.getName();
+        User user=userDetailsService.findUserByEmail(email);
         newPost.setUser(user); // 외래키로 연결된 User를 저장함 ->
         em.persist(newPost);
         studyPostService.saveStudyPost(newPost);
