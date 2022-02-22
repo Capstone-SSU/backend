@@ -6,12 +6,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StudyPostDTO {
-    private  String title;
-    private  String content;
+    // 글 등록, 글 수정에도 동일하게 사용할 것
+    private  String studyTitle;
+    private  String studyContent;
     private Long userId;
-    private String category;
-    private String location;
-    private Integer recruitStatus; // 모집여부
-    private Integer minReq;
-    private Integer maxReq;
+    private String studyCategoryName;
+    private String studyLocation;
+    private Integer studyMinReq;
+    private Integer studyMaxReq;
 }

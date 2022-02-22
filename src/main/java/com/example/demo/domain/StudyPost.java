@@ -2,6 +2,7 @@ package com.example.demo.domain;
 
 
 import antlr.CommonAST;
+import com.example.demo.dto.StudyPostDTO;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
@@ -42,7 +43,7 @@ public class StudyPost {
     @NotNull
     private String studyContent;
 
-    @Column
+    @Column(columnDefinition = "integer default 1") // 기본 1, 모집중
     @NotNull
     private int studyRecruitStatus; // 모집중 or 모집완료
 
@@ -72,13 +73,12 @@ public class StudyPost {
 
 
     @Builder
-    public StudyPost(String title, String content, String category, String location, int recruit, int min){
-        this.studyTitle=title;
-        this.studyContent=content;
-        this.studyCategoryName=category;
-        this.studyLocation=location;
-        this.studyRecruitStatus=recruit;
-        this.studyMinReq=min;
+    public StudyPost(StudyPostDTO dto){
+        this.studyTitle=dto.getStudyTitle();
+        this.studyContent=dto.getStudyContent();
+        this.studyCategoryName=dto.getStudyCategoryName();
+        this.studyLocation=dto.getStudyLocation();
+        this.studyMinReq=dto.getStudyMinReq();
         // 이 외의 값은 초기 builder 패턴으로 생성 시에 NULL로 들어간다.
     }
 
