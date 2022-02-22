@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.Report;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.StudyPostDTO;
 import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.service.ReportService;
 import com.example.demo.service.StudyPostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.security.Principal;
+import java.util.HashMap;
 
 @RestController
 @AllArgsConstructor
@@ -23,6 +26,7 @@ public class StudyController {
 
     private final StudyPostService studyPostService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ReportService reportService;
     @PersistenceContext
     private final EntityManager em;
 
@@ -74,13 +78,19 @@ public class StudyController {
         }
     }
 
-    @GetMapping("/studies/{studyId}/reports")
-    public ResponseEntity<ResponseMessage> reportPost(@PathVariable Long studyId){
+    @PostMapping ("/studies/{studyId}/reports")
+    public ResponseEntity<ResponseMessage> reportPost(@PathVariable Long studyId, @RequestBody HashMap<String, String> params ){
+        String content=params.get("reportContent");
+
         StudyPost post=studyPostService.findStudyPostById(studyId);
+        Report report=new Report(content,0);
+        report.setStudyPost(post);
+        em.persist(report);
+        reportService.saveReport(report);
+
         Integer reportCount=post.getStudyReportCount();
         post.updateStudyReposrtCount(++reportCount);
 
-//        System.out.println("reportCount = " + reportCount);
         if(reportCount==5){
             post.updateStudyStatus(0); // 5번 신고된 글은 삭제 처리
             studyPostService.saveStudyPost(post);
