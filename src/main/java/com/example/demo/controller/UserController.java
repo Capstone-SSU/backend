@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 public class UserController {
@@ -109,8 +110,9 @@ public class UserController {
     }
 
     @GetMapping("/temp-login-success")
-    public ResponseEntity<ResponseMessage> test(HttpServletResponse response) {
-
+    public ResponseEntity<ResponseMessage> test(HttpServletResponse response, Principal principal) {
+        String email=principal.getName();
+        System.out.println("email = " + email);
 
         //로그인 상태 유지 확인 테스트 성공
         System.out.println("default success url called");

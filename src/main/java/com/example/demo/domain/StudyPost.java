@@ -2,6 +2,7 @@ package com.example.demo.domain;
 
 
 import antlr.CommonAST;
+import com.example.demo.dto.StudyPostDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
@@ -43,9 +44,9 @@ public class StudyPost {
     @NotNull
     private String studyContent;
 
-    @Column
+    @Column(columnDefinition = "integer default 1") // 기본 1, 모집중
     @NotNull
-    private int studyRecruitStatus; // 모집중 or 모집완료
+    private Integer studyRecruitStatus=1; // 모집중 or 모집완료
 
     @Column
     @NotNull
@@ -53,10 +54,10 @@ public class StudyPost {
 
     @Column
     @NotNull
-    private int studyMinReq;
+    private Integer studyMinReq;
 
     @Column
-    private int studyMaxReq;
+    private Integer studyMaxReq;
 
     @Column
     @NotNull
@@ -65,26 +66,33 @@ public class StudyPost {
 
     @Column(columnDefinition = "integer default 1")
     @NotNull
-    private int studyStatus; // 해당 스터디글이 삭제되었는지 등을 바로 데이터베이스에서 지우는 것이 아닌, 해당 컬럼의 값 변경으로 우선 표시
+    private Integer studyStatus=1; // 해당 스터디글이 삭제되었는지 등을 바로 데이터베이스에서 지우는 것이 아닌, 해당 컬럼의 값 변경으로 우선 표시
 
     @Column(columnDefinition = "integer default 0")
     @NotNull
-    private int studyReportCount;
+    private Integer studyReportCount=0;
 
 
     @Builder
-    public StudyPost(String title, String content, String category, String location, int recruit, int min){
-        this.studyTitle=title;
-        this.studyContent=content;
-        this.studyCategoryName=category;
-        this.studyLocation=location;
-        this.studyRecruitStatus=recruit;
-        this.studyMinReq=min;
-        // 이 외의 값은 초기 builder 패턴으로 생성 시에 NULL로 들어간다.
+    public StudyPost(StudyPostDTO dto){
+        setStudyPost(dto);
     }
 
     public void updateRecruitStatus(int status){
         this.studyRecruitStatus=status;
+    }
+
+    public void updateStudyReposrtCount(int count){ this.studyReportCount=count; }
+
+    public void updateStudyStatus(int status){this.studyStatus=status;}
+
+    public void setStudyPost(StudyPostDTO dto){
+        this.studyTitle=dto.getStudyTitle();
+        this.studyContent=dto.getStudyContent();
+        this.studyCategoryName=dto.getStudyCategoryName();
+        this.studyLocation=dto.getStudyLocation();
+        this.studyMinReq=dto.getStudyMinReq();
+        this.studyMaxReq=dto.getStudyMaxReq();
     }
 
 
