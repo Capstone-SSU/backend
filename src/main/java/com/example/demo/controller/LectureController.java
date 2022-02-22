@@ -1,46 +1,62 @@
 package com.example.demo.controller;
+import com.example.demo.domain.Lecture;
+import com.example.demo.domain.User;
+import com.example.demo.dto.LectureDto;
+import com.example.demo.dto.ResponseMessage;
+import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.LectureService;
+import com.example.demo.service.StudyPostService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import java.security.Principal;
 
-//@RestController
-
-@Controller
+@RestController
+@RequiredArgsConstructor
+@Transactional
 //@RequestMapping("/lectures")
 public class LectureController {
-    private LectureService lectureService;
+    private final LectureService lectureService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final EntityManager em;
 
-    public LectureController(LectureService lectureService) {
-        this.lectureService = lectureService;
+//    @GetMapping("/lectures")
+//    public String hi(){
+//        return "hi";
+//    }
+
+    @PostMapping("/lectures")
+    public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
+        String email = principal.getName(); // 동작됨
+        String lectureUrl = lectureDto.getLectureUrl();
+        String lectureTitle = lectureDto.getLectureTitle();
+        String lecturer = lectureDto.getLecturer();
+        String siteName = lectureDto.getSiteName();
+        String thumbnailUrl = lectureDto.getThumbnailUrl();
+//                List<String> hashtags = lectureDto.getHashtags();
+        // 여기까지는 lecture table에 들어가는 것
+
+        // 현재로그인한 사용자 아이디 가져오기
+        User user = userDetailsService.findUserByEmail(email);
+        System.out.println("user = " + user);
+        int rate = lectureDto.getRate().intValue();
+        String commentTitle = lectureDto.getCommentTitle();
+        String comment = lectureDto.getComment();
+        Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+        lecture.setUser(user);
+        em.persist(lecture);
+        lectureService.saveLecture(lecture);
+        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
-
-    @GetMapping("/lecture")
-    public String hi(){
-        return "hi";
-    }
-
-//    @PostMapping("/lectures")
-//    public void createLecture(LectureDto lectureDto){
-//        System.out.println("\"hie\" = " + "hie");
-//        System.out.println("lectureDto = " + lectureDto);
-//        String lectureUrl = lectureDto.getLectureUrl();
-//        String lectureTitle = lectureDto.getLectureTitle();
-//        String lecturer = lectureDto.getLecturer();
-//        String siteName = lectureDto.getSiteName();
-//        String thumbnailUrl = lectureDto.getThumbnailUrl();
-////        List<String> hashtags = lectureDto.getHashtags();
-//        // 여기까지는 lecture table에 들어가는 것
-//        System.out.println("lectureUrl = " + lectureUrl);
-//        int rate = lectureDto.getRate();
-//        String commentTitle = lectureDto.getCommentTitle();
-//        String comment = lectureDto.getComment();
-//
-//        Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-//        lectureService.saveLecture(lecture);
-//        return "success lecture";
-//        return new ResponseEntity<>(new ResponseMessage(201,"강의 리뷰가 등록되었습니다."), HttpStatus.OK);
-    }
-
+}

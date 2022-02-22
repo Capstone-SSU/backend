@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -12,31 +14,31 @@ import javax.persistence.*;
 public class Lecture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column()
+    @Column
     private long lectureId;
 
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     @JoinColumn(name="userId")
-    @NotNull
-    private long userId;
+    @JsonBackReference
+    private User user;
 
-    @Column()
+    @Column
     @NotNull
     private String lectureTitle;
 
-    @Column()
+    @Column
     @NotNull
     private String lecturer;
 
-    @Column()
+    @Column
     @NotNull
     private String siteName;
 
-    @Column()
+    @Column
     @NotNull
     private String lectureUrl;
 
-    @Column()
+    @Column
     @NotNull
     private String thumbnailUrl;
 
