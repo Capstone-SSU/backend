@@ -1,27 +1,37 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.hibernate.annotations.DynamicInsert;
+
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="reviews")
 @Data
+@DynamicInsert
+//@DynamicUpdate // insert, update 시 null인 field는 제외
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
+    @NotNull
     private long reviewId;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
+    @JoinColumn(name="userId")
+    @JsonBackReference // 연관관계의 주인
+    @NotNull
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
     @JoinColumn(name="lectureId")
     @JsonBackReference // 연관관계의 주인
+    @NotNull
     private Lecture lecture;
 
     @Column
@@ -30,26 +40,30 @@ public class Review {
 
     @Column
     @NotNull
+    private String commentTitle;
+
+    @Column
+    @NotNull
     private String comment;
 
     @Column
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date createdDate;
+    @NotNull
+    private LocalDateTime createdDate;
 
     @Column
     @NotNull
     private int reportCount;
 
-    @Column(columnDefinition = "int default 1")
+    @Column(columnDefinition = "integer default 1") // 값 할당안하면 이렇게 선언해도 null 할당됨
     @NotNull
-    private int reviewStatus;
+    private int reviewStatus=1;
 
-//    @Builder
-//    public Review(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {
-//        this.lectureTitle = lectureTitle;
-//        this.lecturer = lecturer;
-//        this.siteName = siteName;
-//        this.lectureUrl = lectureUrl;
-//        this.thumbnailUrl = thumbnailUrl;
-//    }
+    // rate, commentTitle, comment
+    @Builder
+    public Review(int rate, LocalDateTime createdDate, String commentTitle, String comment) {
+        this.rate = rate;
+        this.createdDate = LocalDateTime.now();
+        this.commentTitle = commentTitle;
+        this.comment = comment;
+    }
 }

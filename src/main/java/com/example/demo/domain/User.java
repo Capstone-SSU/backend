@@ -60,6 +60,10 @@ public class User {
     @JsonManagedReference
     private List<Lecture> lectures = new ArrayList<>();
 
+    @OneToMany(mappedBy="user", targetEntity = Review.class)
+    @JsonManagedReference
+    private List<Review> reviews = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", targetEntity = StudyPost.class) // StudyPost와의 양방향 매핑을 위해 추가, 연관관계의 주인은 studyPost entity
     @JsonManagedReference
     private List<StudyPost> studyPostList=new ArrayList<>();
