@@ -60,7 +60,7 @@ public class StudyPost {
 
     @Column(columnDefinition = "integer default 1")
     @NotNull
-    private Integer studyStatus=1; // 해당 스터디글이 삭제되었는지 등을 바로 데이터베이스에서 지우는 것이 아닌, 해당 컬럼의 값 변경으로 우선 표시
+    private Integer studyStatus=1; // 해당 스터디글이 삭제되었는지 등을 바로 데이터베이스에서 지우는 것이 아닌, 해당 컬럼의 값 변경으로 우선 표시 (0이면 삭제된글)
 
     @Column(columnDefinition = "integer default 0")
     @NotNull

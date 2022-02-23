@@ -34,6 +34,15 @@ public class StudyController {
     @PersistenceContext
     private final EntityManager em;
 
+    @GetMapping("/studies")
+    public ResponseEntity<ResponseMessage> getAllStudies(){
+        List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
+        if(studyPostList.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studyPostList), HttpStatus.OK);
+    }
+
     @PostMapping("/studies")
     public ResponseEntity<ResponseMessage> uploadStudyPost(@RequestBody StudyPostDTO postDto, Principal principal){
         //StudyPost 객체를 그대로 반환
