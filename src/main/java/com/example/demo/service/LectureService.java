@@ -6,13 +6,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class LectureService {
     private final LectureRepository lectureRepository;
 
-    public void saveLecture(Lecture lecture){
-        lectureRepository.save(lecture);
+    public long saveLecture(Lecture lecture){
+        Lecture savedLecture = lectureRepository.save(lecture);
+        return savedLecture.getLectureId();
+    }
+
+    public Lecture findByUrl(String lectureUrl){
+        Optional<Lecture> lecture = lectureRepository.findByLectureUrl(lectureUrl);
+        if(lecture.isPresent())
+            return lecture.get();
+        return null;
     }
 }
