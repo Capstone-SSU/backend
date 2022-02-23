@@ -42,7 +42,7 @@ public class StudyController {
         //1. 각 param별로 검색 결과 list를 찾아서 controller 단에 저장
         // (category의 경우 service에서 %2C 또는 , 기준으로 잘라서 값 찾기 -> 전체 값들에 대해 or query 문으로 list 반환 개수에 따라 쿼리문이 달라지게 설계할 수 있는지)
         //2.모든 list들을 중복되는 부분 제외 하나로 합쳐서 response message에 담아서 반환 (등록된 스터디글이 없으면 없다는 메세지 반환)
-        if(keyword==null&&location==null&&category==null){
+        if(keyword==null&&location==null&&category==null){ //쿼리 파라미터가 없으면 전체 스터디글 조회
             List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
             if(studyPostList.isEmpty()){
                 return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
@@ -50,10 +50,25 @@ public class StudyController {
             return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studyPostList), HttpStatus.OK);
         }
 
-        List<StudyPost> keywordPosts=studyPostService.getStudyPostsByKeyword(keyword);
+        List<StudyPost> keywordPosts=null; // 파라미터가 없다면 null
+        List<StudyPost> categoryPosts=null;
+
+        if(keyword!=null){ // 파라미터가 있는 애들에 대해서만 조회
+            keywordPosts=studyPostService.getStudyPostsByKeyword(keyword); // 검색어 기반 쿼리에 대한 결과 (검색결과 없으면 empty list)
+        }
+        if(category!=null){
+            categoryPosts=studyPostService.getStudyPostsByCategory(category);
+            if(categoryPosts.isEmpty()){
+                return new ResponseEntity<>(new ResponseMessage(200,"\""+category+"\" 기반 스터디글이 존재하지 않습니다."), HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(ResponseMessage.withData(200,"\""+category+"\" 기반 스터디글 조회 성공",categoryPosts), HttpStatus.OK);
+            }
+
+        }
 
 
-        return new ResponseEntity<>(ResponseMessage.withData(200,"\""+keyword+"\" 기반 스터디글 조회 성공",keywordPosts), HttpStatus.OK);
+
+        return new ResponseEntity<>(ResponseMessage.withData(400,"\""+category+"\" 기반 스터디글 조회 성공",categoryPosts), HttpStatus.OK);
     }
 
     @PostMapping("/studies")

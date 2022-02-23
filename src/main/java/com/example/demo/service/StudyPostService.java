@@ -69,6 +69,7 @@ public class StudyPostService {
         if(allPosts.isEmpty()){
             return allPosts;
         }
+        //이중포문,,, 보다는 그냥 단일포문을 쓰는게 낫겠지?? 뭐 게시글이 몇백개가 되면 안되니까
         for(String keyword:keywords){
             for(StudyPost post:allPosts){
 //                System.out.println("post title: "+post.getStudyTitle());
@@ -81,6 +82,18 @@ public class StudyPostService {
         }
 
         return keywordPosts;
+    }
+
+    public List<StudyPost> getStudyPostsByCategory(String originCategories){
+        String[] categories=originCategories.split(",");
+        List<StudyPost> list=studyPostRepository.findPostsByCategory(categories);
+        List<StudyPost> categoryList=new ArrayList<>();
+        for(StudyPost post:list){
+            if(post.getStudyStatus()==1){
+                categoryList.add(post);
+            }
+        }
+        return categoryList; // 검색결과가 없으면 empty list가, 결과가 있으면 내용이 담긴 list가 반환됨
     }
 
 }
