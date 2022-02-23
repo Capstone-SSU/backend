@@ -21,7 +21,7 @@ public class Interested {
     private Integer targetDivision; // 0이면 스터디글, 1이면 강의글, 2면 로드맵
 
     @Column(columnDefinition = "integer default 0")
-    private Integer interestedStatus=1; // 1이 default, 0은 삭제된 글
+    private Integer interestedStatus=1; // 1이 default (최초 디비에 등록할 때는 좋아요가 눌린 상태로 저장되므로), 0은 좋아요가 취소된 것
 
     //하나의 글에 여러개의 관심글 -> 관심글이 M, 주인
     @ManyToOne(fetch = FetchType.EAGER,targetEntity = StudyPost.class)

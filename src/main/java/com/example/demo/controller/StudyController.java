@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -32,7 +33,6 @@ public class StudyController {
     private final InterestedService interestedService;
     @PersistenceContext
     private final EntityManager em;
-
 
     @PostMapping("/studies")
     public ResponseEntity<ResponseMessage> uploadStudyPost(@RequestBody StudyPostDTO postDto, Principal principal){
@@ -107,19 +107,34 @@ public class StudyController {
     @PostMapping("/studies/{studyId}/likes")
     public ResponseEntity<ResponseMessage> likeStudy(@PathVariable Long studyId,Principal principal){
         StudyPost post=studyPostService.findStudyPostById(studyId);
-        if(post!=null&&post.getStudyStatus()==1){ // post글이 있고, 삭제된 글이 아닐 때
-            String userEmail=principal.getName();
-            User user=userDetailsService.findUserByEmail(userEmail);
+        String userEmail=principal.getName();
+        User user=userDetailsService.findUserByEmail(userEmail);
 
-            Interested interested =new Interested(user,0); //스터디글은 0번 -> enum으로 빼두기
+        Interested interested=interestedService.findInterestByStudyPostandUser(post,user);
+        if(interested==null){
+            //최초 좋아요 등록
+            interested =new Interested(user,0); //스터디글은 0번 -> enum으로 빼두기
             interested.setStudyPost(post);
             em.persist(interested);
             interestedService.saveInterest(interested);
 
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
+        }else if(interested.getInterestedStatus()==0){
+            //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
+            interested.setInterestedStatus(1);
+            interestedService.saveInterest(interested);
+            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요로 상태 변경 성공"),HttpStatus.OK);
+        }else{
+            //좋아요 누른 데이터가 있는데 좋아요가 눌려있는 상태 -> 좋아요를 취소해줘야함
+            interested.setInterestedStatus(0);
+            interestedService.saveInterest(interested);
+            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 취소 성공"),HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(404,"잘못된 요청"),HttpStatus.OK);
+
     }
+
+
+
 
 
 }
