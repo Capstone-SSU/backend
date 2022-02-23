@@ -1,19 +1,24 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="reviews")
 @Data
 @DynamicInsert
+@NoArgsConstructor
 //@DynamicUpdate // insert, update 시 null인 field는 제외
 public class Review {
     @Id
@@ -57,6 +62,10 @@ public class Review {
     @Column(columnDefinition = "integer default 1") // 값 할당안하면 이렇게 선언해도 null 할당됨
     @NotNull
     private int reviewStatus=1;
+
+    @OneToMany(mappedBy = "review", targetEntity = Report.class) // 하나의 리뷰글에 여러개의 신고, Report 엔티티의 review 라는 컬럼과 연결되어 있음
+    @JsonManagedReference
+    private List<Report> reports=new ArrayList<>();
 
     // rate, commentTitle, comment
     @Builder
