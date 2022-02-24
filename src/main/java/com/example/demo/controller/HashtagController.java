@@ -30,9 +30,9 @@ public class HashtagController {
     @GetMapping("") // 단어가 포함된 모든 해시태그 조회
     public ResponseEntity<ResponseMessage> createHashTag(@RequestParam("keyword") String keyword){
         List<Hashtag> hashtagList = hashTagService.findByKeyword(keyword);
-
-        Hashtag hashtag = new Hashtag(hashTagName);
-        long hashTagId = hashTagService.saveHashtag(hashtag);
-        return new ResponseEntity<>(new ResponseMessage(201, "해시태그가 등록되었습니다."), HttpStatus.CREATED);
+        for(int i=0;i<hashtagList.size();i++){
+            System.out.println("hashtagList = " + hashtagList.get(i).getHashtagName());
+        }
+        return new ResponseEntity<>(ResponseMessage.withData(200, "해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
     }
 }

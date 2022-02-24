@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.Hashtag;
+import com.example.demo.repository.CustomHashtagRepository;
 import com.example.demo.repository.HashTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +18,7 @@ public class HashtagService {
         return savedHashtag.getHashtagId();
     }
 
-    public void findByKeyword(String keyword){
-//        hashTagRepository.find
+    public List<Hashtag> findByKeyword(String keyword){
+        return hashTagRepository.findByKeyword(keyword);
     }
 }
