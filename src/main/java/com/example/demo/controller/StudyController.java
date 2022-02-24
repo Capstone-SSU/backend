@@ -115,7 +115,7 @@ public class StudyController {
         reportService.saveReport(report);
 
         Integer reportCount=post.getStudyReportCount();
-        post.updateStudyReposrtCount(++reportCount);
+        post.updateStudyReportCount(++reportCount);
 
         if(reportCount==5){
             post.updateStudyStatus(0); // 5번 신고된 글은 삭제 처리

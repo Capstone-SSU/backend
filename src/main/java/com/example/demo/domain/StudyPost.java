@@ -89,7 +89,7 @@ public class StudyPost {
         this.studyRecruitStatus=status;
     }
 
-    public void updateStudyReposrtCount(int count){ this.studyReportCount=count; }
+    public void updateStudyReportCount(int count){ this.studyReportCount=count; }
 
     public void updateStudyStatus(int status){this.studyStatus=status;}
 
