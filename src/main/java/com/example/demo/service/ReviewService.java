@@ -14,8 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
 
-    public void saveReview(Review review){
-        reviewRepository.save(review);
+    public long saveReview(Review review){
+        Review savedReview = reviewRepository.save(review);
+        return savedReview.getReviewId();
     }
 
 }
