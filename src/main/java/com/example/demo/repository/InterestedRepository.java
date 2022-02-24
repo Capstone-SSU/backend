@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface InterestedRepository extends JpaRepository<Interested, Long> {
-    List<Interested> findAllInterestByUser(User user);
+    List<Interested> findAllInterestByUser(User user); // user기반으로 모든 관심글 찾아오기
 }

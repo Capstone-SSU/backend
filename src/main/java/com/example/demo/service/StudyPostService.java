@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,6 @@ public class StudyPostService {
 
     public List<StudyPost> getAllStudyPosts(){
         List<StudyPost> studyPosts = studyPostRepository.findAll();
-        System.out.println("studypost list size: "+studyPosts.size());
         if(studyPosts.isEmpty()){
             return studyPosts;
         }
@@ -54,8 +54,46 @@ public class StudyPostService {
                 itr.remove(); // iterator를 사용하는 경우, StudyPosts자체에 대해 remove를 사용하면 오류가 발생한다. -> 반드시 iterator 자체에 대해서 remove를 수행해야함
             }
         }
-
         return studyPosts;
+    }
+
+    public List<StudyPost> getStudyPostsByKeyword(String originKeyword){ // 만약 띄어쓰기가 들어온다면 띄어쓰기별로 다른 단어로 검색
+        if(originKeyword==null){ // 해당 키워드 파라미터를 검색에 사용하지 않은 경우 null을 return
+            return null;
+        }
+        //keyword를 포함한 내용에 대한 검색 결과 return -> 검색에는 contains 또는 indexOf 사용 (indexOf는 내부에서 contains가 호출됨)
+        String[] keywords=originKeyword.split(" ");
+        //만약 " "가 없다면 그냥 한 단어만 들어가겠죠,,,? 생기는 단어 개수에 따라서 다르게 결과를 찾으려면 이중포문 돌리나? LIKE 쿼리문을 쓰는게 낫나?
+        List<StudyPost> allPosts=getAllStudyPosts();
+        List<StudyPost> keywordPosts=new ArrayList<>();
+        if(allPosts.isEmpty()){
+            return allPosts;
+        }
+        //이중포문,,, 보다는 그냥 단일포문을 쓰는게 낫겠지?? 뭐 게시글이 몇백개가 되면 안되니까
+        for(String keyword:keywords){
+            for(StudyPost post:allPosts){
+//                System.out.println("post title: "+post.getStudyTitle());
+                if(post.getStudyTitle().contains(keyword)||post.getStudyContent().contains(keyword)){
+                    if(!keywordPosts.contains(post)){
+                        keywordPosts.add(post);
+                    }
+                }
+            }
+        }
+
+        return keywordPosts;
+    }
+
+    public List<StudyPost> getStudyPostsByCategory(String originCategories){
+        String[] categories=originCategories.split(",");
+        List<StudyPost> list=studyPostRepository.findPostsByCategory(categories);
+        List<StudyPost> categoryList=new ArrayList<>();
+        for(StudyPost post:list){
+            if(post.getStudyStatus()==1){
+                categoryList.add(post);
+            }
+        }
+        return categoryList; // 검색결과가 없으면 empty list가, 결과가 있으면 내용이 담긴 list가 반환됨
     }
 
 }
