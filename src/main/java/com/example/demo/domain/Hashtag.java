@@ -9,21 +9,21 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name="hashTags")
+@Table(name="hashtags")
 @NoArgsConstructor
 @Getter
 @Setter
-public class HashTag {
+public class Hashtag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private long hashTagId;
+    private long hashtagId;
 
     @NotNull
-    private String hashTagName;
+    private String hashtagName;
 
     @Builder
-    public HashTag(String hashTagName) {
-        this.hashTagName = hashTagName;
+    public Hashtag(String hashtagName) {
+        this.hashtagName = hashtagName;
     }
 }

@@ -1,24 +1,16 @@
 package com.example.demo.controller;
-import com.example.demo.domain.HashTag;
+import com.example.demo.domain.Hashtag;
 import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Review;
 import com.example.demo.domain.User;
 import com.example.demo.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.security.CustomUserDetails;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.LectureService;
 import com.example.demo.service.ReviewService;
-import com.example.demo.service.StudyPostService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,7 +66,7 @@ public class LectureController {
             // 이미 들어간 해시태그라면 id 받아오고
 
             // 없는 해시태그라면 id
-            HashTag hashTag = new HashTag(hashtags.get(i));
+            Hashtag hashTag = new Hashtag(hashtags.get(i));
         }
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
@@ -85,6 +77,5 @@ public class LectureController {
         if(lecture!=null)// 중복링크가 없으면
             return new ResponseEntity<>(new ResponseMessage(200, "중복된 링크가 없습니다."), HttpStatus.OK);
         return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lecture), HttpStatus.OK);
-        // 제목, 강의자 ,사이트명
     }
 }
