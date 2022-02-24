@@ -34,13 +34,27 @@ public class StudyController {
     @PersistenceContext
     private final EntityManager em;
 
+
     @GetMapping("/studies")
-    public ResponseEntity<ResponseMessage> getAllStudies(){
-        List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
-        if(studyPostList.isEmpty()){
-            return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
+    public ResponseEntity<ResponseMessage> getStudiesByKeyword(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) String category){
+        //2글자 이상: 프론트에서 컷 + 해시태그와 키워드 동시에 적용된 검색도 가능해야함
+        //여러개의 request param이 동시에 올 수 있음 -> 하나로 합치기 -> null이 아닌 값에 대해서만 검색 처리를 해야하는데 이걸 어떻게 효율적으로 할것인가....
+        //studyStatus가 1이어야 하는건 필수 where 조건
+
+        if(keyword==null&&location==null&&category==null){ //쿼리 파라미터가 없으면 전체 스터디글 조회
+            List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
+            if(studyPostList.isEmpty()){
+                return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
+            }
+            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studyPostList), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studyPostList), HttpStatus.OK);
+
+
+        List<StudyPost> filteredPosts=studyPostService.getStudyPostsWithFilter(category,keyword,location);
+        if(filteredPosts.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 스터디글이 없습니다."),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ResponseMessage.withData(400,"스터디글 조회 성공",filteredPosts), HttpStatus.OK);
     }
 
     @PostMapping("/studies")

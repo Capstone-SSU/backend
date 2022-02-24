@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,6 @@ public class StudyPostService {
 
     public List<StudyPost> getAllStudyPosts(){
         List<StudyPost> studyPosts = studyPostRepository.findAll();
-        System.out.println("studypost list size: "+studyPosts.size());
         if(studyPosts.isEmpty()){
             return studyPosts;
         }
@@ -54,8 +54,19 @@ public class StudyPostService {
                 itr.remove(); // iterator를 사용하는 경우, StudyPosts자체에 대해 remove를 사용하면 오류가 발생한다. -> 반드시 iterator 자체에 대해서 remove를 수행해야함
             }
         }
-
         return studyPosts;
+    }
+
+    public List<StudyPost> getStudyPostsWithFilter(String originCategories, String originKeywords, String location){
+        String[] categories=null;
+        String[] keywords=null;
+        if(originCategories!=null){
+            categories=originCategories.split(",");
+        }
+        if(originKeywords!=null){
+            keywords=originKeywords.split(" ");
+        }
+        return studyPostRepository.findPostsByTest(categories,keywords,location);
     }
 
 }
