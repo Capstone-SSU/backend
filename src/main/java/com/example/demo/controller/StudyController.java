@@ -54,7 +54,7 @@ public class StudyController {
         if(filteredPosts.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 스터디글이 없습니다."),HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseMessage.withData(400,"스터디글 조회 성공",filteredPosts), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 조회 성공",filteredPosts), HttpStatus.OK);
     }
 
     @PostMapping("/studies")
@@ -68,7 +68,7 @@ public class StudyController {
         em.persist(newPost);
         studyPostService.saveStudyPost(newPost);
 
-        return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글이 등록 되었습니다.",newPost), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디글이 등록 되었습니다.",newPost), HttpStatus.OK);
     }
 
     @GetMapping("/studies/{studyId}") // 스터디 댓글 기능, 엔티티 생성하고 나면 이것도 연결하기
@@ -141,7 +141,7 @@ public class StudyController {
             em.persist(interested);
             interestedService.saveInterest(interested);
 
-            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
+            return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
         }else if(interested.getInterestedStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
             interested.setInterestedStatus(1);
