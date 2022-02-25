@@ -28,7 +28,16 @@ public class StudyPostService {
 
     public StudyPost findStudyPostById(Long postId){
         Optional<StudyPost> post = studyPostRepository.findById(postId); // status 0이면 null return하게 바꾸기
-        return post.orElse(null);
+        if(post.isPresent()){
+            StudyPost studyPost=post.get();
+            if(studyPost.getStudyStatus()==0){
+                return null;
+            }else{
+                return studyPost;
+            }
+        }else{
+            return null;
+        }
     }
 
     public StudyPost modifyStudyPost(StudyPostDTO postDTO,Long postId){
