@@ -18,13 +18,13 @@ public class ReviewHashtag {
     private long reviewTagId;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Review.class)
-    @JoinColumn(name="reviewId")
+    @JoinColumn(name="review_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private Review review;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Hashtag.class)
-    @JoinColumn(name="hashtagId")
+    @JoinColumn(name="hashtag_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private Hashtag hashtag;

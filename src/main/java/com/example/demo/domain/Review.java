@@ -28,13 +28,13 @@ public class Review {
     private long reviewId;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
-    @JoinColumn(name="lectureId")
+    @JoinColumn(name="lecture_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull
     private Lecture lecture;

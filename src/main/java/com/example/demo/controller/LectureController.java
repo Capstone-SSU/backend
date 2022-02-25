@@ -31,11 +31,18 @@ public class LectureController {
     private final ReviewHashtagService reviewHashtagService;
     private final EntityManager em;
 
+    @GetMapping("")
+    public ResponseEntity<ResponseMessage> getAllLectures() {
+        List<Lecture> lectures= lectureService.findAllLectures();
+        System.out.println("lectures = " + lectures);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectures), HttpStatus.OK);
+    }
+
     @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture!=null)
-            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lecture), HttpStatus.CREATED);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lecture), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
