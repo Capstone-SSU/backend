@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="user")
+@Table(name="users")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -68,9 +68,9 @@ public class User {
     private List<StudyPost> studyPostList=new ArrayList<>();
 
     //한 명의 user가 여러개의 관심글 -> 1이 User
-    @OneToMany(mappedBy = "user", targetEntity = Interested.class)
+    @OneToMany(mappedBy = "user", targetEntity = Like.class)
     @JsonManagedReference
-    private List<Interested> interestedList =new ArrayList<>();
+    private List<Like> likeList =new ArrayList<>();
 
     @Builder
     public User(String name, String nickname, String email, String pwd){
