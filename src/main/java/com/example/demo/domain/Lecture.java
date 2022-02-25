@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="lectures")
@@ -20,7 +22,7 @@ public class Lecture {
     private long lectureId;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     @JsonBackReference
     private User user;
 
@@ -43,6 +45,11 @@ public class Lecture {
     @Column
     @NotNull
     private String thumbnailUrl;
+
+    // lecture : review = 1:N
+    @OneToMany(mappedBy = "lecture", targetEntity = Review.class)
+    @JsonManagedReference
+    private List<Review> reviews =new ArrayList<>();
 
     @Builder
     public Lecture(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {
