@@ -63,5 +63,9 @@ public class StudyComment {
         this.commentGroupId=groupId;
     }
 
+    public void updateCommentContent(String content){
+        this.commentContent=content;
+    }
+
 
 }

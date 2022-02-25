@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,6 +20,21 @@ public class StudyCommentService {
     public Long saveStudyComment(StudyComment studyComment){
         studyCommentRepository.save(studyComment);
         return studyComment.getStudyCommentId();
+    }
+
+    public StudyComment findStudyCommentById(Long commentId){
+        Optional<StudyComment> comment = studyCommentRepository.findById(commentId);
+        return comment.orElse(null);
+    }
+
+    public StudyComment modifyStudyComment(String content, Long commentId){
+        StudyComment comment=findStudyCommentById(commentId);
+        if(comment==null){
+            return null;
+        }
+        comment.updateCommentContent(content);
+        saveStudyComment(comment);
+        return comment;
     }
 
 

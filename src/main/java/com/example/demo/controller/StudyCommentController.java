@@ -12,15 +12,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @RestController
 @AllArgsConstructor
@@ -51,4 +49,17 @@ public class StudyCommentController {
         return new ResponseEntity<>(ResponseMessage.withData(201,"스터디 댓글이 등록 되었습니다.",comment), HttpStatus.OK);
 
     }
+
+    @PatchMapping("/studies/{studyId}/comments/{commentId}")
+    public ResponseEntity<ResponseMessage> modifyStudyComment(@PathVariable Long studyId, @PathVariable Long commentId,@RequestBody HashMap<String, String> params){
+        //댓글을 수정하면 studyPost에 있는 리스트도 같이 업데이트 되는지 확인해보기
+        String content=params.get("content");
+        StudyComment comment=studyCommentService.modifyStudyComment(content,commentId);
+        if(comment==null) {
+            return new ResponseEntity<>(new ResponseMessage(404, "잘못된 댓글에 대한 수정 요청입니다."), HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(ResponseMessage.withData(200,"스터디 댓글이 수정되었습니다.",comment), HttpStatus.OK);
+        }
+    }
+
 }
