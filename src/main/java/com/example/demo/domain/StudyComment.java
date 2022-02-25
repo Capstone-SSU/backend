@@ -1,6 +1,7 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "studyComments")
@@ -52,6 +55,10 @@ public class StudyComment {
     @JoinColumn(name="studyPost_id")
     @JsonBackReference
     private StudyPost studyPost;
+
+    @OneToMany(mappedBy = "studyComment", targetEntity = Report.class) // 하나의 스터디글에 여러개의 신고, Report 엔티티의 studyPost 라는 컬럼과 연결되어 있음
+    @JsonManagedReference
+    private List<Report> reports=new ArrayList<>();
 
     @Builder
     public StudyComment(String content, Integer classId){

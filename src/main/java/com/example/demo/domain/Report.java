@@ -35,6 +35,11 @@ public class Report {
     @JsonBackReference
     private Review review;
 
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = StudyComment.class)
+    @JoinColumn(name = "studyComment_id")
+    @JsonBackReference
+    private StudyComment studyComment;
+
     @Builder
     public Report(String content, Integer division){
         this.reportContent=content;
