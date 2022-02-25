@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.StudyPost;
+import com.example.demo.dto.AllStudyPostsResponse;
 import com.example.demo.dto.StudyPostDTO;
+import com.example.demo.dto.UserOnlyDto;
 import com.example.demo.repository.StudyPostRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +27,13 @@ public class StudyPostService {
     }
 
     public StudyPost findStudyPostById(Long postId){
-        Optional<StudyPost> post = studyPostRepository.findById(postId);
+        Optional<StudyPost> post = studyPostRepository.findById(postId); // status 0이면 null return하게 바꾸기
         return post.orElse(null);
     }
 
     public StudyPost modifyStudyPost(StudyPostDTO postDTO,Long postId){
         StudyPost post=findStudyPostById(postId);
-        if(post!=null){
+        if(post!=null){ //post의 status가 1인 경우에만 set
             post.setStudyPost(postDTO);
             saveStudyPost(post);
             post=findStudyPostById(postId);
@@ -67,6 +70,19 @@ public class StudyPostService {
             keywords=originKeywords.split(" ");
         }
         return studyPostRepository.findPostsByTest(categories,keywords,location);
+    }
+
+    public List<AllStudyPostsResponse> getAllStudiesResponse(List<StudyPost> studyPostList){
+        List<AllStudyPostsResponse> studiesResponseList=new ArrayList<>();
+        for(StudyPost post:studyPostList){
+            AllStudyPostsResponse studyResponse=new AllStudyPostsResponse();
+            UserOnlyDto userDto=new UserOnlyDto();
+            BeanUtils.copyProperties(post,studyResponse);
+            BeanUtils.copyProperties(post.getUser(),userDto);
+            studyResponse.setUser(userDto);
+            studiesResponseList.add(studyResponse);
+        }
+        return studiesResponseList;
     }
 
 }
