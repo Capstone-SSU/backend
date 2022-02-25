@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.domain.Interested;
+import com.example.demo.domain.Like;
 import com.example.demo.domain.Report;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
@@ -133,24 +133,24 @@ public class StudyController {
         String userEmail=principal.getName();
         User user=userDetailsService.findUserByEmail(userEmail);
 
-        Interested interested=interestedService.findInterestByStudyPostandUser(post,user);
-        if(interested==null){
+        Like like =interestedService.findInterestByStudyPostandUser(post,user);
+        if(like ==null){
             //최초 좋아요 등록
-            interested =new Interested(user,0); //스터디글은 0번 -> enum으로 빼두기
-            interested.setStudyPost(post);
-            em.persist(interested);
-            interestedService.saveInterest(interested);
+            like =new Like(user,0); //스터디글은 0번 -> enum으로 빼두기
+            like.setStudyPost(post);
+            em.persist(like);
+            interestedService.saveInterest(like);
 
             return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
-        }else if(interested.getInterestedStatus()==0){
+        }else if(like.getLikeStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
-            interested.setInterestedStatus(1);
-            interestedService.saveInterest(interested);
+            like.setLikeStatus(1);
+            interestedService.saveInterest(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요로 상태 변경 성공"),HttpStatus.OK);
         }else{
             //좋아요 누른 데이터가 있는데 좋아요가 눌려있는 상태 -> 좋아요를 취소해줘야함
-            interested.setInterestedStatus(0);
-            interestedService.saveInterest(interested);
+            like.setLikeStatus(0);
+            interestedService.saveInterest(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 취소 성공"),HttpStatus.OK);
         }
 
