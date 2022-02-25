@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,13 +20,15 @@ public class LectureService {
         return savedLecture.getLectureId();
     }
 
-    // url 중복 조회용
-    public Lecture findByUrl(String lectureUrl){
-        Optional<Lecture> lecture = lectureRepository.findByLectureUrl(lectureUrl);
-        if(lecture.isPresent())
-            return lecture.get();
-        return null;
+    // 특정 강의 조회
+    public Lecture findById(Long lectureId){
+        Optional<Lecture> lecture = lectureRepository.findById(lectureId);
+        return lecture.orElse(null);
     }
 
-
+    // url 중복 조회용
+    public Lecture findByUrl(String lectureUrl){
+        Optional<Lecture> lecture = lectureRepository.findBylectureUrl(lectureUrl);
+        return lecture.orElse(null);
+    }
 }

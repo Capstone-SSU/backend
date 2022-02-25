@@ -67,6 +67,10 @@ public class Review {
     @JsonManagedReference
     private List<Report> reports=new ArrayList<>();
 
+    // review : reviewHashtag = 1:N
+    @OneToMany(mappedBy = "review", targetEntity = ReviewHashtag.class)
+    private List<ReviewHashtag> reviewHashtags = new ArrayList<>();
+
     // rate, commentTitle, comment
     @Builder
     public Review(int rate, LocalDateTime createdDate, String commentTitle, String comment) {

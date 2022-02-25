@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="hashtags")
@@ -21,6 +23,10 @@ public class Hashtag {
 
     @NotNull
     private String hashtagName;
+
+    // hashtag : reviewHashtag = 1:N
+    @OneToMany(mappedBy = "hashtag", targetEntity = ReviewHashtag.class)
+    private List<ReviewHashtag> reviewHashtags = new ArrayList<>();
 
     @Builder
     public Hashtag(String hashtagName) {

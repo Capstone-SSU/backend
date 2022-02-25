@@ -1,24 +1,30 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.Hashtag;
-import com.example.demo.repository.CustomHashtagRepository;
-import com.example.demo.repository.HashTagRepository;
+import com.example.demo.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class HashtagService {
-    private final HashTagRepository hashTagRepository;
+    private final HashtagRepository hashTagRepository;
 
     public long saveHashtag(Hashtag hashtag){
         Hashtag savedHashtag = hashTagRepository.save(hashtag);
         return savedHashtag.getHashtagId();
     }
 
+    public Hashtag findByName(String hashtagName){
+        Optional<Hashtag> hashtag = hashTagRepository.findByHashtagName(hashtagName);
+        return hashtag.orElse(null);
+    }
+
     public List<Hashtag> findByKeyword(String keyword){
         return hashTagRepository.findByKeyword(keyword);
     }
+
 }
