@@ -33,8 +33,9 @@ public class LectureController {
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<Lecture> lectures= lectureService.findAllLectures();
-        System.out.println("lectures = " + lectures);
+        List<Lecture> lectures=lectureService.findAllLectures();
+//        //List<Lecture> lectures=
+//        System.out.println("lectures = " + lectures);
         return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
@@ -67,7 +68,10 @@ public class LectureController {
         String comment = lectureDto.getComment();
         Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
 
-        Lecture existedLecture = lectureService.findByUrl(lectureUrl);
+        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
+        if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
+            return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
+
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
             Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
             lecture.setUser(user);
