@@ -77,7 +77,11 @@ public class StudyPost {
 
     @OneToMany(mappedBy = "studyPost",targetEntity = Like.class)
     @JsonManagedReference
-    private List<Like> likeList =new ArrayList<>();
+    private List<Like> likes =new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyPost",targetEntity = StudyComment.class)
+    @JsonManagedReference
+    private List<StudyComment> studyComments =new ArrayList<>();
 
 
     @Builder
