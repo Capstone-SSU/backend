@@ -25,7 +25,6 @@ public class LectureService {
     public List<Lecture> findAllLectures (){
         List<Lecture> lectures = lectureRepository.findAll();
         System.out.println("lectures.size() = " + lectures.size());
-        //        System.out.println("lectures = " + lectures);
         return lectures!=null?lectures:Collections.emptyList();
     }
 

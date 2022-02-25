@@ -66,6 +66,8 @@ public class LectureController {
         int rate = lectureDto.getRate().intValue();
         String commentTitle = lectureDto.getCommentTitle();
         String comment = lectureDto.getComment();
+        // 강의 id 에 해당하는 내가 쓴 리뷰가 존재하는 경우
+
         Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
 
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
@@ -78,8 +80,12 @@ public class LectureController {
             lectureService.saveLecture(lecture);
             review.setLecture(lecture);
         }
-        else  // 강의가 이미 존재하는 경우
+        else {  // 강의가 이미 존재하는 경우
+            Review existedReview = reviewService.findByUserId(user, existedLecture);
+            if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
+                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
             review.setLecture(existedLecture);
+        }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
 
