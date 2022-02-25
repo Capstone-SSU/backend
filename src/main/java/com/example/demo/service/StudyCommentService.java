@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,5 +47,16 @@ public class StudyCommentService {
         return comment;
     }
 
+    public List<StudyComment> findAllCommentsOnPosts(StudyPost studyPost){ //삭제되지 않은 댓글들만 return
+        List<StudyComment> comments=studyCommentRepository.findAllByStudyPost(studyPost);
+        Iterator<StudyComment> itr=comments.iterator();
+        while(itr.hasNext()){
+            StudyComment comment=itr.next();
+            if(comment.getCommentStatus()==0){
+                itr.remove();
+            }
+        }
+        return comments;
+    }
 
 }

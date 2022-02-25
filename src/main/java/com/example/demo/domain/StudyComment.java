@@ -51,12 +51,12 @@ public class StudyComment {
     private Integer commentReportCount=0; // 신고횟수
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="userId")
     @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = StudyPost.class) // 하나의 스터디글에 여러개의 댓글
-    @JoinColumn(name="studyPost_id")
+    @JoinColumn(name="studyPostId")
     @JsonBackReference
     private StudyPost studyPost;
 
