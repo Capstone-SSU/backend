@@ -12,7 +12,7 @@ import static com.example.demo.domain.QStudyPost.studyPost;
 
 @Repository
 @AllArgsConstructor
-public class StudyPostRepositoryCustomImpl implements StudyPostRepositoryCustom{
+public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface StudyPostRepositoryCustom {
+public interface CustomStudyPostRepository {
     //컨텐트 기반 -> 검색어 조회 시 -> 검색어가 여러개 올 수도 있음
 //    List<StudyPost> findPostsByTitleKeywords(Set<String> keywords);
 //    //제목 기반 -> 검색어 조회 시 -> 검색어가 여러개 올 수도 있음

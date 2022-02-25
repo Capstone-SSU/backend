@@ -12,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "report")
+@Table(name = "reports")
 @NoArgsConstructor
 public class Report {
     @Id
@@ -26,7 +26,7 @@ public class Report {
     private Integer reportDivision; // 0이면 스터디글, 1이면 리뷰글
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = StudyPost.class) // M:1 관계일 때, M 에 해당하는 테이블에 해당 annotation 이 붙는다. (한 명의 유저에게 M개의 스터디글)
-    @JoinColumn(name="studyPost_studyPostId") // join이 이루어지는 기준, 즉 외래키에 대한 설정 name: 매핑할 테이블 이름_그 테이블의 연결할 컬럼 이름
+    @JoinColumn(name="studyPostId") // join이 이루어지는 기준, 즉 외래키에 대한 설정 name: 매핑할 테이블 이름_그 테이블의 연결할 컬럼 이름
     @JsonBackReference
     private StudyPost studyPost;
 
