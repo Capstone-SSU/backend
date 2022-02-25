@@ -24,7 +24,16 @@ public class StudyCommentService {
 
     public StudyComment findStudyCommentById(Long commentId){
         Optional<StudyComment> comment = studyCommentRepository.findById(commentId);
-        return comment.orElse(null);
+        if(comment.isPresent()){
+            StudyComment studyComment=comment.get();
+            if(studyComment.getCommentStatus()==0){
+                return null;
+            }else{
+                return studyComment;
+            }
+        }else{
+            return null;
+        }
     }
 
     public StudyComment modifyStudyComment(String content, Long commentId){
