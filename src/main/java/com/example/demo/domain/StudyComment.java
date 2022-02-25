@@ -46,6 +46,10 @@ public class StudyComment {
     // 1) 원댓글(부모댓글)이면: "parent":0  으로 넘겨주고 -> 0으로 넘어오면 새롭게 등록된 애가 부모 댓글임을 확인 => 이 댓글의 pk를 groupId로 저장
     // 2) 대댓글이면: "parent":{얘의 부모댓글의 id} 로 넘겨줘야함 -> 넘어온 부모 댓글 id를 이 댓글의 groupId로 저장
 
+    @Column(columnDefinition = "integer default 0")
+    @NotNull
+    private Integer commentReportCount=0; // 신고횟수
+
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     @JoinColumn(name="user_id")
     @JsonBackReference
@@ -73,6 +77,12 @@ public class StudyComment {
     public void updateCommentContent(String content){
         this.commentContent=content;
     }
+
+    public void updateStudyCommentReportCount(Integer count){
+        this.commentReportCount=count;
+    }
+
+    public void updateStudyCommentStatus(int status){this.commentStatus=status;}
 
 
 }

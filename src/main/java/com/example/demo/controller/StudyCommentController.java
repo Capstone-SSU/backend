@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.Report;
 import com.example.demo.domain.StudyComment;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.StudyCommentDto;
 import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.service.ReportService;
 import com.example.demo.service.StudyCommentService;
 import com.example.demo.service.StudyPostService;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,7 @@ public class StudyCommentController {
     private final StudyCommentService studyCommentService;
     private final UserDetailsServiceImpl userDetailsService;
     private final StudyPostService studyPostService;
+    private final ReportService reportService;
 
     @PostMapping("/studies/{studyId}/comments")
     public ResponseEntity<ResponseMessage> addStudyComment(@PathVariable Long studyId, @RequestBody StudyCommentDto commentDto, Principal principal){
@@ -69,6 +72,30 @@ public class StudyCommentController {
             studyCommentService.saveStudyComment(comment);
             return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 댓글 삭제 성공"),HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/studies/{studyId}/comments/{commentId}/reports")
+    public ResponseEntity<ResponseMessage> setCommentLike(@PathVariable Long commentId, @RequestBody HashMap<String, String> params){
+        String content=params.get("reportContent");
+
+        StudyComment studyComment=studyCommentService.findStudyCommentById(commentId);
+        Report report=new Report(content,2); //2면 스터디 댓글에 대한 신고임
+        report.setStudyComment(studyComment);
+        reportService.saveReport(report);
+
+        Integer reportCount=studyComment.getCommentReportCount();
+        studyComment.updateStudyCommentReportCount(++reportCount);
+
+        if(reportCount==5){
+            studyComment.updateStudyCommentStatus(0); // 5번 신고된 글은 삭제 처리
+            studyCommentService.saveStudyComment(studyComment);
+            return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 글은 신고가 5번 누적되어 삭제되었습니다."),HttpStatus.OK);
+        }
+
+        studyCommentService.saveStudyComment(studyComment);
+        return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 글 신고 완료"),HttpStatus.OK);
+
+
     }
 
 }
