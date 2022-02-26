@@ -1,12 +1,13 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.dto.SigninDTO;
-import com.example.demo.dto.SignupDTO;
+import com.example.demo.dto.*;
 import com.example.demo.domain.User;
-import com.example.demo.dto.ResponseMessage;
 import com.example.demo.security.UserDetailsServiceImpl;
+import com.fasterxml.jackson.databind.util.BeanUtil;
+import io.swagger.annotations.Api;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,8 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 
+@Api(tags = { "User"})
 @RestController
 public class UserController {
 
@@ -33,28 +37,32 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String test(@RequestBody SignupDTO signupDTO){
+    public ResponseEntity<ResponseMessage> signup(@RequestBody SignupDTO signupDTO){
         String pwd= signupDTO.getPassword();
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
         String imgUrl= signupDTO.getImageUrl();
 
+        if(!userService.checkEmailValidate(signupDTO.getEmail()).equals("email valid")||!userService.checkNicknameValidate(signupDTO.getNickname()).equals("nickname valid")){
+            return new ResponseEntity<>(new ResponseMessage(401,"이메일 또는 닉네임 중복체크를 진행해주세요."), HttpStatus.OK);
+        }
         User user= new User(signupDTO.getName(), signupDTO.getNickname(), signupDTO.getEmail(),encodedPwd);
+
         if(imgUrl!=null){
             user.updateProfileImage(imgUrl);
         }
-
         Long savedId=userService.saveUser(user);
-        return "signup success";
+
+        return new ResponseEntity<>(new ResponseMessage(201,"회원가입 성공"), HttpStatus.CREATED);
     }
 
-    @GetMapping("/signup/{email:.+}/")
-    public  ResponseEntity<ResponseMessage> emailCheck(@PathVariable("email") String email){
-//        System.out.println("email = " + email);
+    @GetMapping("/signup")
+    public  ResponseEntity<ResponseMessage> emailCheck(@RequestParam("email") String email){
+        System.out.println("email = " + email);
         String valid=userService.checkEmailValidate(email);
         if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
         }else if(valid.equals("email github")){
-            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(403,"깃허브로 소셜로그인 된 이메일"), HttpStatus.OK);
         }else{
             return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.OK);
         }
@@ -87,7 +95,8 @@ public class UserController {
             String pwd=user.getUserPassword();
 
             String jwtToken=userService.authenticateLogin(email,pwd);
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
@@ -102,7 +111,10 @@ public class UserController {
         String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+            User foundUser=userService.findUserByEmail(email);
+            Long userId=foundUser.getUserId();
+
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
@@ -112,11 +124,14 @@ public class UserController {
     @GetMapping("/temp-login-success")
     public ResponseEntity<ResponseMessage> test(HttpServletResponse response, Principal principal) {
         String email=principal.getName();
-        System.out.println("email = " + email);
+//        System.out.println("email = " + email);
+        User user=userService.findUserByEmail(email);
+        Long userId=user.getUserId();
 
         //로그인 상태 유지 확인 테스트 성공
+        UserIdDto userIdDto=new UserIdDto(userId);
         System.out.println("default success url called");
-        return new ResponseEntity<>(new ResponseMessage(200, "로그인 성공"),HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공",userIdDto),HttpStatus.OK);
     }
 
     // 깃허브 회원가입시 닉네임 중복을 체크하는 API -> 프론트에서 해당 라우터가 완성되면 동작하도록 해당 api를 호출하는 코드는 주석처리 해둠
@@ -133,7 +148,7 @@ public class UserController {
         if(userNickname.contains("_CONFLICT")){
             //중복 닉네임이 있는 유저라는 의미이므로, 새로운 닉네임 폼으로 보내주어야 한다
             redirect_uri+="/nickname/"+savedUserId; // 닉네임폼(프론트에서 제작한)
-            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
+//            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
             // 프론트에서 닉네임입력폼을 /nickname/{userId}로 라우팅 해놓았다면, 여기로 redirect 요청을 보냈을 때 해당 페이지가 띄워지는가 (즉 스프링에서 리액트의 router에 요청을 보낼 수 있는가)
@@ -142,8 +157,8 @@ public class UserController {
             //닉네임이 정상인 회원 (자체 회원가입 or 깃허브 username 중복없는 새 회원 or 깃허브 이미 등록 -> 이번에 로그인한 회원)
             //그냥 로그인 후 페이지로 자동 redirect
             String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
-            redirect_uri+="/github-login/"+jwtToken; // token 암호화 추가
-            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
+            redirect_uri+="/github-login/"+savedUserId+"/"+jwtToken; // token 암호화 추가
+//            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
         }
@@ -157,11 +172,24 @@ public class UserController {
         String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+            User foundUser=userService.findUserByEmail(email);
+            Long userId=foundUser.getUserId();
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<ResponseMessage> resignMembership(@PathVariable Long userId){
+        User user=userService.findUserById(userId);
+        if(user==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 회원에 대한 탈퇴 요청"),HttpStatus.OK);
+        }else{
+            userService.deleteUserById(userId);
+            return new ResponseEntity<>(new ResponseMessage(200,"회원탈퇴 성공"),HttpStatus.OK);
+        }
     }
 
 }

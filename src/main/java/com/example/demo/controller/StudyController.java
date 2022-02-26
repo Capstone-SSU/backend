@@ -1,16 +1,15 @@
 package com.example.demo.controller;
 
-import com.example.demo.domain.Like;
-import com.example.demo.domain.Report;
-import com.example.demo.domain.StudyPost;
-import com.example.demo.domain.User;
-import com.example.demo.dto.ResponseMessage;
-import com.example.demo.dto.StudyPostDTO;
+import com.example.demo.domain.*;
+import com.example.demo.dto.*;
 import com.example.demo.security.UserDetailsServiceImpl;
-import com.example.demo.service.InterestedService;
+import com.example.demo.service.LikeService;
 import com.example.demo.service.ReportService;
+import com.example.demo.service.StudyCommentService;
 import com.example.demo.service.StudyPostService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Api(tags = { "StudyPost"})
 @RestController
 @AllArgsConstructor
 @Transactional
@@ -30,7 +31,8 @@ public class StudyController {
     private final StudyPostService studyPostService;
     private final UserDetailsServiceImpl userDetailsService;
     private final ReportService reportService;
-    private final InterestedService interestedService;
+    private final LikeService likeService;
+    private final StudyCommentService studyCommentService;
     @PersistenceContext
     private final EntityManager em;
 
@@ -38,23 +40,22 @@ public class StudyController {
     @GetMapping("/studies")
     public ResponseEntity<ResponseMessage> getStudiesByKeyword(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) String category){
         //2글자 이상: 프론트에서 컷 + 해시태그와 키워드 동시에 적용된 검색도 가능해야함
-        //여러개의 request param이 동시에 올 수 있음 -> 하나로 합치기 -> null이 아닌 값에 대해서만 검색 처리를 해야하는데 이걸 어떻게 효율적으로 할것인가....
-        //studyStatus가 1이어야 하는건 필수 where 조건
 
-        if(keyword==null&&location==null&&category==null){ //쿼리 파라미터가 없으면 전체 스터디글 조회
+       if(keyword==null&&location==null&&category==null){ //쿼리 파라미터가 없으면 전체 스터디글 조회
             List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
             if(studyPostList.isEmpty()){
                 return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
             }
-            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studyPostList), HttpStatus.OK);
+           List<AllStudyPostsResponse> studiesResponseList=studyPostService.getAllStudiesResponse(studyPostList);
+            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studiesResponseList), HttpStatus.OK);
         }
-
 
         List<StudyPost> filteredPosts=studyPostService.getStudyPostsWithFilter(category,keyword,location);
         if(filteredPosts.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 스터디글이 없습니다."),HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 조회 성공",filteredPosts), HttpStatus.OK);
+        List<AllStudyPostsResponse> filteredResponseList=studyPostService.getAllStudiesResponse(filteredPosts);
+        return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 조회 성공",filteredResponseList), HttpStatus.OK);
     }
 
     @PostMapping("/studies")
@@ -68,17 +69,38 @@ public class StudyController {
         em.persist(newPost);
         studyPostService.saveStudyPost(newPost);
 
-        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디글이 등록 되었습니다.",newPost), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디글이 등록 되었습니다.",newPost), HttpStatus.CREATED);
     }
 
-    @GetMapping("/studies/{studyId}") // 스터디 댓글 기능, 엔티티 생성하고 나면 이것도 연결하기
+    @GetMapping("/studies/{studyId}")
     public ResponseEntity<ResponseMessage> viewStudyPost(@PathVariable Long studyId){
         StudyPost post=studyPostService.findStudyPostById(studyId);
-        //댓글데이터까지 함꼐 ResponseMessage에 넣어서 반환해주기
+        //댓글데이터까지 함꼐 ResponseMessage 에 넣어서 반환해주기
         if(post!=null&&post.getStudyStatus()==1){
-            return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 찾음",post),HttpStatus.OK);
+            DetailStudyPostResponse studyPostResponse=new DetailStudyPostResponse(); //상세글을 조회했을 때, 작성자 + 글 핵심정보 + 댓글들 + 댓글들 작성자의 핵심정보를 response 해주기 위한 response 객체
+            UserOnlyDto user=new UserOnlyDto();
+            BeanUtils.copyProperties(post.getUser(),user); //해당 글을 작성한 user 핵심정보만 복사
+            studyPostResponse.setUser(user);
+
+            BeanUtils.copyProperties(post,studyPostResponse); //스터디글 핵심정보만 복사
+            studyPostResponse.setLikes(likeService.findAllLikesOnPost(post)); //스터디글에 대한 좋아요 목록들 중, status==0인 애들을 제외하고 표시
+
+            List<StudyComment> comments=studyCommentService.findAllCommentsOnPosts(post);
+            List<StudyCommentResponse> responseComments=new ArrayList<>();
+
+            for(StudyComment comment:comments){
+                StudyCommentResponse commentResponse=new StudyCommentResponse();
+                UserOnlyDto commentUser=new UserOnlyDto();
+                BeanUtils.copyProperties(comment,commentResponse); //댓글의 핵심 부분들만 복사 (내부의 기타 정보들은 제거)
+                BeanUtils.copyProperties(comment.getUser(),commentUser); //사용자의 핵심 부분만 복사할 객체
+                commentResponse.setUser(commentUser); //각 댓글들에 대한 작성자의 핵심 정보만 저장
+                responseComments.add(commentResponse);
+            }
+            studyPostResponse.setStudyComments(responseComments); //스터디글의 댓글들 목록 (댓글 핵심 내용 + 댓글 작성자의 핵심 정보)
+
+            return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 찾음",studyPostResponse),HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(400,"존재하지 않는 스터디글 요청"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 스터디글에 대한 요청"),HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/studies/{studyId}")
@@ -88,7 +110,7 @@ public class StudyController {
         if(post!=null){
             return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 수정 성공",post),HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 수정 요청"),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 수정 요청"),HttpStatus.NOT_FOUND);
         }
     }
 
@@ -100,7 +122,7 @@ public class StudyController {
             studyPostService.saveStudyPost(post); //삭제한 정보를 반영 -> 근데 삭제된 글이면 User가 가지고 있는 글 보여줄 때도 status 0인 글 제외하고 보여줄 수 있겠지?
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 글 삭제 성공"),HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 삭제 요청"),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 스터디글에 대한 잘못된 삭제 요청"),HttpStatus.NOT_FOUND);
         }
     }
 
@@ -133,24 +155,24 @@ public class StudyController {
         String userEmail=principal.getName();
         User user=userDetailsService.findUserByEmail(userEmail);
 
-        Like like =interestedService.findInterestByStudyPostandUser(post,user);
+        Like like = likeService.findLikeByStudyPostandUser(post,user);
         if(like ==null){
             //최초 좋아요 등록
-            like =new Like(user,0); //스터디글은 0번 -> enum으로 빼두기
+            like =new Like(user,0); //스터디글은 0번 division
             like.setStudyPost(post);
             em.persist(like);
-            interestedService.saveInterest(like);
+            likeService.saveInterest(like);
 
-            return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
+            return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.CREATED); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
         }else if(like.getLikeStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
             like.setLikeStatus(1);
-            interestedService.saveInterest(like);
+            likeService.saveInterest(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요로 상태 변경 성공"),HttpStatus.OK);
         }else{
             //좋아요 누른 데이터가 있는데 좋아요가 눌려있는 상태 -> 좋아요를 취소해줘야함
             like.setLikeStatus(0);
-            interestedService.saveInterest(like);
+            likeService.saveInterest(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 취소 성공"),HttpStatus.OK);
         }
 

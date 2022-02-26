@@ -6,6 +6,7 @@ import com.example.demo.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.ReviewService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.persistence.EntityManager;
 import java.security.Principal;
 
+@Api(tags = { "Review"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
