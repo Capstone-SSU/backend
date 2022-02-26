@@ -49,9 +49,9 @@ public class UserController {
         return "signup success";
     }
 
-    @GetMapping("/signup/{email:.+}/")
-    public  ResponseEntity<ResponseMessage> emailCheck(@PathVariable("email") String email){
-//        System.out.println("email = " + email);
+    @GetMapping("/signup")
+    public  ResponseEntity<ResponseMessage> emailCheck(@RequestParam("email") String email){
+        System.out.println("email = " + email);
         String valid=userService.checkEmailValidate(email);
         if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
