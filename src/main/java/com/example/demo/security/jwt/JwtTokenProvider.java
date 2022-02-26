@@ -27,7 +27,7 @@ public class JwtTokenProvider {
     private  String secretKey;
 
 
-    private long tokenValidTime = 1000L * 60 * 60; // 위와 마찬가지
+    private long tokenValidTime = 1000L * 60 * 60*10; // 위와 마찬가지
 
     private final UserDetailsServiceImpl userDetailsService;
 
