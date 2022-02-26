@@ -93,9 +93,7 @@ public class UserController {
 
             String jwtToken=userService.authenticateLogin(email,pwd);
 
-            UserOnlyDto newUser=new UserOnlyDto();
-            BeanUtils.copyProperties(user,newUser);
-            AuthResponse authResponse=new AuthResponse(jwtToken,newUser);
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
@@ -111,9 +109,9 @@ public class UserController {
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
             User foundUser=userService.findUserByEmail(email);
-            UserOnlyDto user=new UserOnlyDto();
-            BeanUtils.copyProperties(foundUser,user);
-            AuthResponse authResponse=new AuthResponse(jwtToken,user);
+            Long userId=foundUser.getUserId();
+
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
@@ -169,9 +167,8 @@ public class UserController {
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
             User foundUser=userService.findUserByEmail(email);
-            UserOnlyDto user=new UserOnlyDto();
-            BeanUtils.copyProperties(foundUser,user);
-            AuthResponse authResponse=new AuthResponse(jwtToken,user);
+            Long userId=foundUser.getUserId();
+            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 

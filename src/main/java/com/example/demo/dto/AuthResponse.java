@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class AuthResponse {
     private String jwtToken;
-    UserOnlyDto user;
+    Long userId;
 
-    public AuthResponse(String jwtToken, UserOnlyDto user) {
+    public AuthResponse(String jwtToken, Long id){
         this.jwtToken=jwtToken;
-        this.user=user;
+        this.userId=id;
     }
 }
