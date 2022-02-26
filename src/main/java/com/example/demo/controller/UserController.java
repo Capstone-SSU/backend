@@ -139,7 +139,7 @@ public class UserController {
         if(userNickname.contains("_CONFLICT")){
             //중복 닉네임이 있는 유저라는 의미이므로, 새로운 닉네임 폼으로 보내주어야 한다
             redirect_uri+="/nickname/"+savedUserId; // 닉네임폼(프론트에서 제작한)
-            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
+//            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
             // 프론트에서 닉네임입력폼을 /nickname/{userId}로 라우팅 해놓았다면, 여기로 redirect 요청을 보냈을 때 해당 페이지가 띄워지는가 (즉 스프링에서 리액트의 router에 요청을 보낼 수 있는가)
@@ -149,7 +149,7 @@ public class UserController {
             //그냥 로그인 후 페이지로 자동 redirect
             String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
             redirect_uri+="/github-login/"+jwtToken; // token 암호화 추가
-            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
+//            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
         }
@@ -168,6 +168,17 @@ public class UserController {
         }
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<ResponseMessage> resignMembership(@PathVariable Long userId){
+        User user=userService.findUserById(userId);
+        if(user==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 회원에 대한 탈퇴 요청"),HttpStatus.NOT_FOUND);
+        }else{
+            userService.deleteUserById(userId);
+            return new ResponseEntity<>(new ResponseMessage(200,"회원탈퇴 성공"),HttpStatus.OK);
+        }
     }
 
 }
