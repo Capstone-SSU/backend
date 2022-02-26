@@ -29,7 +29,6 @@ public class LectureService {
     // 전체 강의 조회
     public List<Lecture> getAllLectures (){
         List<Lecture> lectures = lectureRepository.findAll();
-        System.out.println("lectures.size() = " + lectures.size());
         return lectures!=null?lectures:Collections.emptyList();
     }
 
