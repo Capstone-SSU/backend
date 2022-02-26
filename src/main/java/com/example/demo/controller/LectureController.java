@@ -2,10 +2,7 @@ package com.example.demo.controller;
 import com.example.demo.domain.*;
 import com.example.demo.dto.*;
 import com.example.demo.security.UserDetailsServiceImpl;
-import com.example.demo.service.HashtagService;
-import com.example.demo.service.LectureService;
-import com.example.demo.service.ReviewHashtagService;
-import com.example.demo.service.ReviewService;
+import com.example.demo.service.*;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,12 +26,13 @@ public class LectureController {
     private final UserDetailsServiceImpl userDetailsService;
     private final HashtagService hashtagService;
     private final ReviewHashtagService reviewHashtagService;
+    private final LikeService likeService;
     private final EntityManager em;
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
         List<Lecture> lectures=lectureService.getAllLectures();
-        return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectures), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회
@@ -47,15 +45,30 @@ public class LectureController {
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
-//    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
-//    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId) {
-//        Lecture lecture = lectureService.findById(lectureId);
-//        if(lecture != null) {// 강의정보가 있는 경우만
-////            LectureResponse lectureResponse = lectureService.
-//            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
-//    }
+    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
+    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        // 현재로그인한 사용자 아이디 가져오기
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+
+        Lecture lecture = lectureService.findById(lectureId);
+        if(lecture!=null) {// 강의정보가 있는 경우
+            Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
+            if(existedLike!=null) { // 좋아요가 존재하는 경우
+                int status = likeService.changeLikeStatus(existedLike, existedLike.getLikeStatus());
+                if(status==1)
+                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
+                else
+                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
+            }
+            else {// 좋아요 처음 누른 경우
+                Like like = new Like(lecture, user);
+                likeService.saveLike(like);
+                return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
+            }
+        }
+        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+    }
 
     @PostMapping("") // 강의 등록
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
@@ -120,7 +133,6 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody UrlCheckDto urlCheckDto){
         String lectureUrl = urlCheckDto.getLectureUrl();
         Lecture lecture = lectureService.findByUrl(lectureUrl);
-//        System.out.println("lecture = " + lecture); // 제목, 강의자, 사이트명, 이미지 url
         if(lecture!=null)// 중복링크가 있으면
             return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lecture), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(200, "중복된 링크가 없습니다."), HttpStatus.OK);

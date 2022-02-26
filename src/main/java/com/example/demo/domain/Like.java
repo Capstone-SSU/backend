@@ -1,6 +1,7 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.querydsl.core.types.EntityPath;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,21 +30,26 @@ public class Like {
     @JoinColumn(name = "studyPostId")
     private StudyPost studyPost;
 
+    @ManyToOne(fetch = FetchType.EAGER,targetEntity = Lecture.class)
+    @JsonBackReference
+    @JoinColumn(name = "lectureId")
+    private Lecture lecture;
+
     //한 명의 사용자가 여러개의 관심글 등록 -> 관심글이 M, 주인
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     @JsonBackReference
     @JoinColumn(name = "userId")
     private User user;
 
-    // Lecture:Like=1:N
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
-    @JsonBackReference
-    @JoinColumn(name = "userId")
-    private Like like;
-
     @Builder
     public Like(User user, Integer division){
         this.targetDivision=division;
         this.user=user;
+    }
+
+    @Builder
+    public Like(Lecture lecture, User user) {
+        this.lecture = lecture;
+        this.user = user;
     }
 }

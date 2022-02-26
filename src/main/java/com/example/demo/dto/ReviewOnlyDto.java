@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ReviewOnlyDto {
+    private String nickname;
     private long reviewId;
     private int rate;
     private String commentTitle;

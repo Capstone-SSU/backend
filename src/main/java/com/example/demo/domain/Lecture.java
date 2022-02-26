@@ -22,7 +22,7 @@ public class Lecture {
     private long lectureId;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="userId")
     @JsonBackReference
     private User user;
 
@@ -50,6 +50,11 @@ public class Lecture {
     @OneToMany(mappedBy = "lecture", targetEntity = Review.class)
     @JsonManagedReference
     private List<Review> reviews =new ArrayList<>();
+
+    // lecture : like = 1:N
+    @OneToMany(mappedBy = "lecture", targetEntity = Like.class)
+    @JsonManagedReference
+    private List<Like> likes =new ArrayList<>();
 
     @Builder
     public Lecture(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {

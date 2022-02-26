@@ -41,4 +41,12 @@ public class ReviewController {
 
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
+
+    @PostMapping("/{reviewId}/reports") // 리뷰 신고
+    public ResponseEntity<ResponseMessage> createReport(@RequestBody LectureDto lectureDto, Principal principal) {
+
+
+        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
+    }
+
 }

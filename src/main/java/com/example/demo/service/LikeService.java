@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Like;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
@@ -18,15 +19,29 @@ import java.util.Optional;
 public class LikeService {
     private final LikeRepository likeRepository;
 
-    public void saveInterest(Like like){
+    public void saveLike(Like like){
         likeRepository.save(like);
     }
 
-    public Like findInterestById(Long id){
-        Optional<Like> interest = likeRepository.findById(id);
-        return interest.orElse(null);
-
+    public Like findLikeById(Long id){
+        Optional<Like> like = likeRepository.findById(id);
+        return like.orElse(null);
     }
+
+    // 특정 유저가 특정 강의에 좋아요 누른지 확인
+    public Like findLikeByLectureAndUser(Lecture lecture, User user){
+        Optional<Like> like = likeRepository.findLikeByLectureAndUser(lecture, user);
+        return like.orElse(null);
+    }
+
+    // 좋아요 상태 변경하기
+    public int changeLikeStatus(Like lectureLike, int likeStatus){
+        if(likeStatus==0) // 취소한 상태에서 다시 누른 경우
+            return likeRepository.updateLikeStatus(lectureLike, likeStatus+1);
+        else // 좋아요 누른 상태에서 취소하는 경우
+            return likeRepository.updateLikeStatus(lectureLike, likeStatus-1);
+    }
+
 
     //studyPost와 user로 찾는게 있어야함
     public Like findLikeByStudyPostandUser(StudyPost post, User user){
