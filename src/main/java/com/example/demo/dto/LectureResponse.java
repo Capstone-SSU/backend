@@ -1,6 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.domain.Review;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.List;
 @Getter
 @Setter
 public class LectureResponse {
-//    LectureOnlyDto lectureOnlyDto; // 강의 내용만 담은거
     private long lectureId;
     private String lectureTitle;
     private String lecturer;

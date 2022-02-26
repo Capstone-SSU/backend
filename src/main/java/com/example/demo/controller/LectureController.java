@@ -31,20 +31,29 @@ public class LectureController {
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<Lecture> lectures=lectureService.findAllLectures();
-//        //List<Lecture> lectures=
-//        System.out.println("lectures = " + lectures);
+        List<Lecture> lectures=lectureService.getAllLectures();
         return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
-    @GetMapping("/{lectureId}")
+    @GetMapping("/{lectureId}") // 강의글 상세 조회
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
-        LectureResponse lectureResponse = lectureService.findById(lectureId);
-        System.out.println("lectureResponse = " + lectureResponse);
-        if(lectureResponse.getLectureId()!=0) // 강의정보가 있는 경우만
+        Lecture lecture = lectureService.findById(lectureId);
+        if(lecture != null) {// 강의정보가 있는 경우만
+            LectureResponse lectureResponse = lectureService.getLecture(lecture.getLectureId());
             return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
+        }
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
+
+//    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
+//    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId) {
+//        Lecture lecture = lectureService.findById(lectureId);
+//        if(lecture != null) {// 강의정보가 있는 경우만
+////            LectureResponse lectureResponse = lectureService.
+//            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+//    }
 
     @PostMapping("") // 강의 등록
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {

@@ -4,8 +4,6 @@ import com.example.demo.domain.Hashtag;
 import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Review;
 import com.example.demo.domain.ReviewHashtag;
-import com.example.demo.dto.HashtagDto;
-import com.example.demo.dto.LectureOnlyDto;
 import com.example.demo.dto.LectureResponse;
 import com.example.demo.dto.ReviewOnlyDto;
 import com.example.demo.repository.HashtagRepository;
@@ -17,7 +15,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 @Service
@@ -35,14 +32,19 @@ public class LectureService {
     }
 
     // 전체 강의 조회
-    public List<Lecture> findAllLectures (){
+    public List<Lecture> getAllLectures (){
         List<Lecture> lectures = lectureRepository.findAll();
         System.out.println("lectures.size() = " + lectures.size());
         return lectures!=null?lectures:Collections.emptyList();
     }
 
+    public Lecture findById(long lectureId){
+        Optional<Lecture> lecture = lectureRepository.findById(lectureId);
+        return lecture.orElse(null);
+    }
+
     // 특정 강의 조회
-    public LectureResponse findById(Long lectureId){
+    public LectureResponse getLecture(long lectureId){
         LectureResponse lectureResponse = new LectureResponse();
         Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
         if(optionalLecture.isEmpty())
@@ -102,9 +104,11 @@ public class LectureService {
         lectureResponse.setHashtags(hashtags);
         lectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
 
-
         return lectureResponse;
     }
+
+
+
 
     // url 중복 조회용
     public Lecture findByUrl(String lectureUrl){
