@@ -69,7 +69,7 @@ public class StudyController {
         em.persist(newPost);
         studyPostService.saveStudyPost(newPost);
 
-        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디글이 등록 되었습니다.",newPost), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디글이 등록 되었습니다.",newPost), HttpStatus.CREATED);
     }
 
     @GetMapping("/studies/{studyId}")
@@ -100,7 +100,7 @@ public class StudyController {
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 찾음",studyPostResponse),HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(400,"존재하지 않는 스터디글 요청"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 스터디글에 대한 요청"),HttpStatus.NOT_FOUND);
     }
 
     @PatchMapping("/studies/{studyId}")
@@ -110,7 +110,7 @@ public class StudyController {
         if(post!=null){
             return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 수정 성공",post),HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 수정 요청"),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 수정 요청"),HttpStatus.NOT_FOUND);
         }
     }
 
@@ -122,7 +122,7 @@ public class StudyController {
             studyPostService.saveStudyPost(post); //삭제한 정보를 반영 -> 근데 삭제된 글이면 User가 가지고 있는 글 보여줄 때도 status 0인 글 제외하고 보여줄 수 있겠지?
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 글 삭제 성공"),HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(404,"잘못된 삭제 요청"),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 스터디글에 대한 잘못된 삭제 요청"),HttpStatus.NOT_FOUND);
         }
     }
 
@@ -163,7 +163,7 @@ public class StudyController {
             em.persist(like);
             likeService.saveInterest(like);
 
-            return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.OK); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
+            return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.CREATED); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
         }else if(like.getLikeStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
             like.setLikeStatus(1);

@@ -60,9 +60,9 @@ public class UserController {
         if(valid.equals("email valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"이메일 사용가능"), HttpStatus.OK);
         }else if(valid.equals("email github")){
-            return new ResponseEntity<>(new ResponseMessage(400,"깃허브로 소셜로그인 된 이메일"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(403,"깃허브로 소셜로그인 된 이메일"), HttpStatus.FORBIDDEN);
         }else{
-            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 이메일"), HttpStatus.CONFLICT);
         }
     }
 
@@ -73,7 +73,7 @@ public class UserController {
         if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
     }
 
     @GetMapping("/signup/{userId}/{nickname}")
@@ -97,7 +97,7 @@ public class UserController {
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.CONFLICT);
     }
 
 
@@ -112,13 +112,13 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/temp-login-success")
     public ResponseEntity<ResponseMessage> test(HttpServletResponse response, Principal principal) {
         String email=principal.getName();
-        System.out.println("email = " + email);
+//        System.out.println("email = " + email);
 
         //로그인 상태 유지 확인 테스트 성공
         System.out.println("default success url called");
@@ -167,7 +167,7 @@ public class UserController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.UNAUTHORIZED);
     }
 
 }
