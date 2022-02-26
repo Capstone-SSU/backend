@@ -35,18 +35,22 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String test(@RequestBody SignupDTO signupDTO){
+    public ResponseEntity<ResponseMessage> signup(@RequestBody SignupDTO signupDTO){
         String pwd= signupDTO.getPassword();
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
         String imgUrl= signupDTO.getImageUrl();
 
+        if(!userService.checkEmailValidate(signupDTO.getEmail()).equals("email valid")||!userService.checkNicknameValidate(signupDTO.getNickname()).equals("nickname valid")){
+            return new ResponseEntity<>(new ResponseMessage(401,"이메일 또는 닉네임 중복체크를 진행해주세요."), HttpStatus.UNAUTHORIZED);
+        }
         User user= new User(signupDTO.getName(), signupDTO.getNickname(), signupDTO.getEmail(),encodedPwd);
+
         if(imgUrl!=null){
             user.updateProfileImage(imgUrl);
         }
-
         Long savedId=userService.saveUser(user);
-        return "signup success";
+
+        return new ResponseEntity<>(new ResponseMessage(201,"회원가입 성공"), HttpStatus.CREATED);
     }
 
     @GetMapping("/signup")
