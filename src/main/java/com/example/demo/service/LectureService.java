@@ -1,15 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Hashtag;
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Review;
-import com.example.demo.domain.ReviewHashtag;
+import com.example.demo.domain.*;
 import com.example.demo.dto.LectureResponse;
 import com.example.demo.dto.ReviewOnlyDto;
-import com.example.demo.repository.HashtagRepository;
-import com.example.demo.repository.LectureRepository;
-import com.example.demo.repository.ReviewHashtagRepository;
-import com.example.demo.repository.ReviewRepository;
+import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +19,7 @@ public class LectureService {
     private final ReviewRepository reviewRepository;
     private final ReviewHashtagRepository reviewHashtagRepository;
     private final HashtagRepository hashtagRepository;
+    private final LikeRepository likeRepository;
 
     public long saveLecture(Lecture lecture){
         Lecture savedLecture = lectureRepository.save(lecture);
@@ -78,6 +73,7 @@ public class LectureService {
         return hashtags;
     }
 
+
     // 특정 강의 조회
     public LectureResponse getLecture(long lectureId){
         LectureResponse lectureResponse = new LectureResponse();
@@ -101,6 +97,8 @@ public class LectureService {
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto();
             BeanUtils.copyProperties(reviews.get(i), reviewOnlyDto,"reviewHashtags"); // 원본 객체, 복사 대상 객체
+            String nickname = reviews.get(i).getUser().getUserNickname();
+            reviewOnlyDto.setNickname(nickname);
             reviewOnlyDtos.add(reviewOnlyDto);
             totalRate += reviews.get(i).getRate();
         }
@@ -108,6 +106,8 @@ public class LectureService {
         lectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
         lectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
 
+        List<Like> likes = likeRepository.findLikeByLecture(lecture);
+        lectureResponse.setLikeCnt(likes.size());
         return lectureResponse;
     }
 
