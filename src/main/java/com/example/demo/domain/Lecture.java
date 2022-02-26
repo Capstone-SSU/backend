@@ -51,6 +51,11 @@ public class Lecture {
     @JsonManagedReference
     private List<Review> reviews =new ArrayList<>();
 
+    // lecture : like = 1:N
+    @OneToMany(mappedBy = "lecture", targetEntity = Like.class)
+    @JsonManagedReference
+    private List<Like> likes =new ArrayList<>();
+
     @Builder
     public Lecture(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {
         this.lectureTitle = lectureTitle;

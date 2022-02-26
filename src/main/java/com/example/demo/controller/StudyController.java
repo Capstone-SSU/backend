@@ -161,18 +161,18 @@ public class StudyController {
             like =new Like(user,0); //스터디글은 0번 division
             like.setStudyPost(post);
             em.persist(like);
-            likeService.saveInterest(like);
+            likeService.saveLike(like);
 
             return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.CREATED); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
         }else if(like.getLikeStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정
             like.setLikeStatus(1);
-            likeService.saveInterest(like);
+            likeService.saveLike(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요로 상태 변경 성공"),HttpStatus.OK);
         }else{
             //좋아요 누른 데이터가 있는데 좋아요가 눌려있는 상태 -> 좋아요를 취소해줘야함
             like.setLikeStatus(0);
-            likeService.saveInterest(like);
+            likeService.saveLike(like);
             return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 좋아요 취소 성공"),HttpStatus.OK);
         }
 

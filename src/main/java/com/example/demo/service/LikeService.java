@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Like;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;
@@ -18,8 +19,12 @@ import java.util.Optional;
 public class LikeService {
     private final LikeRepository likeRepository;
 
-    public void saveInterest(Like like){
+    public void saveLike(Like like){
         likeRepository.save(like);
+    }
+
+    public void createLike(User user, Lecture lecture){
+        Like like = new Like(user, lecture);
     }
 
     public Like findInterestById(Long id){

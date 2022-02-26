@@ -2,10 +2,7 @@ package com.example.demo.controller;
 import com.example.demo.domain.*;
 import com.example.demo.dto.*;
 import com.example.demo.security.UserDetailsServiceImpl;
-import com.example.demo.service.HashtagService;
-import com.example.demo.service.LectureService;
-import com.example.demo.service.ReviewHashtagService;
-import com.example.demo.service.ReviewService;
+import com.example.demo.service.*;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +26,7 @@ public class LectureController {
     private final UserDetailsServiceImpl userDetailsService;
     private final HashtagService hashtagService;
     private final ReviewHashtagService reviewHashtagService;
+    private final LikeService likeService;
     private final EntityManager em;
 
     @GetMapping("")
@@ -47,15 +45,19 @@ public class LectureController {
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
-//    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
-//    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId) {
-//        Lecture lecture = lectureService.findById(lectureId);
-//        if(lecture != null) {// 강의정보가 있는 경우만
-////            LectureResponse lectureResponse = lectureService.
-//            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
-//        }
-//        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
-//    }
+    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
+    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        Lecture lecture = lectureService.findById(lectureId);
+        // 현재로그인한 사용자 아이디 가져오기
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+
+        if(lecture != null) {// 강의정보가 있는 경우만
+            likeService.createLike(user, lecture);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+    }
 
     @PostMapping("") // 강의 등록
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
