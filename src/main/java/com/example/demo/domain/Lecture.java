@@ -22,7 +22,7 @@ public class Lecture {
     private long lectureId;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="userId")
     @JsonBackReference
     private User user;
 

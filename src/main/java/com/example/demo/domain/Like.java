@@ -1,6 +1,7 @@
 package com.example.demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.querydsl.core.types.EntityPath;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,5 +45,11 @@ public class Like {
     public Like(User user, Integer division){
         this.targetDivision=division;
         this.user=user;
+    }
+
+    @Builder
+    public Like(Lecture lecture, User user) {
+        this.lecture = lecture;
+        this.user = user;
     }
 }
