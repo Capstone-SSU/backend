@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 import com.example.demo.domain.*;
 import com.example.demo.dto.LectureDto;
+import com.example.demo.dto.LectureOnlyDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.UrlCheckDto;
 import com.example.demo.security.UserDetailsServiceImpl;
@@ -41,13 +42,14 @@ public class LectureController {
 
     @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
-        Lecture lecture = lectureService.findById(lectureId);
-        if(lecture!=null)
-            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lecture), HttpStatus.OK);
+        LectureOnlyDto lectureOnlyDto = lectureService.findById(lectureId);
+
+        if(lectureOnlyDto!=null)
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureOnlyDto), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("")
+    @PostMapping("") // 강의 등록
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
@@ -71,9 +73,6 @@ public class LectureController {
         Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
 
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-        if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
-            return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
-
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
             Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
             lecture.setUser(user);
@@ -81,6 +80,9 @@ public class LectureController {
             review.setLecture(lecture);
         }
         else {  // 강의가 이미 존재하는 경우
+            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
+                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
+
             Review existedReview = reviewService.findByUserId(user, existedLecture);
             if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
                 return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);

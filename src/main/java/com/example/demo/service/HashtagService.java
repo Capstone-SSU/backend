@@ -18,6 +18,11 @@ public class HashtagService {
         return savedHashtag.getHashtagId();
     }
 
+    public String findById(long hashtagId){
+        Optional<Hashtag> hashtag = hashTagRepository.findById(hashtagId);
+        return hashtag.get().getHashtagName();
+    }
+
     public Hashtag findByName(String hashtagName){
         Optional<Hashtag> hashtag = hashTagRepository.findByHashtagName(hashtagName);
         return hashtag.orElse(null);
