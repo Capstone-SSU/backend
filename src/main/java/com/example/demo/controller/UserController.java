@@ -1,12 +1,11 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.dto.SigninDTO;
-import com.example.demo.dto.SignupDTO;
+import com.example.demo.dto.*;
 import com.example.demo.domain.User;
-import com.example.demo.dto.ResponseMessage;
 import com.example.demo.security.UserDetailsServiceImpl;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import io.swagger.annotations.Api;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,7 +92,10 @@ public class UserController {
             String pwd=user.getUserPassword();
 
             String jwtToken=userService.authenticateLogin(email,pwd);
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+
+            UserOnlyDto newUser=new UserOnlyDto();
+            BeanUtils.copyProperties(user,newUser);
+            AuthResponse authResponse=new AuthResponse(jwtToken,newUser);
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
         }
@@ -108,7 +110,10 @@ public class UserController {
         String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+            User foundUser=userService.findUserByEmail(email);
+            UserOnlyDto user=new UserOnlyDto();
+            BeanUtils.copyProperties(foundUser,user);
+            AuthResponse authResponse=new AuthResponse(jwtToken,user);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
@@ -163,7 +168,10 @@ public class UserController {
         String password= signinDTO.getPassword();
         String jwtToken=userService.authenticateLogin(email,password);
         if(jwtToken!=null){
-            AuthResponse authResponse=new AuthResponse(jwtToken);
+            User foundUser=userService.findUserByEmail(email);
+            UserOnlyDto user=new UserOnlyDto();
+            BeanUtils.copyProperties(foundUser,user);
+            AuthResponse authResponse=new AuthResponse(jwtToken,user);
             return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공", authResponse),HttpStatus.OK);
         }
 
