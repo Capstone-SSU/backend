@@ -2,11 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Review;
+import com.example.demo.domain.User;
 import com.example.demo.repository.LectureRepository;
 import com.example.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,5 +22,9 @@ public class ReviewService {
         return savedReview.getReviewId();
     }
 
+    public Review findByUserId(User user, Lecture lecture){ // fk 로 접근할 때 객체로 넘기자
+        Optional<Review> review = reviewRepository.findByUserAndLecture(user, lecture);
+        return review.orElse(null);
+    }
 }
 

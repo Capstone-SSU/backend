@@ -35,7 +35,11 @@ public class Like {
     @JoinColumn(name = "userId")
     private User user;
 
-    //강의컬럼도 추가하까 마까 하다가 일단 안햇슴다,,,,,! ㅇ,<
+    // Lecture:Like=1:N
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
+    @JsonBackReference
+    @JoinColumn(name = "userId")
+    private Like like;
 
     @Builder
     public Like(User user, Integer division){
