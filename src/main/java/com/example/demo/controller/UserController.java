@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.util.BeanUtil;
 import io.swagger.annotations.Api;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 
 @Api(tags = { "User"})
@@ -122,10 +125,13 @@ public class UserController {
     public ResponseEntity<ResponseMessage> test(HttpServletResponse response, Principal principal) {
         String email=principal.getName();
 //        System.out.println("email = " + email);
+        User user=userService.findUserByEmail(email);
+        Long userId=user.getUserId();
 
         //로그인 상태 유지 확인 테스트 성공
+        UserIdDto userIdDto=new UserIdDto(userId);
         System.out.println("default success url called");
-        return new ResponseEntity<>(new ResponseMessage(200, "로그인 성공"),HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공",userIdDto),HttpStatus.OK);
     }
 
     // 깃허브 회원가입시 닉네임 중복을 체크하는 API -> 프론트에서 해당 라우터가 완성되면 동작하도록 해당 api를 호출하는 코드는 주석처리 해둠
@@ -151,7 +157,7 @@ public class UserController {
             //닉네임이 정상인 회원 (자체 회원가입 or 깃허브 username 중복없는 새 회원 or 깃허브 이미 등록 -> 이번에 로그인한 회원)
             //그냥 로그인 후 페이지로 자동 redirect
             String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
-            redirect_uri+="/github-login/"+jwtToken; // token 암호화 추가
+            redirect_uri+="/github-login/"+savedUserId+"/"+jwtToken; // token 암호화 추가
 //            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
