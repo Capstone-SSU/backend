@@ -32,7 +32,7 @@ public class LectureController {
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
         List<Lecture> lectures=lectureService.getAllLectures();
-        return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectures), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회

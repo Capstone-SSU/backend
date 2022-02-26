@@ -43,41 +43,16 @@ public class LectureService {
         return lecture.orElse(null);
     }
 
-    // 특정 강의 조회
-    public LectureResponse getLecture(long lectureId){
-        LectureResponse lectureResponse = new LectureResponse();
-        Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
-        if(optionalLecture.isEmpty())
-            return lectureResponse;
-        Lecture lecture = optionalLecture.get();
-//        LectureOnlyDto lectureOnlyDto = new LectureOnlyDto(); // 원본객체 복사할 때 사용
-//        BeanUtils.copyProperties(lecture, lectureOnlyDto,"reviews", "user"); // 원본 객체, 복사 대상 객체
-        lectureResponse.setLectureId(lecture.getLectureId());
-        lectureResponse.setLectureTitle(lecture.getLectureTitle());
-        lectureResponse.setLecturer(lecture.getLecturer());
-        lectureResponse.setSiteName(lecture.getSiteName());
-        lectureResponse.setLectureUrl(lecture.getLectureUrl());
-        lectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
-
+    // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수
+    public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        int reviewCnt = reviews.size();
-        lectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
-
-        int totalRate=0;
-        List<ReviewOnlyDto> reviewOnlyDtos = new ArrayList<>();
         Map<Long, Integer> hashtagCnt = new HashMap<>(); // 해시태그 상위 3개 찾기 위해서
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
-            ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto();
-            BeanUtils.copyProperties(reviews.get(i), reviewOnlyDto,"reviewHashtags"); // 원본 객체, 복사 대상 객체
-            reviewOnlyDtos.add(reviewOnlyDto);
-
-            totalRate += reviews.get(i).getRate();
             List<ReviewHashtag> reviewHashtags = reviewHashtagRepository.findByReview(reviews.get(i));
 
             for(int j=0;j<reviewHashtags.size();j++){
                 long hashtagId = reviewHashtags.get(j).getHashtag().getHashtagId();
-                // 이미 키 값이 존재하면 해당 value + 1
-                if(hashtagCnt.containsKey(hashtagId)){
+                if(hashtagCnt.containsKey(hashtagId)){                 // 이미 키 값이 존재하면 해당 value + 1
                     int cnt = hashtagCnt.get(hashtagId);
                     hashtagCnt.put(hashtagId, cnt+1);
                 }
@@ -86,7 +61,6 @@ public class LectureService {
                 }
             }
         }
-        lectureResponse.setReviews(reviewOnlyDtos);
 
         // hashmap 내림차순 정렬 후 3개까지만 자르기
         List<Map.Entry<Long, Integer>> entryList = new LinkedList<>(hashtagCnt.entrySet());
@@ -101,13 +75,41 @@ public class LectureService {
             hashtags.add(hashtagName);
             limit++;
         }
-        lectureResponse.setHashtags(hashtags);
+        return hashtags;
+    }
+
+    // 특정 강의 조회
+    public LectureResponse getLecture(long lectureId){
+        LectureResponse lectureResponse = new LectureResponse();
+        Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
+        if(optionalLecture.isEmpty())
+            return lectureResponse;
+        Lecture lecture = optionalLecture.get();
+        lectureResponse.setLectureId(lecture.getLectureId());
+        lectureResponse.setLectureTitle(lecture.getLectureTitle());
+        lectureResponse.setLecturer(lecture.getLecturer());
+        lectureResponse.setSiteName(lecture.getSiteName());
+        lectureResponse.setLectureUrl(lecture.getLectureUrl());
+        lectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
+
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        int reviewCnt = reviews.size();
+        lectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
+
+        int totalRate=0;
+        List<ReviewOnlyDto> reviewOnlyDtos = new ArrayList<>();
+        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
+            ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto();
+            BeanUtils.copyProperties(reviews.get(i), reviewOnlyDto,"reviewHashtags"); // 원본 객체, 복사 대상 객체
+            reviewOnlyDtos.add(reviewOnlyDto);
+            totalRate += reviews.get(i).getRate();
+        }
+        lectureResponse.setReviews(reviewOnlyDtos);
+        lectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
         lectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
 
         return lectureResponse;
     }
-
-
 
 
     // url 중복 조회용
