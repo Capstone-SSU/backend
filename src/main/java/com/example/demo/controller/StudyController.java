@@ -7,6 +7,7 @@ import com.example.demo.service.LikeService;
 import com.example.demo.service.ReportService;
 import com.example.demo.service.StudyCommentService;
 import com.example.demo.service.StudyPostService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Api(tags = { "StudyPost"})
 @RestController
 @AllArgsConstructor
 @Transactional

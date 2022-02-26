@@ -8,6 +8,7 @@ import com.example.demo.service.HashtagService;
 import com.example.demo.service.LectureService;
 import com.example.demo.service.ReviewHashtagService;
 import com.example.demo.service.ReviewService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Api(tags = { "Lecture"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
