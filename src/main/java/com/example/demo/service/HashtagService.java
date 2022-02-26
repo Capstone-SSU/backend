@@ -11,20 +11,25 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class HashtagService {
-    private final HashtagRepository hashTagRepository;
+    private final HashtagRepository hashtagRepository;
 
     public long saveHashtag(Hashtag hashtag){
-        Hashtag savedHashtag = hashTagRepository.save(hashtag);
+        Hashtag savedHashtag = hashtagRepository.save(hashtag);
         return savedHashtag.getHashtagId();
     }
 
+    public String findById(long hashtagId){
+        Optional<Hashtag> hashtag = hashtagRepository.findById(hashtagId);
+        return hashtag.get().getHashtagName();
+    }
+
     public Hashtag findByName(String hashtagName){
-        Optional<Hashtag> hashtag = hashTagRepository.findByHashtagName(hashtagName);
+        Optional<Hashtag> hashtag = hashtagRepository.findByHashtagName(hashtagName);
         return hashtag.orElse(null);
     }
 
     public List<Hashtag> findByKeyword(String keyword){
-        return hashTagRepository.findByKeyword(keyword);
+        return hashtagRepository.findByKeyword(keyword);
     }
 
 }
