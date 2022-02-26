@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 import com.example.demo.domain.*;
-import com.example.demo.dto.LectureDto;
-import com.example.demo.dto.LectureOnlyDto;
-import com.example.demo.dto.ResponseMessage;
-import com.example.demo.dto.UrlCheckDto;
+import com.example.demo.dto.*;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.HashtagService;
 import com.example.demo.service.LectureService;
@@ -42,10 +39,10 @@ public class LectureController {
 
     @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
-        LectureOnlyDto lectureOnlyDto = lectureService.findById(lectureId);
-
-        if(lectureOnlyDto!=null)
-            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureOnlyDto), HttpStatus.OK);
+        LectureResponse lectureResponse = lectureService.findById(lectureId);
+        System.out.println("lectureResponse = " + lectureResponse);
+        if(lectureResponse.getLectureId()!=0) // 강의정보가 있는 경우만
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
@@ -117,6 +114,4 @@ public class LectureController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lecture), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(200, "중복된 링크가 없습니다."), HttpStatus.OK);
     }
-
-
 }

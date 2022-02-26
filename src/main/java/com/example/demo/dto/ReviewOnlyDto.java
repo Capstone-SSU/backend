@@ -1,18 +1,11 @@
 package com.example.demo.dto;
 
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Report;
-import com.example.demo.domain.ReviewHashtag;
-import com.example.demo.domain.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.sun.istack.NotNull;
-
-import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
+@Getter
+@Setter
 public class ReviewOnlyDto {
     private long reviewId;
     private int rate;

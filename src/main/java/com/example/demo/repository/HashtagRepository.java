@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long>, CustomHashtagRepository{
     Optional<Hashtag> findByHashtagName(String hashtagName);
+    Optional<Hashtag> findById(Long hashtagId);
 }
