@@ -6,6 +6,7 @@ import com.example.demo.dto.SignupDTO;
 import com.example.demo.domain.User;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.security.UserDetailsServiceImpl;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 
+@Api(tags = { "User"})
 @RestController
 public class UserController {
 

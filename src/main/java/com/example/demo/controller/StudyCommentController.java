@@ -10,6 +10,7 @@ import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.ReportService;
 import com.example.demo.service.StudyCommentService;
 import com.example.demo.service.StudyPostService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.HashMap;
 
+@Api(tags = { "StudyComment"})
 @RestController
 @AllArgsConstructor
 @Transactional
