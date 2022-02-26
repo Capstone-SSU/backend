@@ -48,7 +48,7 @@ public class StudyCommentController {
         comment.updateGroupId(parentId==0?generatedId:parentId); // parentId==0이면, 방금 등록한 애가 원댓글 -> 걔의 id가 그대로 groupId / 0이 아니면? parentId값 찾아서 등록
 
         studyCommentService.saveStudyComment(comment);
-        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디 댓글이 등록 되었습니다.",comment), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(201,"스터디 댓글이 등록 되었습니다.",comment), HttpStatus.CREATED);
 
     }
 
@@ -58,7 +58,7 @@ public class StudyCommentController {
         String content=params.get("content");
         StudyComment comment=studyCommentService.modifyStudyComment(content,commentId);
         if(comment==null) {
-            return new ResponseEntity<>(new ResponseMessage(404, "잘못된 댓글에 대한 수정 요청입니다."), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 댓글에 대한 수정 요청입니다."), HttpStatus.NOT_FOUND);
         }else{
             return new ResponseEntity<>(ResponseMessage.withData(200,"스터디 댓글이 수정되었습니다.",comment), HttpStatus.OK);
         }
@@ -68,7 +68,7 @@ public class StudyCommentController {
     public ResponseEntity<ResponseMessage> deleteStudyComment(@PathVariable Long commentId){
         StudyComment comment=studyCommentService.findStudyCommentById(commentId);
         if(comment==null){
-            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 댓글에 대한 요청입니다."), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 댓글에 대한 요청입니다."), HttpStatus.NOT_FOUND);
         }else{
             comment.setCommentStatus(0); // 삭제된 글로 상태 변경
             studyCommentService.saveStudyComment(comment);

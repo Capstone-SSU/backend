@@ -88,6 +88,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     }
 
+    public void deleteUserById(Long userId){
+        userRepository.deleteByUserId(userId);
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
