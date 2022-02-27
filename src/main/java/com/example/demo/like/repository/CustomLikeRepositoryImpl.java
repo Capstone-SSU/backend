@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.demo.domain.QLike.like;
+import static com.example.demo.like.QLike.like;
 
 @Repository
 @RequiredArgsConstructor
