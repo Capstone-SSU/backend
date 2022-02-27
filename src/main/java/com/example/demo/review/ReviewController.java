@@ -1,12 +1,11 @@
-package com.example.demo.controller;
+package com.example.demo.review;
 
 import com.example.demo.domain.*;
-import com.example.demo.dto.LectureDto;
+import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.dto.ReviewDto;
+import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.ReportService;
-import com.example.demo.service.ReviewService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

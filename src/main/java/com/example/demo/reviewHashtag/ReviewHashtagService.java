@@ -1,8 +1,5 @@
-package com.example.demo.service;
+package com.example.demo.reviewHashtag;
 
-import com.example.demo.domain.Review;
-import com.example.demo.domain.ReviewHashtag;
-import com.example.demo.repository.ReviewHashtagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

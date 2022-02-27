@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.domain.Lecture;
+import com.example.demo.lecture.Lecture;
 import com.example.demo.domain.Like;
 
 import java.util.List;

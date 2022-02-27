@@ -1,8 +1,7 @@
-package com.example.demo.repository;
+package com.example.demo.reviewHashtag;
 
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Review;
-import com.example.demo.domain.ReviewHashtag;
+import com.example.demo.review.Review;
+import com.example.demo.reviewHashtag.ReviewHashtag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

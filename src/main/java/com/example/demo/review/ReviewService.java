@@ -1,11 +1,9 @@
-package com.example.demo.service;
+package com.example.demo.review;
 
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Review;
+import com.example.demo.lecture.Lecture;
 import com.example.demo.domain.User;
-import com.example.demo.dto.ReviewDto;
-import com.example.demo.repository.LectureRepository;
-import com.example.demo.repository.ReviewRepository;
+import com.example.demo.review.dto.ReviewDto;
+import com.example.demo.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

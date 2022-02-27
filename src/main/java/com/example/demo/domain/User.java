@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import com.example.demo.lecture.Lecture;
+import com.example.demo.review.Review;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;

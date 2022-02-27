@@ -1,5 +1,8 @@
-package com.example.demo.domain;
+package com.example.demo.lecture;
 
+import com.example.demo.domain.Like;
+import com.example.demo.domain.User;
+import com.example.demo.review.Review;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
