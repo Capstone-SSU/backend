@@ -3,7 +3,7 @@ package com.example.demo.study.service;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.dto.AllStudyPostsResponse;
 import com.example.demo.study.dto.StudyPostDTO;
-import com.example.demo.user.dto.UserOnlyDto;
+import com.example.demo.user.dto.DetailUserDto;
 import com.example.demo.study.repository.StudyPostRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -81,11 +81,12 @@ public class StudyPostService {
         return studyPostRepository.findPostsByTest(categories,keywords,location);
     }
 
+    //전체 스터디글을 화면에 보여줄 때 list 데이터
     public List<AllStudyPostsResponse> getAllStudiesResponse(List<StudyPost> studyPostList){
         List<AllStudyPostsResponse> studiesResponseList=new ArrayList<>();
         for(StudyPost post:studyPostList){
             AllStudyPostsResponse studyResponse=new AllStudyPostsResponse();
-            UserOnlyDto userDto=new UserOnlyDto();
+            DetailUserDto userDto=new DetailUserDto();
             BeanUtils.copyProperties(post,studyResponse);
             BeanUtils.copyProperties(post.getUser(),userDto);
             studyResponse.setUser(userDto);

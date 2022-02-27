@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface StudyCommentRepository extends JpaRepository<StudyComment,Long> {
+public interface StudyCommentRepository extends JpaRepository<StudyComment,Long>,CustomStudyCommentRepository {
     List<StudyComment> findAllByStudyPost(StudyPost post);
 }
