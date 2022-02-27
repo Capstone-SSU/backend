@@ -2,9 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Review;
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import com.example.demo.dto.ReviewDto;
-import com.example.demo.repository.LectureRepository;
 import com.example.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

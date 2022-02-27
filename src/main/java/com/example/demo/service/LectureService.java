@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.domain.*;
 import com.example.demo.dto.LectureResponse;
 import com.example.demo.dto.ReviewOnlyDto;
+import com.example.demo.like.Like;
+import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

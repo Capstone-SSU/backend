@@ -1,13 +1,8 @@
 package com.example.demo.repository;
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Like;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-import static com.example.demo.domain.QLike.like;
 import static com.example.demo.domain.QReview.review;
 
 @Repository

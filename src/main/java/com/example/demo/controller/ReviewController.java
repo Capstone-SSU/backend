@@ -1,12 +1,11 @@
 package com.example.demo.controller;
 
-import com.example.demo.domain.Lecture;
 import com.example.demo.domain.Review;
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import com.example.demo.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.ReviewDto;
-import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.service.ReviewService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;

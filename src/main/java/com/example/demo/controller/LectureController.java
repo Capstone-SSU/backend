@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 import com.example.demo.domain.*;
 import com.example.demo.dto.*;
-import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.like.Like;
+import com.example.demo.like.LikeService;
+import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.service.*;
+import com.example.demo.user.User;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

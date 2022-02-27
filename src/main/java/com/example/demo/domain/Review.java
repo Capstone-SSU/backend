@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import com.example.demo.report.Report;
+import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
