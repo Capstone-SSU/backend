@@ -4,6 +4,8 @@ import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
 import com.example.demo.security.jwt.JwtTokenProvider;
+import com.example.demo.user.dto.SimpleUserDto;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
@@ -90,6 +93,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public void deleteUserById(Long userId){
         userRepository.deleteByUserId(userId);
+    }
+
+    //isThisUserWriter 값을 제외한 모든 값을 세팅해준다
+    public SimpleUserDto getSimpleUserDto(User user){
+        SimpleUserDto simpleUserDto=new SimpleUserDto();
+        BeanUtils.copyProperties(user,simpleUserDto);
+        return simpleUserDto;
     }
 
 
