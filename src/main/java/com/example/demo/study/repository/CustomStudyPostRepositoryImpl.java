@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.demo.domain.QStudyPost.studyPost;
+import static com.example.demo.study.domain.QStudyPost.studyPost;
 
 @Repository
 @AllArgsConstructor
