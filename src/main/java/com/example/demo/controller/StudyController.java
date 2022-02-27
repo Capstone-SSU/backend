@@ -157,8 +157,7 @@ public class StudyController {
         Like like = likeService.findLikeByStudyPostandUser(post,user);
         if(like ==null){
             //최초 좋아요 등록
-            like =new Like(user,0); //스터디글은 0번 division
-            like.setStudyPost(post);
+            like =new Like(user,post);
             em.persist(like);
             likeService.saveLike(like);
 

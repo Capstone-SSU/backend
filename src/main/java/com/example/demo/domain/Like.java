@@ -18,9 +18,6 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long likeId;
 
-    @Column
-    private Integer targetDivision; // 0이면 스터디글, 1이면 강의글, 2면 로드맵
-
     @Column(columnDefinition = "integer default 1")
     private Integer likeStatus=1; // 1이 default (최초 디비에 등록할 때는 좋아요가 눌린 상태로 저장되므로), 0은 좋아요가 취소된 것
 
@@ -42,8 +39,8 @@ public class Like {
     private User user;
 
     @Builder
-    public Like(User user, Integer division){
-        this.targetDivision=division;
+    public Like(User user, StudyPost post){
+        this.studyPost=post;
         this.user=user;
     }
 
