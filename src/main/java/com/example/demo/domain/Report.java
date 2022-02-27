@@ -49,4 +49,10 @@ public class Report {
         this.studyComment=comment;
     }
 
+    @Builder
+    public Report(String content, Review review){
+        this.reportContent=content;
+        this.review=review;
+    }
+
 }
