@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.domain.Lecture;
+import com.example.demo.domain.Review;
 import com.example.demo.domain.User;
 import com.example.demo.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
+import com.example.demo.dto.ReviewDto;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.ReviewService;
 import io.swagger.annotations.Api;
@@ -11,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import java.security.Principal;
@@ -40,6 +39,23 @@ public class ReviewController {
         String comment = lectureDto.getComment();
 
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{reviewId}") // 리뷰 수정
+    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewDto reviewDto, Principal principal) {
+        Review review = reviewService.findByReviewId(reviewId);
+        if(review != null) {
+            reviewService.updateReview(reviewDto, reviewId);
+            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{reviewId}") // 리뷰 삭제
+    public ResponseEntity<ResponseMessage> deleteReview(@RequestBody ReviewDto reviewDto, Principal principal) {
+
+
+        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
     }
 
     @PostMapping("/{reviewId}/reports") // 리뷰 신고

@@ -94,7 +94,7 @@ public class LectureService {
         int totalRate=0;
         List<ReviewOnlyDto> reviewOnlyDtos = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
-            ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto();
+            ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
             BeanUtils.copyProperties(reviews.get(i), reviewOnlyDto,"reviewHashtags"); // 원본 객체, 복사 대상 객체
             String nickname = reviews.get(i).getUser().getUserNickname();
             reviewOnlyDto.setNickname(nickname);
