@@ -2,7 +2,7 @@ package com.example.demo.review.repository;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.review.Review;
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

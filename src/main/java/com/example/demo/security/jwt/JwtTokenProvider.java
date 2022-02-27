@@ -1,8 +1,8 @@
 package com.example.demo.security.jwt;
 
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import com.example.demo.security.CustomUserDetails;
-import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.user.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

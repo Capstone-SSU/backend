@@ -1,8 +1,8 @@
 package com.example.demo.security.oauth;
 
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import com.example.demo.security.CustomUserDetails;
-import com.example.demo.security.UserDetailsServiceImpl;
+import com.example.demo.user.UserDetailsServiceImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

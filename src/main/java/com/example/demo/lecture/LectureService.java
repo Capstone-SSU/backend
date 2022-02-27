@@ -1,13 +1,13 @@
 package com.example.demo.lecture;
 
-import com.example.demo.domain.*;
 import com.example.demo.hashtag.repository.HashtagRepository;
 import com.example.demo.lecture.dto.LectureResponse;
+import com.example.demo.like.Like;
+import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.review.dto.ReviewOnlyDto;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
-import com.example.demo.repository.*;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.reviewHashtag.ReviewHashtagRepository;
