@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, Long>, CustomReviewRepository{
     Optional<Review> findByUserAndLecture(User user, Lecture lecture);
     List<Review> findByLecture(Lecture lecture);
 }
