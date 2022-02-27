@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-import static com.example.demo.hashtag.QHashtag.hashtag;
+import static com.example.demo.domain.QHashtag.hashtag;
 
 @Repository
 @RequiredArgsConstructor

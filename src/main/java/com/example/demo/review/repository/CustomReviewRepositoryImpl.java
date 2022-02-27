@@ -3,7 +3,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import static com.example.demo.review.QReview.review;
+import static com.example.demo.domain.QReview.review;
 
 @Repository
 @RequiredArgsConstructor

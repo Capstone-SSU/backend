@@ -1,7 +1,7 @@
 package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
-import com.example.demo.domain.User;
+import com.example.demo.user.User;
 import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
