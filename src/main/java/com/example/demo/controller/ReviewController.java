@@ -52,10 +52,13 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}") // 리뷰 삭제
-    public ResponseEntity<ResponseMessage> deleteReview(@RequestBody ReviewDto reviewDto, Principal principal) {
-
-
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
+    public ResponseEntity<ResponseMessage> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
+        Review review = reviewService.findByReviewId(reviewId);
+        if(review != null) {
+            reviewService.deleteReview(reviewId);
+            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/{reviewId}/reports") // 리뷰 신고

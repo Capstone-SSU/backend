@@ -24,4 +24,13 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
                 .where(review.reviewId.eq(reviewId))
                 .execute();
     }
+
+    @Override
+    public void deleteReview(Long reviewId){
+        jpaQueryFactory
+                .update(review)
+                .set(review.reviewStatus, 0)
+                .where(review.reviewId.eq(reviewId))
+                .execute();
+    }
 }

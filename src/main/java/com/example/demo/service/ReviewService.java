@@ -36,8 +36,11 @@ public class ReviewService {
     public void updateReview(ReviewDto reviewDto, Long reviewId){
         String commentTitle = reviewDto.getCommentTitle();
         String comment = reviewDto.getComment();
-
         reviewRepository.updateReview(commentTitle, comment, reviewId);
+    }
+
+    public void deleteReview(Long reviewId){
+        reviewRepository.deleteReview(reviewId);
     }
 }
 
