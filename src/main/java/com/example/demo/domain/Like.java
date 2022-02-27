@@ -1,8 +1,7 @@
 package com.example.demo.domain;
 
+import com.example.demo.lecture.Lecture;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.querydsl.core.types.EntityPath;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

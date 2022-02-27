@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Lecture;
+import com.example.demo.lecture.Lecture;
 import com.example.demo.domain.Like;
 import com.example.demo.domain.StudyPost;
 import com.example.demo.domain.User;

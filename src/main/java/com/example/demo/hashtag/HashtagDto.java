@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.hashtag;
 
 import lombok.Getter;
 import lombok.Setter;

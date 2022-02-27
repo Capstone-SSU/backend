@@ -1,5 +1,5 @@
-package com.example.demo.repository;
-import com.example.demo.domain.Hashtag;
+package com.example.demo.hashtag.repository;
+import com.example.demo.hashtag.Hashtag;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
