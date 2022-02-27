@@ -1,5 +1,6 @@
-package com.example.demo.dto;
+package com.example.demo.lecture.dto;
 
+import com.example.demo.review.dto.ReviewOnlyDto;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;

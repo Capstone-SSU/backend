@@ -1,6 +1,15 @@
-package com.example.demo.controller;
+package com.example.demo.lecture;
 import com.example.demo.domain.*;
 import com.example.demo.dto.*;
+import com.example.demo.hashtag.Hashtag;
+import com.example.demo.hashtag.service.HashtagService;
+import com.example.demo.lecture.dto.LectureDto;
+import com.example.demo.lecture.dto.LectureResponse;
+import com.example.demo.lecture.dto.UrlCheckDto;
+import com.example.demo.review.Review;
+import com.example.demo.reviewHashtag.ReviewHashtag;
+import com.example.demo.reviewHashtag.ReviewHashtagService;
+import com.example.demo.review.ReviewService;
 import com.example.demo.security.UserDetailsServiceImpl;
 import com.example.demo.service.*;
 import io.swagger.annotations.Api;

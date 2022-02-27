@@ -1,13 +1,11 @@
-package com.example.demo.controller;
+package com.example.demo.review;
 
-import com.example.demo.domain.Lecture;
-import com.example.demo.domain.Review;
-import com.example.demo.domain.User;
-import com.example.demo.dto.LectureDto;
+import com.example.demo.domain.*;
+import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.dto.ReviewDto;
+import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.security.UserDetailsServiceImpl;
-import com.example.demo.service.ReviewService;
+import com.example.demo.service.ReportService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import java.security.Principal;
+import java.util.HashMap;
 
 @Api(tags = { "Review"})
 @RestController
@@ -26,6 +25,7 @@ import java.security.Principal;
 public class ReviewController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final ReportService reportService;
     private final EntityManager em;
 
     @PostMapping("")
@@ -52,15 +52,21 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}") // 리뷰 삭제
-    public ResponseEntity<ResponseMessage> deleteReview(@RequestBody ReviewDto reviewDto, Principal principal) {
-
-
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
+    public ResponseEntity<ResponseMessage> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
+        Review review = reviewService.findByReviewId(reviewId);
+        if(review != null) {
+            reviewService.deleteReview(reviewId);
+            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/{reviewId}/reports") // 리뷰 신고
-    public ResponseEntity<ResponseMessage> createReport(@RequestBody LectureDto lectureDto, Principal principal) {
-
+    public ResponseEntity<ResponseMessage> createReport(@PathVariable("reviewId") Long reviewId, @RequestBody HashMap<String, String> params) {
+        String content=params.get("reportContent");
+        Review review = reviewService.findByReviewId(reviewId);
+        Report report = new Report(content, review);
+        reportService.saveReport(report);
 
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
     }

@@ -1,5 +1,6 @@
-package com.example.demo.domain;
+package com.example.demo.hashtag;
 
+import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;

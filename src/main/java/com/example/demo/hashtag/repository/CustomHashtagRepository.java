@@ -1,6 +1,6 @@
-package com.example.demo.repository;
+package com.example.demo.hashtag.repository;
 
-import com.example.demo.domain.Hashtag;
+import com.example.demo.hashtag.Hashtag;
 
 import java.util.List;
 

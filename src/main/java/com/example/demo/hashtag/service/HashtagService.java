@@ -1,7 +1,7 @@
-package com.example.demo.service;
+package com.example.demo.hashtag.service;
 
-import com.example.demo.domain.Hashtag;
-import com.example.demo.repository.HashtagRepository;
+import com.example.demo.hashtag.Hashtag;
+import com.example.demo.hashtag.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
