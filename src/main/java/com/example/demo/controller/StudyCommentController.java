@@ -81,8 +81,7 @@ public class StudyCommentController {
         String content=params.get("reportContent");
 
         StudyComment studyComment=studyCommentService.findStudyCommentById(commentId);
-        Report report=new Report(content,2); //2면 스터디 댓글에 대한 신고임
-        report.setStudyComment(studyComment);
+        Report report=new Report(content,studyComment); //2면 스터디 댓글에 대한 신고임
         reportService.saveReport(report);
 
         Integer reportCount=studyComment.getCommentReportCount();
