@@ -1,6 +1,6 @@
 package com.example.demo.study.dto;
 
-import com.example.demo.user.dto.UserOnlyDto;
+import com.example.demo.user.dto.DetailUserDto;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ public class AllStudyPostsResponse {
 
     private String studyContent;
 
-    private Integer studyRecruitStatus; //1이면 모집중, 0이면 모집완료
+    private Integer studyRecruitStatus; //string 으로
 
     private String studyLocation;
 
@@ -27,5 +27,5 @@ public class AllStudyPostsResponse {
 
     private Integer studyReportCount;
 
-    private UserOnlyDto user;
+    private DetailUserDto user;
 }
