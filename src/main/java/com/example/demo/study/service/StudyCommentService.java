@@ -74,12 +74,11 @@ public class StudyCommentService {
 
     public List<StudyCommentResponse> getAllCommentResponses(List<StudyComment> comments,Long loginId,Long postUserId){
         List<StudyCommentResponse> responseComments=new ArrayList<>();
-        System.out.println(", loginId = " + loginId + ", postUserId = " + postUserId);
 
         for(StudyComment comment:comments) {
             StudyCommentResponse commentResponse = new StudyCommentResponse();
             SimpleUserDto commentUser = userDetailsService.getSimpleUserDto(comment.getUser());
-            commentResponse.setUser(commentUser);
+            commentResponse.setCommentWriter(commentUser);
             commentResponse.setIsThisCommentWriterPostWriter(Objects.equals(postUserId, commentUser.getUserId()));
             commentResponse.setIsThisUserCommentWriter(Objects.equals(commentUser.getUserId(), loginId));
             //각 댓글들에 대한 작성자 정보 세팅 완료

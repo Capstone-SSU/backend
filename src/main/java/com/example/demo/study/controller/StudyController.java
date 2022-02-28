@@ -92,7 +92,7 @@ public class StudyController {
             DetailStudyPostResponse studyPostResponse=new DetailStudyPostResponse(); //상세글을 조회했을 때, 작성자 + 글 핵심정보 + 댓글들 + 댓글들 작성자의 핵심정보를 response 해주기 위한 response 객체
             SimpleUserDto responseUser=userDetailsService.getSimpleUserDto(postUser);
             studyPostResponse.setIsThisUserPostWriter(loginUser.getUserId() == postUser.getUserId());
-            studyPostResponse.setUser(responseUser);
+            studyPostResponse.setStudyPostWriter(responseUser);
 
             //스터디글에 대한 user 설정 완료
 

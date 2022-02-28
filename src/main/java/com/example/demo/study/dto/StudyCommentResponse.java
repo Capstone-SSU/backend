@@ -14,7 +14,7 @@ public class StudyCommentResponse {
 
     private Long studyCommentId;
 
-    private SimpleUserDto user; //여기 안에 현재 로그인한 사용자가 해당 댓글의 작성자인지, 아닌지를 표시
+    private SimpleUserDto commentWriter; //여기 안에 현재 로그인한 사용자가 해당 댓글의 작성자인지, 아닌지를 표시
 
     private Boolean isThisCommentWriterPostWriter;
 

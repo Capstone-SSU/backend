@@ -34,7 +34,8 @@ public class DetailStudyPostResponse {
 
     private Boolean isThisUserPostWriter; // 현재 사용자가 글을 작성한 사람인가 -> 스터디 상세글 조회에 글과 댓글 모두에 들어가야함
 
+    private SimpleUserDto studyPostWriter; //해당 스터디글을 작성한 User의 필요 정보들만 담아 response
+
     private List<StudyCommentResponse> studyComments; //해당 스터디글에 대한 댓글들을 모두 필요한 정보들 + 댓글 작성한 user 정보 담아 response
 
-    private SimpleUserDto user; //해당 스터디글을 작성한 User의 필요 정보들만 담아 response
 }
