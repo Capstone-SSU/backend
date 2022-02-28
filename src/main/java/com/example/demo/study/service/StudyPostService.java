@@ -1,25 +1,26 @@
 package com.example.demo.study.service;
 
+import com.example.demo.like.LikeService;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.dto.AllStudyPostsResponse;
 import com.example.demo.study.dto.StudyPostDTO;
-import com.example.demo.user.dto.UserOnlyDto;
+import com.example.demo.user.UserDetailsServiceImpl;
+import com.example.demo.user.dto.DetailUserDto;
 import com.example.demo.study.repository.StudyPostRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 @Transactional
 public class StudyPostService {
     private final StudyPostRepository studyPostRepository;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final LikeService likeService;
 
     public long saveStudyPost(StudyPost post){
         StudyPost studyPost = studyPostRepository.save(post);
@@ -81,16 +82,18 @@ public class StudyPostService {
         return studyPostRepository.findPostsByTest(categories,keywords,location);
     }
 
+    //전체 스터디글을 화면에 보여줄 때 list 데이터
     public List<AllStudyPostsResponse> getAllStudiesResponse(List<StudyPost> studyPostList){
         List<AllStudyPostsResponse> studiesResponseList=new ArrayList<>();
         for(StudyPost post:studyPostList){
             AllStudyPostsResponse studyResponse=new AllStudyPostsResponse();
-            UserOnlyDto userDto=new UserOnlyDto();
+            studyResponse.setStudyPostWriter(userDetailsService.getSimpleUserDto(post.getUser()));
             BeanUtils.copyProperties(post,studyResponse);
-            BeanUtils.copyProperties(post.getUser(),userDto);
-            studyResponse.setUser(userDto);
+            studyResponse.setStudyLikeCount(likeService.findAllLikesOnPost(post).size());
+            studyResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료");
             studiesResponseList.add(studyResponse);
         }
+        Collections.reverse(studiesResponseList);
         return studiesResponseList;
     }
 

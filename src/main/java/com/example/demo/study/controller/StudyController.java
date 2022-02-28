@@ -15,7 +15,8 @@ import com.example.demo.study.service.StudyPostService;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
-import com.example.demo.user.dto.UserOnlyDto;
+import com.example.demo.user.dto.DetailUserDto;
+import com.example.demo.user.dto.SimpleUserDto;
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -82,30 +83,29 @@ public class StudyController {
     }
 
     @GetMapping("/studies/{studyId}")
-    public ResponseEntity<ResponseMessage> viewStudyPost(@PathVariable Long studyId){
+    public ResponseEntity<ResponseMessage> viewStudyPost(@PathVariable Long studyId,Principal principal){
         StudyPost post=studyPostService.findStudyPostById(studyId);
-        //댓글데이터까지 함꼐 ResponseMessage 에 넣어서 반환해주기
+
         if(post!=null&&post.getStudyStatus()==1){
+            User loginUser=userDetailsService.findUserByEmail(principal.getName());
+            User postUser=post.getUser();
             DetailStudyPostResponse studyPostResponse=new DetailStudyPostResponse(); //상세글을 조회했을 때, 작성자 + 글 핵심정보 + 댓글들 + 댓글들 작성자의 핵심정보를 response 해주기 위한 response 객체
-            UserOnlyDto user=new UserOnlyDto();
-            BeanUtils.copyProperties(post.getUser(),user); //해당 글을 작성한 user 핵심정보만 복사
-            studyPostResponse.setUser(user);
+            SimpleUserDto responseUser=userDetailsService.getSimpleUserDto(postUser);
+            studyPostResponse.setIsThisUserPostWriter(loginUser.getUserId() == postUser.getUserId());
+            studyPostResponse.setStudyPostWriter(responseUser);
+
+            //스터디글에 대한 user 설정 완료
 
             BeanUtils.copyProperties(post,studyPostResponse); //스터디글 핵심정보만 복사
-            studyPostResponse.setLikes(likeService.findAllLikesOnPost(post)); //스터디글에 대한 좋아요 목록들 중, status==0인 애들을 제외하고 표시
+            studyPostResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료"); // 모집중인지 아닌지 텍스트로 return
+            studyPostResponse.setLikeCount(likeService.findAllLikesOnPost(post).size()); //스터디글에 대한 좋아요 개수
+            Like userLiked=likeService.findLikeByStudyPostandUser(post,loginUser);
+            studyPostResponse.setIsLikedByUser(userLiked!=null&&userLiked.getLikeStatus()==1); //맞으면 true, 아니면 false
+            //comment 제외 모든 정보 setting 완료
 
-            List<StudyComment> comments=studyCommentService.findAllCommentsOnPosts(post);
-            List<StudyCommentResponse> responseComments=new ArrayList<>();
+            List<StudyComment> comments=studyCommentService.findAllParentCommentsOnPosts(post);
 
-            for(StudyComment comment:comments){
-                StudyCommentResponse commentResponse=new StudyCommentResponse();
-                UserOnlyDto commentUser=new UserOnlyDto();
-                BeanUtils.copyProperties(comment,commentResponse); //댓글의 핵심 부분들만 복사 (내부의 기타 정보들은 제거)
-                BeanUtils.copyProperties(comment.getUser(),commentUser); //사용자의 핵심 부분만 복사할 객체
-                commentResponse.setUser(commentUser); //각 댓글들에 대한 작성자의 핵심 정보만 저장
-                responseComments.add(commentResponse);
-            }
-            studyPostResponse.setStudyComments(responseComments); //스터디글의 댓글들 목록 (댓글 핵심 내용 + 댓글 작성자의 핵심 정보)
+            studyPostResponse.setStudyComments(studyCommentService.getAllCommentResponses(comments,loginUser.getUserId(), postUser.getUserId())); //스터디글의 댓글들 목록 (댓글 핵심 내용 + 댓글 작성자의 핵심 정보)
 
             return new ResponseEntity<>(ResponseMessage.withData(200,"스터디글 찾음",studyPostResponse),HttpStatus.OK);
         }
