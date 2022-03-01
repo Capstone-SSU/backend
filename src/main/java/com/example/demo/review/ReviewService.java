@@ -1,8 +1,8 @@
 package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.User;
-import com.example.demo.review.dto.UpdateReviewDto;
 import com.example.demo.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,15 +21,6 @@ public class ReviewService {
         return savedReview.getReviewId();
     }
     
-    public long saveReviewOnLecture(User user, Lecture lecture){
-        System.out.println(user.getUserEmail());
-        System.out.println("lecture.getLectureUrl() = " + lecture.getLectureUrl());
-        return 1;
-//        Review savedReview = reviewRepository.save(review);
-//        return savedReview.getReviewId();
-    }
-    
-    
     public Review findByReviewId(Long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         return review.orElse(null);
@@ -40,10 +31,8 @@ public class ReviewService {
         return review.orElse(null);
     }
 
-    public void updateReview(UpdateReviewDto updateReviewDto, Long reviewId){
-        String commentTitle = updateReviewDto.getCommentTitle();
-        String comment = updateReviewDto.getComment();
-        reviewRepository.updateReview(commentTitle, comment, reviewId);
+    public void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId){
+        reviewRepository.updateReview(reviewUpdateDto, reviewId);
     }
 
     public void deleteReview(Long reviewId){

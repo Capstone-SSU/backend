@@ -1,6 +1,7 @@
 package com.example.demo.review.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.review.Review;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,11 +16,11 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public void updateReview(String commentTitle, String comment, Long reviewId){
+    public void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId){
         jpaQueryFactory
                 .update(review)
-                .set(review.commentTitle, commentTitle)
-                .set(review.comment, comment)
+                .set(review.commentTitle, reviewUpdateDto.getCommentTitle())
+                .set(review.comment, reviewUpdateDto.getComment())
                 .where(review.reviewId.eq(reviewId))
                 .execute();
     }

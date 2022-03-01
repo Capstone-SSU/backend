@@ -2,7 +2,7 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.review.dto.UpdateReviewDto;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.report.ReportService;
 import com.example.demo.user.User;
@@ -42,10 +42,10 @@ public class ReviewController {
     }
 
     @PatchMapping("/{reviewId}") // 리뷰 수정
-    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody UpdateReviewDto updateReviewDto, Principal principal) {
+    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto, Principal principal) {
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
-            reviewService.updateReview(updateReviewDto, reviewId);
+            reviewService.updateReview(reviewUpdateDto, reviewId);
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
