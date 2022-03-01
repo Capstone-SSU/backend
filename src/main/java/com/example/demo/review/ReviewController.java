@@ -2,6 +2,7 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
+import com.example.demo.report.Report;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.report.ReportService;
@@ -28,19 +29,6 @@ public class ReviewController {
     private final ReportService reportService;
     private final EntityManager em;
 
-    @PostMapping("")
-    public ResponseEntity<ResponseMessage> createReview(@RequestBody LectureDto lectureDto, Principal principal) {
-        String email = principal.getName(); //
-        // 현재로그인한 사용자 아이디 가져오기
-        User user = userDetailsService.findUserByEmail(email);
-        System.out.println("user = " + user);
-        int rate = lectureDto.getRate().intValue();
-        String commentTitle = lectureDto.getCommentTitle();
-        String comment = lectureDto.getComment();
-
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
-    }
-
     @PatchMapping("/{reviewId}") // 리뷰 수정
     public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto, Principal principal) {
         Review review = reviewService.findByReviewId(reviewId);
@@ -62,14 +50,27 @@ public class ReviewController {
     }
 
     @PostMapping("/{reviewId}/reports") // 리뷰 신고
-    public ResponseEntity<ResponseMessage> createReport(@PathVariable("reviewId") Long reviewId, @RequestBody HashMap<String, String> params) {
+    public ResponseEntity<ResponseMessage> createReport(@PathVariable("reviewId") Long reviewId, @RequestBody HashMap<String, String> params, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
         String content=params.get("reportContent");
         Review review = reviewService.findByReviewId(reviewId);
-//        if(review.)
-//        Report report = new Report(content, review);
-//        reportService.saveReport(report);
-
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
+        if(review!=null) {// 리뷰가 있는 경우
+            // 내가 해당 강의를 이미 신고한 경우
+            Report existedReport = reportService.findByUserAndReview(user, review);
+            if(existedReport!=null) {
+                if (review.getReportCount() == 5) {// 5번 신고 된 경우 삭제
+                    review.updateReviewStatus();
+                    return new ResponseEntity<>(new ResponseMessage(200, "5번 누적되어 리뷰 삭제됨"), HttpStatus.OK);
+                }
+                int reportCnt = review.getReportCount();
+                Report report = new Report(content, review);
+                reportService.saveReport(report);
+                review.updateReviewReportCount(reportCnt++);
+                return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
+            }
+            return new ResponseEntity<>(new ResponseMessage(409, "이미 신고한 강의리뷰"), HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 리뷰 번호"), HttpStatus.NOT_FOUND);
     }
-
 }

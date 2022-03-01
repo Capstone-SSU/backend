@@ -94,4 +94,13 @@ public class Review {
         this.lecture = lecture;
         this.user = user;
     }
+
+    public void updateReviewReportCount(int count){
+        this.reportCount=count;
+    }
+
+    public void updateReviewStatus(){
+        this.reviewStatus = 0;
+    }
+
 }

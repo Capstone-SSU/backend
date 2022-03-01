@@ -62,7 +62,7 @@ public class LectureController {
         Lecture lecture = lectureService.findById(lectureId);
         List<String> hashtags = reviewPostDto.getHashtags();
         if(lecture!=null){ // 강의가 있는 경우
-            Review review = reviewService.findByUserId(user, lecture);
+            Review review = reviewService.findByUserAndLecture(user, lecture);
             if(review == null) { // 리뷰 등록한 적 없는 경우
                 review = new Review();
                 review.setLectureReview(reviewPostDto, user, lecture);
@@ -137,7 +137,7 @@ public class LectureController {
             if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
                 return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
 
-            Review existedReview = reviewService.findByUserId(user, existedLecture);
+            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
             if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
                 return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
             review.setLecture(existedLecture);

@@ -2,7 +2,9 @@ package com.example.demo.user;
 
 import com.example.demo.like.Like;
 import com.example.demo.lecture.Lecture;
+import com.example.demo.report.Report;
 import com.example.demo.review.Review;
+import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -67,6 +69,9 @@ public class User {
     @OneToMany(mappedBy="user", targetEntity = Review.class)
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", targetEntity = Report.class)
+    private List<Report> reports = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", targetEntity = StudyPost.class) // StudyPost와의 양방향 매핑을 위해 추가, 연관관계의 주인은 studyPost entity
     @JsonManagedReference
