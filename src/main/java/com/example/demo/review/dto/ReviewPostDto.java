@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,4 +14,5 @@ public class ReviewPostDto {
     private String comment;
     private String commentTitle;
     private int rate;
+    private List<String> hashtags;
 }

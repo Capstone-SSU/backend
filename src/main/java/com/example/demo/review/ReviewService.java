@@ -20,7 +20,16 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(review);
         return savedReview.getReviewId();
     }
-
+    
+    public long saveReviewOnLecture(User user, Lecture lecture){
+        System.out.println(user.getUserEmail());
+        System.out.println("lecture.getLectureUrl() = " + lecture.getLectureUrl());
+        return 1;
+//        Review savedReview = reviewRepository.save(review);
+//        return savedReview.getReviewId();
+    }
+    
+    
     public Review findByReviewId(Long reviewId){
         Optional<Review> review = reviewRepository.findById(reviewId);
         return review.orElse(null);

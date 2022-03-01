@@ -39,7 +39,6 @@ public class LectureController {
     private final HashtagService hashtagService;
     private final ReviewHashtagService reviewHashtagService;
     private final LikeService likeService;
-    private final EntityManager em;
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
@@ -63,11 +62,23 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
-        Review review = new Review();
         Lecture lecture = lectureService.findById(lectureId);
-        review.setLectureReview(reviewPostDto, user, lecture);
-        reviewService.saveReview(review);
-        return new ResponseEntity<>(new ResponseMessage(201, "강의에 들어가서 리뷰 등록 성공"), HttpStatus.CREATED);
+        List<String> hashtags = reviewPostDto.getHashtags();
+        if(lecture!=null){ // 강의가 있는 경우
+            Review review = reviewService.findByUserId(user, lecture);
+            if(review == null) { // 리뷰 등록한 적 없는 경우
+                review = new Review();
+                review.setLectureReview(reviewPostDto, user, lecture);
+                reviewService.saveReview(review);
+                lectureService.manageHashtag(hashtags, review);
+                return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
+            }
+            else
+                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+        }
+        else
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+
     }
 
     @PostMapping("/{lectureId}/likes") // 강의글 좋아요
@@ -75,6 +86,7 @@ public class LectureController {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        System.out.println("hui");
 
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture!=null) {// 강의정보가 있는 경우
@@ -136,21 +148,7 @@ public class LectureController {
         }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
-
-        for (int i = 0; i < hashtags.size(); i++) {
-            Hashtag existedHashtag = hashtagService.findByName(hashtags.get(i));
-            ReviewHashtag reviewHashtag = new ReviewHashtag();
-            if(existedHashtag!=null) { // 이미 들어간 해시태그라면 id 받아오기
-                reviewHashtag.setHashtag(existedHashtag);
-            }
-            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
-                Hashtag hashtag = new Hashtag(hashtags.get(i));
-                hashtagService.saveHashtag(hashtag);
-                reviewHashtag.setHashtag(hashtag);
-            }
-            reviewHashtag.setReview(review);
-            reviewHashtagService.saveReviewHashtag(reviewHashtag);
-        }
+        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
 

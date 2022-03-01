@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReviewHashtagService {
     private final ReviewHashtagRepository reviewHashtagRepository;
-
     public long saveReviewHashtag(ReviewHashtag reviewHashtag){
         ReviewHashtag savedReviewHashtag = reviewHashtagRepository.save(reviewHashtag);
         return savedReviewHashtag.getReviewTagId();

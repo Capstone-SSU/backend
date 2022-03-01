@@ -44,6 +44,23 @@ public class LectureService {
         return lecture.orElse(null);
     }
 
+    public void manageHashtag(List<String> hashtags, Review review){
+        for (int i = 0; i < hashtags.size(); i++) {
+            Hashtag existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i))).get();
+            ReviewHashtag reviewHashtag = new ReviewHashtag();
+            if(existedHashtag!=null) { // 이미 들어간 해시태그라면 id 받아오기
+                reviewHashtag.setHashtag(existedHashtag);
+            }
+            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
+                Hashtag hashtag = new Hashtag(hashtags.get(i));
+                hashtagRepository.save(hashtag);
+                reviewHashtag.setHashtag(hashtag);
+            }
+            reviewHashtag.setReview(review);
+            reviewHashtagRepository.save(reviewHashtag);
+        }
+    }
+
     // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수
     public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
