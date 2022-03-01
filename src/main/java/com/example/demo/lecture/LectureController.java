@@ -1,16 +1,14 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.service.HashtagService;
+import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.LectureDto;
-import com.example.demo.lecture.dto.LectureResponse;
+import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.lecture.dto.UrlCheckDto;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
-import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.dto.ReviewPostDto;
-import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.reviewHashtag.ReviewHashtagService;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
@@ -22,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,7 +39,7 @@ public class LectureController {
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<Lecture> lectures=lectureService.getAllLectures();
+        List<AllLecturesResponse> lectures = lectureService.getAllLectures();
         return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
@@ -52,8 +49,8 @@ public class LectureController {
         User user = userDetailsService.findUserByEmail(email);
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {// 강의정보가 있는 경우만
-            LectureResponse lectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
-            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
+            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", detailLectureResponse), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
@@ -78,7 +75,6 @@ public class LectureController {
         }
         else
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
-
     }
 
     @PostMapping("/{lectureId}/likes") // 강의글 좋아요

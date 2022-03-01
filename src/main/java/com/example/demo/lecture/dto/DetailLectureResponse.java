@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class LectureResponse {
+public class DetailLectureResponse {
     private long lectureId;
     private String lectureTitle;
     private String lecturer;

@@ -1,7 +1,8 @@
 package com.example.demo.lecture;
 
 import com.example.demo.hashtag.repository.HashtagRepository;
-import com.example.demo.lecture.dto.LectureResponse;
+import com.example.demo.lecture.dto.AllLecturesResponse;
+import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.reviewHashtag.ReviewHashtag;
@@ -34,9 +35,19 @@ public class LectureService {
     }
 
     // 전체 강의 조회
-    public List<Lecture> getAllLectures (){
+    public List<AllLecturesResponse> getAllLectures (){
+        List<AllLecturesResponse> allLectures = new ArrayList<>();
         List<Lecture> lectures = lectureRepository.findAll();
-        return lectures!=null?lectures:Collections.emptyList();
+        for(int i=0;i<lectures.size();i++){
+            AllLecturesResponse lecture = new AllLecturesResponse();
+            lecture.setLectureId(lectures.get(i).getLectureId());
+            lecture.setLectureTitle(lectures.get(i).getLectureTitle());
+            lecture.setThumbnailUrl(lectures.get(i).getThumbnailUrl());
+            lecture.setLikeCnt(lectures.get(i).getLikes().size());
+            lecture.setAvgRate(getAvgRate(lectures.get(i))); // 리뷰평점 평균
+            allLectures.add(lecture);
+        }
+        return allLectures;
     }
 
     public Lecture findById(long lectureId){
@@ -97,23 +108,32 @@ public class LectureService {
     }
 
 
+    public double getAvgRate(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        double totalRate = 0;
+        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
+            totalRate += reviews.get(i).getRate();
+        }
+        return totalRate/reviews.size(); // 평균 점수 계산
+    }
+
     // 특정 강의 조회
-    public LectureResponse getLecture(long lectureId, long userId){
-        LectureResponse lectureResponse = new LectureResponse();
+    public DetailLectureResponse getLecture(long lectureId, long userId){
+        DetailLectureResponse detailLectureResponse = new DetailLectureResponse();
         Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
         if(optionalLecture.isEmpty())
-            return lectureResponse;
+            return detailLectureResponse;
         Lecture lecture = optionalLecture.get();
-        lectureResponse.setLectureId(lecture.getLectureId());
-        lectureResponse.setLectureTitle(lecture.getLectureTitle());
-        lectureResponse.setLecturer(lecture.getLecturer());
-        lectureResponse.setSiteName(lecture.getSiteName());
-        lectureResponse.setLectureUrl(lecture.getLectureUrl());
-        lectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
+        detailLectureResponse.setLectureId(lecture.getLectureId());
+        detailLectureResponse.setLectureTitle(lecture.getLectureTitle());
+        detailLectureResponse.setLecturer(lecture.getLecturer());
+        detailLectureResponse.setSiteName(lecture.getSiteName());
+        detailLectureResponse.setLectureUrl(lecture.getLectureUrl());
+        detailLectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
 
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         int reviewCnt = reviews.size();
-        lectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
+        detailLectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
 
         int totalRate=0;
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
@@ -130,13 +150,13 @@ public class LectureService {
             detailReviewResponses.add(detailReviewResponse);
             totalRate += reviews.get(i).getRate();
         }
-        lectureResponse.setReviews(detailReviewResponses);
-        lectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-        lectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
+        detailLectureResponse.setReviews(detailReviewResponses);
+        detailLectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
+        detailLectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
 
         List<Like> likes = likeRepository.findLikeByLecture(lecture);
-        lectureResponse.setLikeCnt(likes.size());
-        return lectureResponse;
+        detailLectureResponse.setLikeCnt(likes.size());
+        return detailLectureResponse;
     }
 
 
