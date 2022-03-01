@@ -8,6 +8,8 @@ import com.example.demo.lecture.dto.UrlCheckDto;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
+import com.example.demo.review.dto.DetailReviewResponse;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.reviewHashtag.ReviewHashtagService;
 import com.example.demo.review.ReviewService;
@@ -46,13 +48,26 @@ public class LectureController {
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회
-    public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
+    public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {// 강의정보가 있는 경우만
-            LectureResponse lectureResponse = lectureService.getLecture(lecture.getLectureId());
+            LectureResponse lectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
             return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/{lectureId}/reviews") // 강의에 들어가서 리뷰 다는 경우
+    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        Review review = new Review();
+        Lecture lecture = lectureService.findById(lectureId);
+        review.setLectureReview(reviewPostDto, user, lecture);
+        reviewService.saveReview(review);
+        return new ResponseEntity<>(new ResponseMessage(201, "강의에 들어가서 리뷰 등록 성공"), HttpStatus.CREATED);
     }
 
     @PostMapping("/{lectureId}/likes") // 강의글 좋아요

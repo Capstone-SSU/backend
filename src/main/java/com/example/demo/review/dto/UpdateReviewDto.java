@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ReviewDto {
+// 리뷰 수정용
+public class UpdateReviewDto {
     String commentTitle;
     String comment;
 }

@@ -2,8 +2,7 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.report.Report;
-import com.example.demo.review.dto.ReviewDto;
+import com.example.demo.review.dto.UpdateReviewDto;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.report.ReportService;
 import com.example.demo.user.User;
@@ -43,10 +42,10 @@ public class ReviewController {
     }
 
     @PatchMapping("/{reviewId}") // 리뷰 수정
-    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewDto reviewDto, Principal principal) {
+    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody UpdateReviewDto updateReviewDto, Principal principal) {
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
-            reviewService.updateReview(reviewDto, reviewId);
+            reviewService.updateReview(updateReviewDto, reviewId);
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
@@ -66,8 +65,9 @@ public class ReviewController {
     public ResponseEntity<ResponseMessage> createReport(@PathVariable("reviewId") Long reviewId, @RequestBody HashMap<String, String> params) {
         String content=params.get("reportContent");
         Review review = reviewService.findByReviewId(reviewId);
-        Report report = new Report(content, review);
-        reportService.saveReport(report);
+//        if(review.)
+//        Report report = new Report(content, review);
+//        reportService.saveReport(report);
 
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
     }

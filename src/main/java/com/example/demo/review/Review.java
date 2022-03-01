@@ -2,6 +2,8 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.report.Report;
+import com.example.demo.review.dto.DetailReviewResponse;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.User;
 import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -63,7 +65,7 @@ public class Review {
     @NotNull
     private int reportCount;
 
-    @Column(columnDefinition = "integer default 1") // 값 할당안하면 이렇게 선언해도 null 할당됨
+    @Column
     @NotNull
     private int reviewStatus=1;
 
@@ -82,5 +84,14 @@ public class Review {
         this.createdDate = LocalDateTime.now();
         this.commentTitle = commentTitle;
         this.comment = comment;
+    }
+
+    public void setLectureReview(ReviewPostDto reviewPostDto, User user, Lecture lecture) {
+        this.rate = reviewPostDto.getRate();
+        this.createdDate = LocalDateTime.now();
+        this.commentTitle = reviewPostDto.getCommentTitle();
+        this.comment = reviewPostDto.getComment();
+        this.lecture = lecture;
+        this.user = user;
     }
 }

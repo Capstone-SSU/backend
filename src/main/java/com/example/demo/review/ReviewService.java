@@ -2,7 +2,7 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.user.User;
-import com.example.demo.review.dto.ReviewDto;
+import com.example.demo.review.dto.UpdateReviewDto;
 import com.example.demo.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,9 @@ public class ReviewService {
         return review.orElse(null);
     }
 
-    public void updateReview(ReviewDto reviewDto, Long reviewId){
-        String commentTitle = reviewDto.getCommentTitle();
-        String comment = reviewDto.getComment();
+    public void updateReview(UpdateReviewDto updateReviewDto, Long reviewId){
+        String commentTitle = updateReviewDto.getCommentTitle();
+        String comment = updateReviewDto.getComment();
         reviewRepository.updateReview(commentTitle, comment, reviewId);
     }
 

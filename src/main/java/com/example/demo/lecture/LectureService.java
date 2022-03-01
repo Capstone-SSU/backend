@@ -5,7 +5,7 @@ import com.example.demo.lecture.dto.LectureResponse;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.reviewHashtag.ReviewHashtag;
-import com.example.demo.review.dto.ReviewOnlyDto;
+import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
@@ -81,7 +81,7 @@ public class LectureService {
 
 
     // 특정 강의 조회
-    public LectureResponse getLecture(long lectureId){
+    public LectureResponse getLecture(long lectureId, long userId){
         LectureResponse lectureResponse = new LectureResponse();
         Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
         if(optionalLecture.isEmpty())
@@ -99,16 +99,21 @@ public class LectureService {
         lectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
 
         int totalRate=0;
-        List<ReviewOnlyDto> reviewOnlyDtos = new ArrayList<>();
+        List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
-            ReviewOnlyDto reviewOnlyDto = new ReviewOnlyDto(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
-            BeanUtils.copyProperties(reviews.get(i), reviewOnlyDto,"reviewHashtags"); // 원본 객체, 복사 대상 객체
+            DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
+            BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
             String nickname = reviews.get(i).getUser().getUserNickname();
-            reviewOnlyDto.setNickname(nickname);
-            reviewOnlyDtos.add(reviewOnlyDto);
+            detailReviewResponse.setNickname(nickname);
+
+            if(userId == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
+                detailReviewResponse.setWriterStatus(true);
+            else
+                detailReviewResponse.setWriterStatus(false);
+            detailReviewResponses.add(detailReviewResponse);
             totalRate += reviews.get(i).getRate();
         }
-        lectureResponse.setReviews(reviewOnlyDtos);
+        lectureResponse.setReviews(detailReviewResponses);
         lectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
         lectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
 
