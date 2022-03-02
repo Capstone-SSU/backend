@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class ReviewOnlyDto {
+public class DetailReviewResponse {
     private String nickname;
     private long reviewId;
     private int rate;
     private String commentTitle;
     private String comment;
     private LocalDateTime createdDate;
-    private int reportCount;
-    private int reviewStatus;
+    private int reportCount; // 이거 여기 왜있지 없어도도리 것 같은디
+    private boolean writerStatus;
 }

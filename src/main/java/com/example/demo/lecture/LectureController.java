@@ -1,14 +1,14 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.service.HashtagService;
+import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.LectureDto;
-import com.example.demo.lecture.dto.LectureResponse;
+import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.lecture.dto.UrlCheckDto;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
-import com.example.demo.reviewHashtag.ReviewHashtag;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.reviewHashtag.ReviewHashtagService;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,22 +36,45 @@ public class LectureController {
     private final HashtagService hashtagService;
     private final ReviewHashtagService reviewHashtagService;
     private final LikeService likeService;
-    private final EntityManager em;
 
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<Lecture> lectures=lectureService.getAllLectures();
+        List<AllLecturesResponse> lectures = lectureService.getAllLectures();
         return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회
-    public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId) {
+    public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {// 강의정보가 있는 경우만
-            LectureResponse lectureResponse = lectureService.getLecture(lecture.getLectureId());
-            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", lectureResponse), HttpStatus.OK);
+            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
+            return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", detailLectureResponse), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/{lectureId}/reviews") // 강의에 들어가서 리뷰 다는 경우
+    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        Lecture lecture = lectureService.findById(lectureId);
+        List<String> hashtags = reviewPostDto.getHashtags();
+        if(lecture!=null){ // 강의가 있는 경우
+            Review review = reviewService.findByUserAndLecture(user, lecture);
+            if(review == null) { // 리뷰 등록한 적 없는 경우
+                review = new Review();
+                review.setLectureReview(reviewPostDto, user, lecture);
+                reviewService.saveReview(review);
+                lectureService.manageHashtag(hashtags, review);
+                return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
+            }
+            else
+                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+        }
+        else
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/{lectureId}/likes") // 강의글 좋아요
@@ -60,6 +82,7 @@ public class LectureController {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        System.out.println("hui");
 
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture!=null) {// 강의정보가 있는 경우
@@ -114,28 +137,14 @@ public class LectureController {
             if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
                 return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
 
-            Review existedReview = reviewService.findByUserId(user, existedLecture);
+            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
             if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
                 return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
             review.setLecture(existedLecture);
         }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
-
-        for (int i = 0; i < hashtags.size(); i++) {
-            Hashtag existedHashtag = hashtagService.findByName(hashtags.get(i));
-            ReviewHashtag reviewHashtag = new ReviewHashtag();
-            if(existedHashtag!=null) { // 이미 들어간 해시태그라면 id 받아오기
-                reviewHashtag.setHashtag(existedHashtag);
-            }
-            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
-                Hashtag hashtag = new Hashtag(hashtags.get(i));
-                hashtagService.saveHashtag(hashtag);
-                reviewHashtag.setHashtag(hashtag);
-            }
-            reviewHashtag.setReview(review);
-            reviewHashtagService.saveReviewHashtag(reviewHashtag);
-        }
+        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
 
