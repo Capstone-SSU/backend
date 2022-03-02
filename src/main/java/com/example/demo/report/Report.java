@@ -44,15 +44,17 @@ public class Report {
     private StudyComment studyComment;
 
     @Builder
-    public Report(String content, StudyPost post){
+    public Report(String content, StudyPost post,User user){
         this.reportContent=content;
         this.studyPost=post;
+        this.user=user;
     }
 
     @Builder
-    public Report(String content, StudyComment comment){
+    public Report(String content, StudyComment comment,User user){
         this.reportContent=content;
         this.studyComment=comment;
+        this.user=user;
     }
 
     @Builder
