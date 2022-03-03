@@ -1,6 +1,4 @@
 package com.example.demo.review;
-
-import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.report.Report;
 import com.example.demo.review.dto.ReviewPostDto;

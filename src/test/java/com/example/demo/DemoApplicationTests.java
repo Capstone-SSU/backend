@@ -7,8 +7,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest
 class DemoApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+//	@Test
+//	void contextLoads() {
+//	}
 
 }

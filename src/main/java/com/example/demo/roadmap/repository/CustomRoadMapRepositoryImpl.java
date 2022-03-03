@@ -1,7 +1,5 @@
 package com.example.demo.roadmap.repository;
 
-import com.example.demo.roadmap.QRoadMap;
-import com.example.demo.roadmap.RoadMap;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
