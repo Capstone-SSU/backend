@@ -24,7 +24,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Api(tags = { "Lecture"})
+@Api(tags = {"Lecture"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
@@ -33,14 +33,19 @@ public class LectureController {
     private final LectureService lectureService;
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final HashtagService hashtagService;
-    private final ReviewHashtagService reviewHashtagService;
     private final LikeService likeService;
 
+    // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
-    public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<AllLecturesResponse> lectures = lectureService.getAllLectures();
-        return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
+    public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category) {
+        if(keyword == null && category == null) { // 모든 강의 조회
+            List<AllLecturesResponse> lectures = lectureService.getLectures();
+            return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
+        }
+        else { // 검색어별 조회 or 해시태그(카테고리)별 조회
+            List<AllLecturesResponse> lectures = lectureService.getFilteredLectures(keyword, category);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "필터링 된 강의리뷰 조회", lectures), HttpStatus.OK);
+        }
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회
@@ -144,6 +149,7 @@ public class LectureController {
         }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
+        System.out.println("hashtags = " + hashtags);
         lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
