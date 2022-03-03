@@ -5,6 +5,7 @@ import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
+import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.dto.RoadMapDto;
 import com.example.demo.roadmap.dto.RoadmapUploadLectureDto;
 import com.example.demo.user.User;
@@ -49,7 +50,7 @@ public class roadMapController {
         return new ResponseEntity<>(new ResponseMessage(201,"새로운 로드맵 등록 성공"),HttpStatus.OK);
     }
 
-    @GetMapping("/roadmaps/{userId}")
+    @GetMapping("/roadmaps/lectures/{userId}")
     public ResponseEntity<ResponseMessage> getAllLecturesForRoadmap(@PathVariable Long userId){
         User user=userDetailsService.findUserById(userId);
         if(user==null){
@@ -70,5 +71,22 @@ public class roadMapController {
         }
         return new ResponseEntity<>(ResponseMessage.withData(200,"사용자가 등록한 강의 목록입니다.",userLectureList),HttpStatus.OK);
     }
+
+    @GetMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> getRoadmap(@PathVariable Integer roadmapGroupId,Principal principal) {
+        //강의제목, 강의별점, 별점숫자, 해시태그 3개, 강의별 리뷰 제목과 내용 (로드맵 등록자가 작성한), 강의별 id (api 보낼 수 있게), 강의 썸네일
+        //로드맵 제목, 좋아요 수, 이 사용자가 좋아요를 눌렀는가 (로드맵에), 이 사용자가 로드맵 작성자인가St
+        //작성자 이름, 작성자 company, 추천대상, 작성자 프로필 이미지
+        //강의 데이터 보내줄 때는 로드맵에 담긴 순서대로 담아서 보내주기
+        List<RoadMap> roadmaps=roadMapService.getAllRoadMapsByGroup(roadmapGroupId);
+        User user=userDetailsService.findUserByEmail(principal.getName());
+        if(roadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+        DetailRoadmapResponse detailRoadmapResponse = roadMapService.getDetailRoadmapResponse(roadmaps, user);
+
+        return new ResponseEntity<>(ResponseMessage.withData(200,"상세 로드맵 조회 성공",detailRoadmapResponse),HttpStatus.OK);
+    }
+    //전체 로드맵 목록을 돌려줄 때, 로드맵의 groupId를 보내주어야함!
 
 }
