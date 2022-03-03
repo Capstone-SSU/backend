@@ -46,7 +46,6 @@ public class LectureController {
         else { // 검색어에 공백이 없는 경우 / 검색어에 공백이 있는 경우
             List<AllLecturesResponse> lectures = lectureService.getLecturesByKeyword(keyword);
             return new ResponseEntity<>(ResponseMessage.withData(200, "검색어별 강의조회", lectures), HttpStatus.OK);
-
         }
     }
 

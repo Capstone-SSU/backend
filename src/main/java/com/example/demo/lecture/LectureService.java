@@ -51,21 +51,25 @@ public class LectureService {
         return allLectures;
     }
 
+    // 검색어별 조회
     public List<AllLecturesResponse> getLecturesByKeyword(String keyword){
+        List<AllLecturesResponse> allLectures = new ArrayList<>();
+        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
 
-        List<AllLecturesResponse> lectures = this.getLectures();
-        return lectures.stream()
-                .filter(lecture -> lecture.getLectureTitle().contains(keyword))
-                .collect(Collectors.toList());
-
-        //        List<AllLecturesResponse> lecturesByKeyword = new ArrayList<>();
-//        String[] keywords = keyword.split(" "); // 공백기준으로 나눔
-//        for(int i=0;i<keywords.length;i++){
-//            //전체 글 중에서 해당 키워드가 제목에 있느 경우 or 해당 키워드가 해시태그에 있는 경우 필터링
-//            List<Lecture> lectures = lectureRepository.findByKeyword(keywords[i]);
-//            lecturesByKeyword.add(lectures);
-//        }
+        String[] keywords = keyword.split(" ");
+        for(int i=0;i<keywords.length;i++){
+            String word = keywords[i];
+            allLectures.addAll(lectures.stream() // 제목에 키워드 포함된 거 가져오기
+                    .filter(lecture -> lecture.getLectureTitle().contains(word))
+                    .collect(Collectors.toList()));
+        }
+        return allLectures;
     }
+
+    // 해시태그별 조회
+//    public List<AllLecturesResponse> getLecturesByHashtag(String hashtag){
+//
+//    }
 
     public Lecture findById(long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
@@ -132,6 +136,7 @@ public class LectureService {
             totalRate += reviews.get(i).getRate();
         }
         System.out.println("totalRate = " + totalRate);
+        System.out.println("reviews.size() = " + reviews.size());
         System.out.println(totalRate/reviews.size());
         return totalRate/reviews.size(); // 평균 점수 계산
     }
@@ -154,7 +159,7 @@ public class LectureService {
         int reviewCnt = reviews.size();
         detailLectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
 
-        int totalRate=0;
+        double totalRate=0;
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
