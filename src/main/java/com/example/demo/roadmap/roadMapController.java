@@ -6,7 +6,7 @@ import com.example.demo.lecture.LectureService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
 import com.example.demo.roadmap.dto.RoadMapDto;
-import com.example.demo.roadmap.dto.RoadmapLecturesResponse;
+import com.example.demo.roadmap.dto.RoadmapUploadLectureDto;
 import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
@@ -60,13 +60,13 @@ public class roadMapController {
         if(reviews.isEmpty()){
             return new ResponseEntity<>(ResponseMessage.withData(200,"리뷰를 남긴 강의가 존재하지 않습니다.",reviews),HttpStatus.OK);
         }
-        List<RoadmapLecturesResponse> userLectureList=new ArrayList<>();
+        List<RoadmapUploadLectureDto> userLectureList=new ArrayList<>();
         for(Review review:reviews){
             Lecture lecture=review.getLecture();
-            RoadmapLecturesResponse roadmapLecturesResponse=new RoadmapLecturesResponse();
-            BeanUtils.copyProperties(lecture,roadmapLecturesResponse);
-            roadmapLecturesResponse.setHashTags(lectureService.getBestHashtags(lecture));
-            userLectureList.add(roadmapLecturesResponse);
+            RoadmapUploadLectureDto roadmapUploadLectureDto =new RoadmapUploadLectureDto();
+            BeanUtils.copyProperties(lecture, roadmapUploadLectureDto);
+            roadmapUploadLectureDto.setHashTags(lectureService.getBestHashtags(lecture));
+            userLectureList.add(roadmapUploadLectureDto);
         }
         return new ResponseEntity<>(ResponseMessage.withData(200,"사용자가 등록한 강의 목록입니다.",userLectureList),HttpStatus.OK);
     }
