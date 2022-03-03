@@ -56,10 +56,7 @@ public class LectureService {
         List<AllLecturesResponse> allLectures = new ArrayList<>();
         List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
 
-        if(keyword!=null && category!=null){ // 둘다 있는 경우
-
-        }
-        else if(keyword!=null){ // 키워드만 있는 경우
+        if(keyword!=null){ // 키워드만 있는 경우
             String[] keywords = keyword.split(" ");
             for(int i=0;i<keywords.length;i++){
                 String word = keywords[i];
@@ -68,7 +65,8 @@ public class LectureService {
                         .collect(Collectors.toList()));
             }
         }
-        else if(category!=null){ // 카테고리(해시태그)만 있는 경우
+
+        if(category!=null){ // 카테고리(해시태그)만 있는 경우
             List<String> categories = Arrays.stream(category.split(",")).toList(); // 카테고리 받아온거
             for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
                 Lecture lecture = this.findById(lectures.get(i).getLectureId());
