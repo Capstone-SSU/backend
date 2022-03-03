@@ -1,8 +1,10 @@
 package com.example.demo.roadmap;
 
 import com.example.demo.lecture.Lecture;
+import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +12,13 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "roadmap")
+@Table(name = "roadmaps")
 public class RoadMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +52,10 @@ public class RoadMap {
     @JoinColumn(name = "userId")
     @JsonBackReference
     private User user; //직성자 객체 저장
+
+    @OneToMany(mappedBy = "roadmap",targetEntity = Like.class)
+    @JsonManagedReference
+    private List<Like> likes =new ArrayList<>();
 
     @Builder
     public RoadMap(String title, String recommend, Lecture lecture, Integer order, Integer groupId, User user){

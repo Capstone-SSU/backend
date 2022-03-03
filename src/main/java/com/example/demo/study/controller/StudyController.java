@@ -98,7 +98,7 @@ public class StudyController {
 
             BeanUtils.copyProperties(post,studyPostResponse); //스터디글 핵심정보만 복사
             studyPostResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료"); // 모집중인지 아닌지 텍스트로 return
-            studyPostResponse.setLikeCount(likeService.findAllLikesOnPost(post).size()); //스터디글에 대한 좋아요 개수
+            studyPostResponse.setLikeCount(likeService.getLikeCountOnStudyPost(post)); //스터디글에 대한 좋아요 개수
             Like userLiked=likeService.findLikeByStudyPostandUser(post,loginUser);
             studyPostResponse.setIsLikedByUser(userLiked!=null&&userLiked.getLikeStatus()==1); //맞으면 true, 아니면 false
             //comment 제외 모든 정보 setting 완료

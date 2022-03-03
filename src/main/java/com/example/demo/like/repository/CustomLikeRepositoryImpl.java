@@ -1,6 +1,9 @@
 package com.example.demo.like.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
+import com.example.demo.roadmap.QRoadMap;
+import com.example.demo.roadmap.RoadMap;
+import com.example.demo.study.domain.StudyPost;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -29,6 +32,22 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
         return jpaQueryFactory
                 .selectFrom(like)
                 .where(like.likeStatus.eq(1))
+                .fetch();
+    }
+
+    @Override
+    public List<Like> findLikeByStudyPost(StudyPost post) {
+        return jpaQueryFactory
+                .selectFrom(like)
+                .where(like.studyPost.eq(post),like.likeStatus.eq(1))
+                .fetch();
+    }
+
+    @Override
+    public List<Like> findLikeByRoadMap(RoadMap roadMap) {
+        return jpaQueryFactory
+                .selectFrom(like)
+                .where(like.roadmap.eq(roadMap),like.likeStatus.eq(1))
                 .fetch();
     }
 }

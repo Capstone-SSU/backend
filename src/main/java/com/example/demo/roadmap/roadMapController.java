@@ -5,8 +5,9 @@ import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
+import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.dto.RoadMapDto;
-import com.example.demo.roadmap.dto.RoadmapLecturesResponse;
+import com.example.demo.roadmap.dto.RoadmapUploadLectureDto;
 import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
@@ -49,7 +50,7 @@ public class roadMapController {
         return new ResponseEntity<>(new ResponseMessage(201,"새로운 로드맵 등록 성공"),HttpStatus.OK);
     }
 
-    @GetMapping("/roadmaps/{userId}")
+    @GetMapping("/roadmaps/lectures/{userId}")
     public ResponseEntity<ResponseMessage> getAllLecturesForRoadmap(@PathVariable Long userId){
         User user=userDetailsService.findUserById(userId);
         if(user==null){
@@ -60,15 +61,30 @@ public class roadMapController {
         if(reviews.isEmpty()){
             return new ResponseEntity<>(ResponseMessage.withData(200,"리뷰를 남긴 강의가 존재하지 않습니다.",reviews),HttpStatus.OK);
         }
-        List<RoadmapLecturesResponse> userLectureList=new ArrayList<>();
+        List<RoadmapUploadLectureDto> userLectureList=new ArrayList<>();
         for(Review review:reviews){
             Lecture lecture=review.getLecture();
-            RoadmapLecturesResponse roadmapLecturesResponse=new RoadmapLecturesResponse();
-            BeanUtils.copyProperties(lecture,roadmapLecturesResponse);
-            roadmapLecturesResponse.setHashTags(lectureService.getBestHashtags(lecture));
-            userLectureList.add(roadmapLecturesResponse);
+            RoadmapUploadLectureDto roadmapUploadLectureDto =new RoadmapUploadLectureDto();
+            BeanUtils.copyProperties(lecture, roadmapUploadLectureDto);
+            roadmapUploadLectureDto.setHashTags(lectureService.getBestHashtags(lecture));
+            userLectureList.add(roadmapUploadLectureDto);
         }
         return new ResponseEntity<>(ResponseMessage.withData(200,"사용자가 등록한 강의 목록입니다.",userLectureList),HttpStatus.OK);
     }
+
+    @GetMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> getRoadmap(@PathVariable Integer roadmapGroupId,Principal principal) {
+        List<RoadMap> roadmaps=roadMapService.getAllRoadMapsByGroup(roadmapGroupId);
+        User user=userDetailsService.findUserByEmail(principal.getName());
+        if(roadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+        DetailRoadmapResponse detailRoadmapResponse = roadMapService.getDetailRoadmapResponse(roadmaps, user);
+
+        return new ResponseEntity<>(ResponseMessage.withData(200,"상세 로드맵 조회 성공",detailRoadmapResponse),HttpStatus.OK);
+    }
+    //전체 로드맵 목록을 돌려줄 때, 로드맵의 groupId를 보내주어야함!
+
+    //해야할 것: 1. 좋아요 API 추가 2. 메소드로 분리시키는게 나은 것들 분리시키기 (마이페이지 고려)
 
 }

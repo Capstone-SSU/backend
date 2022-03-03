@@ -1,6 +1,7 @@
 package com.example.demo.like;
 
 import com.example.demo.lecture.Lecture;
+import com.example.demo.roadmap.RoadMap;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -38,6 +39,11 @@ public class Like {
     @JsonBackReference
     @JoinColumn(name = "userId")
     private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoadMap.class)
+    @JsonBackReference
+    @JoinColumn(name = "roadmapId")
+    private RoadMap roadmap;
 
     @Builder
     public Like(User user, StudyPost post){

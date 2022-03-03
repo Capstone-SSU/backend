@@ -89,7 +89,7 @@ public class StudyPostService {
             AllStudyPostsResponse studyResponse=new AllStudyPostsResponse();
             studyResponse.setStudyPostWriter(userDetailsService.getSimpleUserDto(post.getUser()));
             BeanUtils.copyProperties(post,studyResponse);
-            studyResponse.setStudyLikeCount(likeService.findAllLikesOnPost(post).size());
+            studyResponse.setStudyLikeCount(likeService.getLikeCountOnStudyPost(post));
             studyResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료");
             studiesResponseList.add(studyResponse);
         }

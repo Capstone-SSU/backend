@@ -2,6 +2,7 @@ package com.example.demo.like;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
+import com.example.demo.roadmap.RoadMap;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.example.demo.like.repository.LikeRepository;
@@ -50,15 +51,19 @@ public class LikeService {
         return foundLike.orElse(null);
     }
 
-    public List<Like> findAllLikesOnPost(StudyPost post){
-        List<Like> likesOnPost=likeRepository.findAllLikeByStudyPost(post);
-        Iterator<Like> itr=likesOnPost.iterator();
-        while(itr.hasNext()){
-            Like like=itr.next();
-            if(like.getLikeStatus()==0){ //like==0이면 좋아요가 취소된 상태
-                itr.remove();
-            }
-        }
-        return likesOnPost;
+    public Integer getLikeCountOnStudyPost(StudyPost post){
+        List<Like> likesOnPost=likeRepository.findLikeByStudyPost(post);
+        return likesOnPost.size();
     }
+
+    public Like findLikeByRoadmapAndUser(RoadMap roadMap,User user){
+        Optional<Like> like=likeRepository.findLikByRoadmapAndUser(roadMap,user);
+        return like.orElse(null);
+    }
+
+    public Integer getLikeCountOnRoadmap(RoadMap roadmap){
+        List<Like> likesOnRoadmap=likeRepository.findLikeByRoadMap(roadmap);
+        return likesOnRoadmap.size();
+    }
+
 }
