@@ -88,14 +88,8 @@ public class UserController {
 
             user=userService.findUserById(userId);
             String newNickname=user.getUserNickname();
-            String email=user.getUserEmail();
-            String pwd=user.getUserPassword();
 
-            String jwtToken=userService.authenticateLogin(email,pwd);
-
-            AuthResponse authResponse=new AuthResponse(jwtToken,userId);
-
-            return new ResponseEntity<>(ResponseMessage.withData(200,"닉네임 변경 완료, "+newNickname, authResponse), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(200,newNickname+" 으로 닉네임 변경 완료! 깃허브로 재로그인 해주세요."), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(409,"이미 사용중인 닉네임"), HttpStatus.OK);
     }
@@ -148,11 +142,8 @@ public class UserController {
 //            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
             response.sendRedirect(redirect_uri);
 
-            // 프론트에서 닉네임입력폼을 /nickname/{userId}로 라우팅 해놓았다면, 여기로 redirect 요청을 보냈을 때 해당 페이지가 띄워지는가 (즉 스프링에서 리액트의 router에 요청을 보낼 수 있는가)
-            //이후 프론트의 닉네임폼에서 닉네임을 새롭게 입력하고 -> /signup/{userId}/{nickname} 으로 GET 요청
         }else{
-            //닉네임이 정상인 회원 (자체 회원가입 or 깃허브 username 중복없는 새 회원 or 깃허브 이미 등록 -> 이번에 로그인한 회원)
-            //그냥 로그인 후 페이지로 자동 redirect
+
             String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
             redirect_uri+="/github-login/"+savedUserId+"/"+jwtToken; // token 암호화 추가
 //            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
