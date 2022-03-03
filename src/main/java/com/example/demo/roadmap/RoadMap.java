@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "roadmap")
+@Table(name = "roadmaps")
 public class RoadMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
