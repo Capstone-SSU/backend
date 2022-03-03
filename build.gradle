@@ -14,7 +14,8 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = "16"
+sourceCompatibility = '11'
+
 
 configurations {
 	developmentOnly
@@ -76,4 +77,3 @@ configurations {
 	querydsl.extendsFrom compileClasspath
 }
 //querydsl 추가 끝
-targetCompatibility = JavaVersion.VERSION_16

@@ -44,7 +44,7 @@ public class LectureController {
         }
         else { // 검색어별 조회 or 해시태그(카테고리)별 조회
             List<AllLecturesResponse> lectures = lectureService.getFilteredLectures(keyword, category);
-            return new ResponseEntity<>(ResponseMessage.withData(200, "검색어별 강의조회", lectures), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "필터링 된 강의리뷰 조회", lectures), HttpStatus.OK);
         }
     }
 

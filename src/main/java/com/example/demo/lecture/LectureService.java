@@ -67,7 +67,7 @@ public class LectureService {
         }
 
         if(category!=null){ // 카테고리(해시태그)만 있는 경우
-            List<String> categories = Arrays.stream(category.split(",")).toList(); // 카테고리 받아온거
+            List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
             for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
                 Lecture lecture = this.findById(lectures.get(i).getLectureId());
                 List<String> hashtags = this.getBestHashtags(lecture); // 강의의 해시태그 3개 가져오기
