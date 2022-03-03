@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -74,9 +75,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public String authenticateLogin(String email, String pwd){
         User user=userRepository.findByUserEmail(email);
         if(user==null){
+            System.out.println("email match fail");
             return null;
         }
-        if(!bCryptPasswordEncoder.matches(pwd,user.getUserPassword())){
+        if(user.getLoginProvider()==null&&!bCryptPasswordEncoder.matches(pwd,user.getUserPassword())){
+            System.out.println("pwd match fail");
             //전달 파라미터가 암호화 되지 않은 비밀번호
             return null;
         }
@@ -85,7 +88,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         //여기서 username: 중복되지 않는 고유값 -> email로 대체하여 사용
         UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
         Authentication auth=authManager.authenticate(authToken);
-//        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         return jwtTokenProvider.generateJwtToken(auth);
 
