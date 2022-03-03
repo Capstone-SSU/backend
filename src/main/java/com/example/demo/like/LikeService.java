@@ -60,4 +60,10 @@ public class LikeService {
         Optional<Like> like=likeRepository.findLikByRoadmapAndUser(roadMap,user);
         return like.orElse(null);
     }
+
+    public Integer getLikeCountOnRoadmap(RoadMap roadmap){
+        List<Like> likesOnRoadmap=likeRepository.findLikeByRoadMap(roadmap);
+        return likesOnRoadmap.size();
+    }
+
 }

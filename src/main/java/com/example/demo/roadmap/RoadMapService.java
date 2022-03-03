@@ -59,13 +59,12 @@ public class RoadMapService {
 
     public DetailRoadmapResponse getDetailRoadmapResponse(List<RoadMap> originRoadmaps, User user){
         RoadMap firstRoadmap=originRoadmaps.get(0);
-        Integer groupId=firstRoadmap.getRoadmapGroupId();
         DetailRoadmapResponse detailRoadmapResponse=new DetailRoadmapResponse();
         BeanUtils.copyProperties(firstRoadmap,detailRoadmapResponse); //로드맵 정보는 첫번째 거에서만 가져와도 OK
-        detailRoadmapResponse.setIsLikedByUser(getUserRoadmapLikedStatus(groupId,user));
+        detailRoadmapResponse.setIsLikedByUser(getUserRoadmapLikedStatus(firstRoadmap,user));
         detailRoadmapResponse.setIsThisUserRoadmapWriter(firstRoadmap.getUser().getUserId()==user.getUserId());
         detailRoadmapResponse.setRoadmapWriter(userDetailsService.getSimpleUserDto(user));
-        detailRoadmapResponse.setLikeCount(getLikeCountOnRoadmap(firstRoadmap.getRoadmapGroupId()));
+        detailRoadmapResponse.setLikeCount(likeService.getLikeCountOnRoadmap(firstRoadmap));
         List<DetailRoadmapLectureResponse> lectures=new ArrayList<>();
         for(RoadMap roadMap:originRoadmaps){
             DetailRoadmapLectureResponse lectureResponse=new DetailRoadmapLectureResponse();
@@ -82,15 +81,8 @@ public class RoadMapService {
         return detailRoadmapResponse;
     }
 
-    public Integer getLikeCountOnRoadmap(Integer roadmapGroupId){
-        RoadMap roadMap=roadMapRepository.findAllRoadmapsByGroupId(roadmapGroupId).get(0);
-        Integer count=roadMap.getLikes().size();
-        return count;
-    }
-
-    public Boolean getUserRoadmapLikedStatus(Integer roadmapGroupId,User user){
-        RoadMap roadMap=getAllRoadMapsByGroup(roadmapGroupId).get(0);
-        Like like=likeService.findLikeByRoadmapAndUser(roadMap,user);
+    public Boolean getUserRoadmapLikedStatus(RoadMap roadmap,User user){
+        Like like=likeService.findLikeByRoadmapAndUser(roadmap,user);
         return like != null && like.getLikeStatus() == 1;
 
     }

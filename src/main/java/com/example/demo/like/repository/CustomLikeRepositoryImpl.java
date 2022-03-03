@@ -42,4 +42,12 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .where(like.studyPost.eq(post),like.likeStatus.eq(1))
                 .fetch();
     }
+
+    @Override
+    public List<Like> findLikeByRoadMap(RoadMap roadMap) {
+        return jpaQueryFactory
+                .selectFrom(like)
+                .where(like.roadmap.eq(roadMap),like.likeStatus.eq(1))
+                .fetch();
+    }
 }
