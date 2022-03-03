@@ -59,11 +59,12 @@ public class RoadMapService {
 
     public DetailRoadmapResponse getDetailRoadmapResponse(List<RoadMap> originRoadmaps, User user){
         RoadMap firstRoadmap=originRoadmaps.get(0);
+        User roadmapWriter=firstRoadmap.getUser();
         DetailRoadmapResponse detailRoadmapResponse=new DetailRoadmapResponse();
         BeanUtils.copyProperties(firstRoadmap,detailRoadmapResponse); //로드맵 정보는 첫번째 거에서만 가져와도 OK
         detailRoadmapResponse.setIsLikedByUser(getUserRoadmapLikedStatus(firstRoadmap,user));
-        detailRoadmapResponse.setIsThisUserRoadmapWriter(firstRoadmap.getUser().getUserId()==user.getUserId());
-        detailRoadmapResponse.setRoadmapWriter(userDetailsService.getSimpleUserDto(user));
+        detailRoadmapResponse.setIsThisUserRoadmapWriter(roadmapWriter.getUserId()==user.getUserId());
+        detailRoadmapResponse.setRoadmapWriter(userDetailsService.getSimpleUserDto(roadmapWriter));
         detailRoadmapResponse.setLikeCount(likeService.getLikeCountOnRoadmap(firstRoadmap));
         List<DetailRoadmapLectureResponse> lectures=new ArrayList<>();
         for(RoadMap roadMap:originRoadmaps){
