@@ -136,11 +136,16 @@ public class StudyController {
     }
 
     @PostMapping ("/studies/{studyId}/reports")
-    public ResponseEntity<ResponseMessage> reportPost(@PathVariable Long studyId, @RequestBody HashMap<String, String> params ){
+    public ResponseEntity<ResponseMessage> reportPost(@PathVariable Long studyId, @RequestBody HashMap<String, String> params,Principal principal ){
         String content=params.get("reportContent");
+        User user=userDetailsService.findUserByEmail(principal.getName());
 
         StudyPost post=studyPostService.findStudyPostById(studyId);
-        Report report=new Report(content,post);
+        Report foundReport=reportService.findByUserAndStudyPost(user,post);
+        if(foundReport!=null){
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 신고한 스터디글"),HttpStatus.OK);
+        }
+        Report report=new Report(content,post,user);
         em.persist(report);
         reportService.saveReport(report);
 
@@ -150,11 +155,11 @@ public class StudyController {
         if(reportCount==5){
             post.updateStudyStatus(0); // 5번 신고된 글은 삭제 처리
             studyPostService.saveStudyPost(post);
-            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 글은 신고가 5번 누적되어 삭제되었습니다."),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글은 신고가 5번 누적되어 삭제되었습니다."),HttpStatus.OK);
         }
 
         studyPostService.saveStudyPost(post); // 신고내역 update 후 저장
-        return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 글 신고 완료"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(200,studyId+"번 스터디글 신고 완료"),HttpStatus.OK);
     }
 
     @PostMapping("/studies/{studyId}/likes")

@@ -77,11 +77,17 @@ public class StudyCommentController {
     }
 
     @PostMapping("/studies/{studyId}/comments/{commentId}/reports")
-    public ResponseEntity<ResponseMessage> setCommentLike(@PathVariable Long commentId, @RequestBody HashMap<String, String> params){
+    public ResponseEntity<ResponseMessage> setCommentLike(@PathVariable Long commentId, @RequestBody HashMap<String, String> params,Principal principal){
         String content=params.get("reportContent");
 
+        User user=userDetailsService.findUserByEmail(principal.getName());
         StudyComment studyComment=studyCommentService.findStudyCommentById(commentId);
-        Report report=new Report(content,studyComment); //2면 스터디 댓글에 대한 신고임
+        Report foundReport=reportService.findByUserAndStudyComment(user,studyComment);
+        if(foundReport!=null){
+            return new ResponseEntity<>(new ResponseMessage(409,"이미 신고한 댓글"),HttpStatus.OK);
+        }
+
+        Report report=new Report(content,studyComment,user);
         reportService.saveReport(report);
 
         Integer reportCount=studyComment.getCommentReportCount();
@@ -90,11 +96,11 @@ public class StudyCommentController {
         if(reportCount==5){
             studyComment.updateStudyCommentStatus(0); // 5번 신고된 글은 삭제 처리
             studyCommentService.saveStudyComment(studyComment);
-            return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 글은 신고가 5번 누적되어 삭제되었습니다."),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 댓글은 신고가 5번 누적되어 삭제되었습니다."),HttpStatus.OK);
         }
 
         studyCommentService.saveStudyComment(studyComment);
-        return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 글 신고 완료"),HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(200,commentId+"번 댓글 신고 완료"),HttpStatus.OK);
 
 
     }
