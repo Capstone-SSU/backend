@@ -24,7 +24,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Api(tags = { "Lecture"})
+@Api(tags = {"Lecture"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
@@ -33,14 +33,21 @@ public class LectureController {
     private final LectureService lectureService;
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final HashtagService hashtagService;
-    private final ReviewHashtagService reviewHashtagService;
     private final LikeService likeService;
 
+    // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
-    public ResponseEntity<ResponseMessage> getAllLectures() {
-        List<AllLecturesResponse> lectures = lectureService.getAllLectures();
-        return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
+    public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword) {
+        System.out.println("keyword = " + keyword);
+        if(keyword == null) {
+            List<AllLecturesResponse> lectures = lectureService.getLectures();
+            return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
+        }
+        else { // 검색어에 공백이 없는 경우 / 검색어에 공백이 있는 경우
+            List<AllLecturesResponse> lectures = lectureService.getLecturesByKeyword(keyword);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "검색어별 강의조회", lectures), HttpStatus.OK);
+
+        }
     }
 
     @GetMapping("/{lectureId}") // 강의글 상세 조회
@@ -144,6 +151,7 @@ public class LectureController {
         }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
+        System.out.println("hashtags = " + hashtags);
         lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }

@@ -39,6 +39,7 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
         return jpaQueryFactory
                 .selectFrom(review)
                 .where(review.reviewStatus.eq(1))
+                .where(review.lecture.eq(lecture))
                 .fetch();
     }
 }

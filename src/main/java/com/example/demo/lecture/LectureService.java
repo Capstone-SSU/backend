@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class LectureService {
     }
 
     // 전체 강의 조회
-    public List<AllLecturesResponse> getAllLectures (){
+    public List<AllLecturesResponse> getLectures(){
         List<AllLecturesResponse> allLectures = new ArrayList<>();
         List<Lecture> lectures = lectureRepository.findAll();
         for(int i=0;i<lectures.size();i++){
@@ -50,6 +51,22 @@ public class LectureService {
         return allLectures;
     }
 
+    public List<AllLecturesResponse> getLecturesByKeyword(String keyword){
+
+        List<AllLecturesResponse> lectures = this.getLectures();
+        return lectures.stream()
+                .filter(lecture -> lecture.getLectureTitle().contains(keyword))
+                .collect(Collectors.toList());
+
+        //        List<AllLecturesResponse> lecturesByKeyword = new ArrayList<>();
+//        String[] keywords = keyword.split(" "); // 공백기준으로 나눔
+//        for(int i=0;i<keywords.length;i++){
+//            //전체 글 중에서 해당 키워드가 제목에 있느 경우 or 해당 키워드가 해시태그에 있는 경우 필터링
+//            List<Lecture> lectures = lectureRepository.findByKeyword(keywords[i]);
+//            lecturesByKeyword.add(lectures);
+//        }
+    }
+
     public Lecture findById(long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
         return lecture.orElse(null);
@@ -57,10 +74,10 @@ public class LectureService {
 
     public void manageHashtag(List<String> hashtags, Review review){
         for (int i = 0; i < hashtags.size(); i++) {
-            Hashtag existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i))).get();
+            Optional<Hashtag> existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i)));
             ReviewHashtag reviewHashtag = new ReviewHashtag();
-            if(existedHashtag!=null) { // 이미 들어간 해시태그라면 id 받아오기
-                reviewHashtag.setHashtag(existedHashtag);
+            if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
+                reviewHashtag.setHashtag(existedHashtag.get());
             }
             else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
                 Hashtag hashtag = new Hashtag(hashtags.get(i));
@@ -114,6 +131,8 @@ public class LectureService {
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             totalRate += reviews.get(i).getRate();
         }
+        System.out.println("totalRate = " + totalRate);
+        System.out.println(totalRate/reviews.size());
         return totalRate/reviews.size(); // 평균 점수 계산
     }
 
