@@ -50,15 +50,8 @@ public class LikeService {
         return foundLike.orElse(null);
     }
 
-    public List<Like> findAllLikesOnPost(StudyPost post){
-        List<Like> likesOnPost=likeRepository.findAllLikeByStudyPost(post);
-        Iterator<Like> itr=likesOnPost.iterator();
-        while(itr.hasNext()){
-            Like like=itr.next();
-            if(like.getLikeStatus()==0){ //like==0이면 좋아요가 취소된 상태
-                itr.remove();
-            }
-        }
-        return likesOnPost;
+    public Integer getLikeCountOnStudyPost(StudyPost post){
+        List<Like> likesOnPost=likeRepository.findLikeByStudyPost(post);
+        return likesOnPost.size();
     }
 }
