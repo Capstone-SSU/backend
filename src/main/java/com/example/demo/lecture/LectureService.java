@@ -52,24 +52,45 @@ public class LectureService {
     }
 
     // 검색어별 조회
-    public List<AllLecturesResponse> getLecturesByKeyword(String keyword){
+    public List<AllLecturesResponse> getFilteredLectures(String keyword, String category){
         List<AllLecturesResponse> allLectures = new ArrayList<>();
         List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
 
-        String[] keywords = keyword.split(" ");
-        for(int i=0;i<keywords.length;i++){
-            String word = keywords[i];
-            allLectures.addAll(lectures.stream() // 제목에 키워드 포함된 거 가져오기
-                    .filter(lecture -> lecture.getLectureTitle().contains(word))
-                    .collect(Collectors.toList()));
+        if(keyword!=null && category!=null){ // 둘다 있는 경우
+
+        }
+        else if(keyword!=null){ // 키워드만 있는 경우
+            String[] keywords = keyword.split(" ");
+            for(int i=0;i<keywords.length;i++){
+                String word = keywords[i];
+                allLectures.addAll(lectures.stream() // 제목에 키워드 포함된 거 가져오기
+                        .filter(lecture -> lecture.getLectureTitle().contains(word))
+                        .collect(Collectors.toList()));
+            }
+        }
+        else if(category!=null){ // 카테고리(해시태그)만 있는 경우
+            List<String> categories = Arrays.stream(category.split(",")).toList(); // 카테고리 받아온거
+            for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
+                Lecture lecture = this.findById(lectures.get(i).getLectureId());
+                List<String> hashtags = this.getBestHashtags(lecture); // 강의의 해시태그 3개 가져오기
+                List<String> finalList = hashtags.stream()
+                        .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
+                        .collect(Collectors.toList());
+                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
+                    lectures.remove(i--); // remove 할 때 인덱스도 같이 줄여줌
+                }
+            }
+            allLectures.addAll(lectures);
         }
         return allLectures;
     }
 
-    // 해시태그별 조회
-//    public List<AllLecturesResponse> getLecturesByHashtag(String hashtag){
-//
-//    }
+    public static <T> boolean listContains(List<T> array, T element) { // categories / hashtag 중 하나
+        // (1,2,3) in (3,4,5) -> 3 출력
+        return array.stream()
+                .filter(e -> e.equals(element)) // categories 의 category에서 hashtag랑 같은거
+                .findFirst().isPresent();
+    }
 
     public Lecture findById(long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
@@ -135,9 +156,6 @@ public class LectureService {
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             totalRate += reviews.get(i).getRate();
         }
-        System.out.println("totalRate = " + totalRate);
-        System.out.println("reviews.size() = " + reviews.size());
-        System.out.println(totalRate/reviews.size());
         return totalRate/reviews.size(); // 평균 점수 계산
     }
 
@@ -182,7 +200,6 @@ public class LectureService {
         detailLectureResponse.setLikeCnt(likes.size());
         return detailLectureResponse;
     }
-
 
     // url 중복 조회용
     public Lecture findByUrl(String lectureUrl){

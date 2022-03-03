@@ -37,14 +37,13 @@ public class LectureController {
 
     // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
-    public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword) {
-        System.out.println("keyword = " + keyword);
-        if(keyword == null) {
+    public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category) {
+        if(keyword == null && category == null) { // 모든 강의 조회
             List<AllLecturesResponse> lectures = lectureService.getLectures();
             return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
         }
-        else { // 검색어에 공백이 없는 경우 / 검색어에 공백이 있는 경우
-            List<AllLecturesResponse> lectures = lectureService.getLecturesByKeyword(keyword);
+        else { // 검색어별 조회 or 해시태그(카테고리)별 조회
+            List<AllLecturesResponse> lectures = lectureService.getFilteredLectures(keyword, category);
             return new ResponseEntity<>(ResponseMessage.withData(200, "검색어별 강의조회", lectures), HttpStatus.OK);
         }
     }
