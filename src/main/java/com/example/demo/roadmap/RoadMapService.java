@@ -2,6 +2,8 @@ package com.example.demo.roadmap;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
+import com.example.demo.like.Like;
+import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
 import com.example.demo.roadmap.dto.DetailRoadmapLectureResponse;
@@ -27,6 +29,7 @@ public class RoadMapService {
     private final UserDetailsServiceImpl userDetailsService;
     private final LectureService lectureService;
     private final ReviewService reviewService;
+    private final LikeService likeService;
 
     public Long saveRoadmap(RoadMap roadMap){
         RoadMap save = roadMapRepository.save(roadMap);
@@ -56,9 +59,10 @@ public class RoadMapService {
 
     public DetailRoadmapResponse getDetailRoadmapResponse(List<RoadMap> originRoadmaps, User user){
         RoadMap firstRoadmap=originRoadmaps.get(0);
+        Integer groupId=firstRoadmap.getRoadmapGroupId();
         DetailRoadmapResponse detailRoadmapResponse=new DetailRoadmapResponse();
         BeanUtils.copyProperties(firstRoadmap,detailRoadmapResponse); //로드맵 정보는 첫번째 거에서만 가져와도 OK
-//        detailRoadmapResponse.setIsLikedByUser();
+        detailRoadmapResponse.setIsLikedByUser(getUserRoadmapLikedStatus(groupId,user));
         detailRoadmapResponse.setIsThisUserRoadmapWriter(firstRoadmap.getUser().getUserId()==user.getUserId());
         detailRoadmapResponse.setRoadmapWriter(userDetailsService.getSimpleUserDto(user));
         detailRoadmapResponse.setLikeCount(getLikeCountOnRoadmap(firstRoadmap.getRoadmapGroupId()));
@@ -82,6 +86,13 @@ public class RoadMapService {
         RoadMap roadMap=roadMapRepository.findAllRoadmapsByGroupId(roadmapGroupId).get(0);
         Integer count=roadMap.getLikes().size();
         return count;
+    }
+
+    public Boolean getUserRoadmapLikedStatus(Integer roadmapGroupId,User user){
+        RoadMap roadMap=getAllRoadMapsByGroup(roadmapGroupId).get(0);
+        Like like=likeService.findLikeByRoadmapAndUser(roadMap,user);
+        return like != null && like.getLikeStatus() == 1;
+
     }
 
 

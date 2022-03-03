@@ -2,6 +2,7 @@ package com.example.demo.like.repository;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
+import com.example.demo.roadmap.RoadMap;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface LikeRepository extends JpaRepository<Like, Long>, CustomLikeRep
     List<Like> findAllLikeByStudyPost(StudyPost post); //한 스터디글에 대한 모든 좋아요 정보 가져오기
     Optional<Like> findLikeByLectureAndUser(Lecture lecture, User user);
     Optional<Like> findLikeByUserAndStudyPost(User user, StudyPost post);
+    Optional<Like> findLikByRoadmapAndUser(RoadMap roadMap, User user);
 }
