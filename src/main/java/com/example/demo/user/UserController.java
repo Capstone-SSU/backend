@@ -125,34 +125,6 @@ public class UserController {
         return new ResponseEntity<>(ResponseMessage.withData(200, "로그인 성공",userIdDto),HttpStatus.OK);
     }
 
-    // 깃허브 회원가입시 닉네임 중복을 체크하는 API -> 프론트에서 해당 라우터가 완성되면 동작하도록 해당 api를 호출하는 코드는 주석처리 해둠
-    @GetMapping("/nickname")
-    public void checkGithubJoinNicknameConflict(HttpServletRequest request,HttpServletResponse response) throws IOException {
-
-        User user=(User)request.getSession().getAttribute("user");
-        Long savedUserId=user.getUserId();
-        String nodeId=(String)request.getSession().getAttribute("nodeId");
-
-        String userNickname=user.getUserNickname();
-        String redirect_uri="http://localhost:3000"; // http://localhost:3000/{react route}
-
-        if(userNickname.contains("_CONFLICT")){
-            //중복 닉네임이 있는 유저라는 의미이므로, 새로운 닉네임 폼으로 보내주어야 한다
-            redirect_uri+="/nickname/"+savedUserId; // 닉네임폼(프론트에서 제작한)
-//            System.out.println("github join, conflicted nickname! Redirect: "+redirect_uri);
-            response.sendRedirect(redirect_uri);
-
-        }else{
-
-            String jwtToken=userService.authenticateLogin(user.getUserEmail(),nodeId);
-            redirect_uri+="/github-login/"+savedUserId+"/"+jwtToken; // token 암호화 추가
-//            System.out.println("not a conflicted nickname, Redirect: "+redirect_uri);
-            response.sendRedirect(redirect_uri);
-
-        }
-        //중복 닉네임이면 닉네임에 username_CONFLICT를 저장
-        //프론트에서 fetch를 통해 Response 받아올 수 있음
-    }
 
     @PostMapping("/deploy-test")
     public ResponseEntity<ResponseMessage> deployTEST(@RequestBody SigninDTO signinDTO){
