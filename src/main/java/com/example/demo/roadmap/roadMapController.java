@@ -106,7 +106,11 @@ public class roadMapController {
             }
             return new ResponseEntity<>(new ResponseMessage(201,"좋아요가 등록되었습니다."),HttpStatus.CREATED);
         }else{
-            likeService.changeLikeOnRoadmapByGroup(roadmapGroupId,foundLike.getLikeStatus()==1?0:1); //좋아요 눌린 상태면 0으로, 아니면 1로
+            for(RoadMap map:roadmaps){
+                Like like=likeService.findLikeByRoadmapAndUser(map,user);
+                like.setLikeStatus(like.getLikeStatus()==1?0:1);
+                likeService.saveLike(like);
+            }
             return new ResponseEntity<>(new ResponseMessage(200,"좋아요 상태 변경 성공"),HttpStatus.OK);
         }
     }

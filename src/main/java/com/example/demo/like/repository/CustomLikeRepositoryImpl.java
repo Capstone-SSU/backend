@@ -51,13 +51,4 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .fetch();
     }
 
-    @Override
-    public Integer updateLikeStatusOnRoadmap(Integer roadmapGroupId, Integer likeStatus) {
-        jpaQueryFactory
-                .update(like)
-                .set(like.likeStatus,likeStatus)
-                .where(like.roadmap.roadmapGroupId.eq(roadmapGroupId)) // groupId 에러 해결
-                .execute();
-        return likeStatus;
-    }
 }
