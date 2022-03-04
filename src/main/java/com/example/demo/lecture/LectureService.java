@@ -90,7 +90,7 @@ public class LectureService {
                 .findFirst().isPresent();
     }
 
-    public Lecture findById(long lectureId){
+    public Lecture findById(Long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
         return lecture.orElse(null);
     }

@@ -36,13 +36,12 @@ public class LikeService {
     }
 
     // 좋아요 상태 변경하기
-    public int changeLikeStatus(Like lectureLike, int likeStatus){
-        if(likeStatus==0) // 취소한 상태에서 다시 누른 경우
-            return likeRepository.updateLikeStatus(lectureLike, likeStatus+1);
-        else // 좋아요 누른 상태에서 취소하는 경우
-            return likeRepository.updateLikeStatus(lectureLike, likeStatus-1);
-    }
-
+//    public int changeLikeStatus(Like lectureLike, int likeStatus){
+//        if(likeStatus==0) // 취소한 상태에서 다시 누른 경우
+//            return likeRepository.updateLikeStatus(lectureLike, likeStatus+1);
+//        else // 좋아요 누른 상태에서 취소하는 경우
+//            return likeRepository.updateLikeStatus(lectureLike, likeStatus-1);
+//    }
 
     //studyPost와 user로 찾는게 있어야함
     public Like findLikeByStudyPostandUser(StudyPost post, User user){
@@ -57,7 +56,7 @@ public class LikeService {
     }
 
     public Like findLikeByRoadmapAndUser(RoadMap roadMap,User user){
-        Optional<Like> like=likeRepository.findLikByRoadmapAndUser(roadMap,user);
+        Optional<Like> like=likeRepository.findLikeByRoadmapAndUser(roadMap,user);
         return like.orElse(null);
     }
 

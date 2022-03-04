@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +36,8 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
+//    @PersistenceContext
+//    private final EntityManager em;
 
     // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
@@ -87,20 +91,27 @@ public class LectureController {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
-        System.out.println("hui");
-
         Lecture lecture = lectureService.findById(lectureId);
-        if(lecture!=null) {// 강의정보가 있는 경우
+        if(lecture!=null) { // 강의정보가 있는 경우
             Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
             if(existedLike!=null) { // 좋아요가 존재하는 경우
-                int status = likeService.changeLikeStatus(existedLike, existedLike.getLikeStatus());
-                if(status==1)
-                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
-                else
+                if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
+                    existedLike.changeLikeStatus(0);
                     return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
+                }
+                else {
+                    existedLike.changeLikeStatus(1);
+                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
+                }
+//                int status = likeService.changeLikeStatus(existedLike, existedLike.getLikeStatus());
+//                if(status==1)
+//                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
+//                else
+//                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
             }
             else {// 좋아요 처음 누른 경우
                 Like like = new Like(lecture, user);
+//                em.persist(like);
                 likeService.saveLike(like);
                 return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
             }

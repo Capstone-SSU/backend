@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -15,6 +16,7 @@ import javax.persistence.*;
 @Table(name = "likes")
 @Data
 @NoArgsConstructor // jpa에는 기본 contructor가 필요함 -> 없을 경우에 "No default constructor for Entity 에러 발생" -> NoArgsConstructor로 해결 가능
+@ToString(exclude={"user","lecture","roadmap"})
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +57,10 @@ public class Like {
     public Like(Lecture lecture, User user) {
         this.lecture = lecture;
         this.user = user;
+    }
+
+    public int changeLikeStatus(int status){
+        this.likeStatus = status;
+        return status;
     }
 }

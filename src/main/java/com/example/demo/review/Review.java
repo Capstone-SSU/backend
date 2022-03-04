@@ -12,6 +12,7 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 
 
@@ -23,9 +24,8 @@ import java.util.List;
 @Entity
 @Table(name="reviews")
 @Data
-@DynamicInsert
 @NoArgsConstructor
-//@DynamicUpdate // insert, update 시 null인 field는 제외
+@ToString(exclude={"user","lecture","reports","reviewHashtags"})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
