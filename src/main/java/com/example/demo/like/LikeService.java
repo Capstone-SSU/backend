@@ -66,4 +66,8 @@ public class LikeService {
         return likesOnRoadmap.size();
     }
 
+    public void changeLikeOnRoadmapByGroup(Integer roadmapGroupId, Integer likeStatus){
+        likeRepository.updateLikeStatusOnRoadmap(roadmapGroupId,likeStatus);
+    }
+
 }

@@ -41,14 +41,12 @@ public class RoadMapService {
         return maxGroupId!=null?maxGroupId:0; //만약 테이블이 비어있으면 null이 return -> 그럴 경우 0을 return
     }
 
-    public RoadMap getRoadMapById(Long roadmapId){
-        Optional<RoadMap> roadMap = roadMapRepository.findById(roadmapId);
-        if(roadMap.isPresent()){
-            RoadMap map=roadMap.get();
-            return map.getRoadmapStatus()==1?map:null;
-        }else{
+    public RoadMap getFirstRoadMapByGroupId(Integer groupId){
+        List<RoadMap> roadmaps = roadMapRepository.findAllRoadmapsByGroupId(groupId);
+        if(roadmaps.isEmpty())
             return null;
-        }
+        else
+            return roadmaps.get(0);
     }
 
     //로드맵 그룹아이디를 기반으로 하나의 로드맵을 찾아옴 -> order 순서대로 오름차순 정렬
@@ -85,8 +83,8 @@ public class RoadMapService {
     public Boolean getUserRoadmapLikedStatus(RoadMap roadmap,User user){
         Like like=likeService.findLikeByRoadmapAndUser(roadmap,user);
         return like != null && like.getLikeStatus() == 1;
-
     }
+
 
 
 
