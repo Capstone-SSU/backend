@@ -51,8 +51,7 @@ public class RoadMapService {
 
     //로드맵 그룹아이디를 기반으로 하나의 로드맵을 찾아옴 -> order 순서대로 오름차순 정렬
     public List<RoadMap> getAllRoadMapsByGroup(Integer roadmapGroupId){
-        List<RoadMap> roadmaps=roadMapRepository.findAllRoadmapsByGroupId(roadmapGroupId);
-        return roadmaps;
+        return roadMapRepository.findAllRoadmapsByGroupId(roadmapGroupId);
     }
 
     public DetailRoadmapResponse getDetailRoadmapResponse(List<RoadMap> originRoadmaps, User user){
@@ -83,6 +82,12 @@ public class RoadMapService {
     public Boolean getUserRoadmapLikedStatus(RoadMap roadmap,User user){
         Like like=likeService.findLikeByRoadmapAndUser(roadmap,user);
         return like != null && like.getLikeStatus() == 1;
+    }
+
+    public RoadMap getRoadmapByLectureIdAndGroup(Long lectureId, Integer groupId){
+        Lecture lecture=lectureService.findById(lectureId);
+        Optional<RoadMap> roadmap=roadMapRepository.findByRoadmapGroupIdAndLecture(groupId,lecture);
+        return roadmap.orElse(null); //0인지 1인지 체크는 controller 에서 하도록
     }
 
 
