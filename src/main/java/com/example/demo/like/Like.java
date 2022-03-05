@@ -56,4 +56,10 @@ public class Like {
         this.lecture = lecture;
         this.user = user;
     }
+
+    @Builder
+    public Like(RoadMap roadMap, User user) {
+        this.roadmap=roadMap;
+        this.user = user;
+    }
 }
