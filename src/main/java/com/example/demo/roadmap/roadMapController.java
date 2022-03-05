@@ -85,21 +85,8 @@ public class roadMapController {
         if(roadmaps.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
         }
-        System.out.print("likes: ");
-        for(RoadMap map:roadmaps){
-            List<Like> likes = map.getLikes();
-            int count=0;
-            for(Like like:likes){
-                count+=like.getLikeStatus()==1?1:0;
-            }
-            System.out.print(count+" ");
-        }
-        System.out.println();
+
         DetailRoadmapResponse detailRoadmapResponse = roadMapService.getDetailRoadmapResponse(roadmaps, user);
-        System.out.print("lectures: ");
-        for(DetailRoadmapLectureResponse lec:detailRoadmapResponse.getLectures()){
-            System.out.print(lec.getLectureId()+" ");
-        }
 
         return new ResponseEntity<>(ResponseMessage.withData(200,"상세 로드맵 조회 성공",detailRoadmapResponse),HttpStatus.OK);
     }
@@ -210,14 +197,6 @@ public class roadMapController {
         }
 
         return new ResponseEntity<>(new ResponseMessage(200,"로드맵이 수정 성공"),HttpStatus.OK);
-        //roadmaps 에 남은 로드맵들은 사용자가 삭제한 내용들이므로 db에서 제거, changedLectureIds에 남은 것들은 새롭게 디비에 추가해야할 것들
-
-        //원래 저장되어 있는 로드맵 리스트를 먼저 수정 -> 순서만 바뀐거면? save, 아예 사라진거면?(roadmapDto에 동일한 lectureid가 없다면) db에서 삭제
-        //roadmapDto에서 기존 로드맵이랑 lectureid가 일치해서 변경사항이 반영된 애들은 제거
-        //이후, roadmapDto에서 남은 lectureid list에 대해서 roadmap에 새롭게 저장
-        //1. groupId를 기반으로 기존의 로드맵 전체 데이터를 찾는다
-        //2. roadmapDto에 넘어온 list 데이터와 2에서 찾은 전체 데이터의 lectureId를 비교, 일치하는 값에 대해서는 반영
-        //3. ㄹㅇㄴ릉으응ㅁ 아예 근야 기존 데이터 다 지우고 새롭게 groupId 기반으로 데이터 저장! -> 에반데 흐으으음....
 
     }
 
