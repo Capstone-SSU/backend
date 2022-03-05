@@ -70,7 +70,7 @@ public class RoadMapService {
             BeanUtils.copyProperties(lecture,lectureResponse);
             lectureResponse.setLectureHashtags(lectureService.getBestHashtags(lecture));
             lectureResponse.setLectureAvgRate(lectureService.getAvgRate(lecture));
-            Review review=reviewService.findByUserAndLecture(user,lecture);
+            Review review=reviewService.findByUserAndLecture(roadmapWriter,lecture);
             lectureResponse.setLectureReviewTitle(review.getCommentTitle());
             lectureResponse.setLectureReviewContent(review.getComment());
             lectures.add(lectureResponse);
