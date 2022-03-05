@@ -200,4 +200,20 @@ public class roadMapController {
 
     }
 
+    @DeleteMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> deleteRoadmap(@PathVariable Integer roadmapGroupId,Principal principal){
+        String email=principal.getName();
+        List<RoadMap> roadMaps=roadMapService.getAllRoadMapsByGroup(roadmapGroupId);
+        if(roadMaps.isEmpty())
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 삭제 요청입니다."),HttpStatus.OK);
+        String writerEmail=roadMaps.get(0).getUser().getUserEmail();
+        if(!email.equals(writerEmail))
+            return new ResponseEntity<>(new ResponseMessage(403,roadmapGroupId+"번 로드맵에 삭제 권한이 없는 사용자 입니다."),HttpStatus.OK);
+        for(RoadMap roadMap:roadMaps){
+            roadMap.setRoadmapStatus(0);
+            roadMapService.saveRoadmap(roadMap);
+        }
+        return new ResponseEntity<>(new ResponseMessage(200, roadmapGroupId+"번 로드맵 삭제 성공"),HttpStatus.OK);
+    }
+
 }
