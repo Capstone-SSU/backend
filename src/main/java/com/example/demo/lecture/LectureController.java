@@ -1,9 +1,6 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.lecture.dto.AllLecturesResponse;
-import com.example.demo.lecture.dto.LectureDto;
-import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.lecture.dto.UrlCheckDto;
+import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
@@ -11,14 +8,25 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = {"Lecture"})
@@ -31,8 +39,54 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
-//    @PersistenceContext
-//    private final EntityManager em;
+
+    // 추천 알고리즘용 강의 리뷰 데이터 POST
+//    @PostMapping("/admin")
+//    public ResponseEntity<ResponseMessage> createLecture(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        // Excel 2007 이상인 경우
+//        OPCPackage opcPackage = OPCPackage.open(new File("파일 경로"));
+//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+//
+//    }
+
+    // 추천 알고리즘 전송용 메소드
+    @PostMapping("/admin")
+    public String endDataForRecommend() {
+        List<RecLecturesResponse> recLectures = lectureService.manageRecommendData();
+        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
+        StringBuffer stringBuffer = new StringBuffer();
+        String sb = "";
+        try {
+            JSONObject reqParams = new JSONObject();
+            reqParams.put("data", recLectures);
+            // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
+
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            //데이터 전송
+            OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
+            os.write(reqParams.toString());
+
+            os.flush();
+            // 전송된 결과를 읽어옴
+            BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb = sb + line + "\n";
+            }
+            System.out.println("========br======\n" + sb.toString());
+            if (sb.toString().contains("ok")) {
+                System.out.println("test");
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "send ok";
+    }
 
     // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
