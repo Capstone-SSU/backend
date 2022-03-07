@@ -16,7 +16,7 @@ import javax.persistence.EntityManager;
 import java.security.Principal;
 import java.util.HashMap;
 
-@Api(tags = { "Review"})
+@Api(tags = {"Review"})
 @RestController
 @RequiredArgsConstructor
 @Transactional

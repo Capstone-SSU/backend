@@ -3,6 +3,7 @@ package com.example.demo.lecture;
 import com.example.demo.hashtag.repository.HashtagRepository;
 import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
+import com.example.demo.lecture.dto.RecLecturesResponse;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.reviewHashtag.ReviewHashtag;
@@ -90,9 +91,25 @@ public class LectureService {
                 .findFirst().isPresent();
     }
 
-    public Lecture findById(long lectureId){
+    public Lecture findById(Long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
         return lecture.orElse(null);
+    }
+
+    // 추천용 강의 데이터 가공 함수
+    public List<RecLecturesResponse> manageRecommendData(){
+        List<RecLecturesResponse> recLectures = new ArrayList<>();
+        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
+        for(int i=0;i<lectures.size();i++){
+            Long lectureId = lectures.get(i).getLectureId();
+            Lecture lecture = findById(lectureId);
+            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
+            BeanUtils.copyProperties(lectures.get(i), recLecturesResponse,"thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
+            recLecturesResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
+            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
+            recLectures.add(recLecturesResponse);
+        }
+        return recLectures;
     }
 
     public void manageHashtag(List<String> hashtags, Review review){
@@ -116,7 +133,7 @@ public class LectureService {
     public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         Map<Long, Integer> hashtagCnt = new HashMap<>(); // 해시태그 상위 3개 찾기 위해서
-        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
+        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 돌면서 해시태그 개수 세기
             List<ReviewHashtag> reviewHashtags = reviewHashtagRepository.findByReview(reviews.get(i));
 
             for(int j=0;j<reviewHashtags.size();j++){
@@ -147,7 +164,7 @@ public class LectureService {
         return hashtags;
     }
 
-
+    // 평균 평점 계산
     public double getAvgRate(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         double totalRate = 0;
@@ -155,6 +172,12 @@ public class LectureService {
             totalRate += reviews.get(i).getRate();
         }
         return totalRate/reviews.size(); // 평균 점수 계산
+    }
+
+    // 리뷰 개수 세기
+    public int getReviewCnt(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        return reviews.size();
     }
 
     // 특정 강의 조회
@@ -170,11 +193,9 @@ public class LectureService {
         detailLectureResponse.setSiteName(lecture.getSiteName());
         detailLectureResponse.setLectureUrl(lecture.getLectureUrl());
         detailLectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
+        detailLectureResponse.setReviewCnt(getReviewCnt(lecture)); // 리뷰 개수 세팅
 
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        int reviewCnt = reviews.size();
-        detailLectureResponse.setReviewCnt(reviewCnt); // 리뷰 개수 세팅
-
         double totalRate=0;
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서

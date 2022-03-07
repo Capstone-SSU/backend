@@ -9,6 +9,7 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 @Table(name="lectures")
 @Data
 @NoArgsConstructor
+@ToString(exclude={"user","reviews","likes"})
 public class Lecture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
