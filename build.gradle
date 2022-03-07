@@ -60,8 +60,9 @@ dependencies {
 	compile group: 'org.apache.poi', name: 'poi-excelant', version: '3.12'
 	compile group: 'org.apache.poi', name: 'poi-contrib', version: '3.6'
 	compile group: 'org.apache.poi', name: 'ooxml-security', version: '1.0'
-
 	compile group: 'commons-io', name: 'commons-io', version: '2.4'
+
+	implementation('com.nimbusds:nimbus-jose-jwt:9.14')
 }
 
 tasks.named('test') {

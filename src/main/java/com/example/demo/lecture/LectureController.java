@@ -74,8 +74,6 @@ public class LectureController {
             // 전송된 결과를 읽어옴
             BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
             String line = null;
-
-            System.out.println("before while");
             while ((line = br.readLine()) != null) {
                 sb = sb + line + "\n";
             }
@@ -89,53 +87,6 @@ public class LectureController {
         }
         return "send ok";
     }
-
-
-        //        /*
-//        * 내가 얻어야 하는 데이터 = [’강의 번호’,’강의 제목’,’평점’,’리뷰를 한 사용자의 수’,’키워드(해시)’]
-//        * */
-//        String email = "baegopa2@naver.com";
-//        User user = userDetailsService.findUserByEmail(email);
-//
-//        // 리뷰 개수도 다르게
-//        // 여기까지는 lecture table에 들어가는 것
-//        String lectureUrl = lectureDto.getLectureUrl();
-//        String lectureTitle = lectureDto.getLectureTitle();
-//        String lecturer = lectureDto.getLecturer();
-//        String siteName = lectureDto.getSiteName();
-//        String thumbnailUrl = lectureDto.getThumbnailUrl();
-//
-//        // review_hashTag 테이블에 들어가는 것
-//        List<String> hashtags = lectureDto.getHashtags();
-//
-//        int rate = lectureDto.getRate().intValue();
-//        String commentTitle = lectureDto.getCommentTitle();
-//        String comment = lectureDto.getComment();
-//        // 강의 id 에 해당하는 내가 쓴 리뷰가 존재하는 경우
-//
-//        Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
-//
-//        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-//        if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
-//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-//            lecture.setUser(user);
-//            lectureService.saveLecture(lecture);
-//            review.setLecture(lecture);
-//        }
-//        else {  // 강의가 이미 존재하는 경우
-//            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
-//                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
-//
-//            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
-//            if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
-//                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-//            review.setLecture(existedLecture);
-//        }
-//        review.setUser(user);
-//        reviewService.saveReview(review); // 리뷰 저장
-//        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
-//        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
-
 
     // 전체 강의 글 조회 . 필터링 된 강의 글 조회
     @GetMapping("")
