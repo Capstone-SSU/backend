@@ -26,7 +26,7 @@ public class HashtagController {
         if(existedHashtag != null) // 이미 있는 해시태그라면
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록된 해시태그입니다."), HttpStatus.CONFLICT);
         Hashtag hashtag = new Hashtag(hashtagName);
-        long hashTagId = hashtagService.saveHashtag(hashtag);
+        hashtagService.saveHashtag(hashtag);
         return new ResponseEntity<>(new ResponseMessage(201, "해시태그가 등록되었습니다."), HttpStatus.CREATED);
     }
 
@@ -41,8 +41,4 @@ public class HashtagController {
         }
         return new ResponseEntity<>(ResponseMessage.withData(200, "해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
     }
-//    @PostMapping("")
-//    public ResponseEntity<ResponseMessage> createHashtag(@RequestBody String lectureUrl){
-//
-//    }
 }
