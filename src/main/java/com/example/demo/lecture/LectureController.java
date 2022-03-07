@@ -1,9 +1,6 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.lecture.dto.AllLecturesResponse;
-import com.example.demo.lecture.dto.LectureDto;
-import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.lecture.dto.UrlCheckDto;
+import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
@@ -53,26 +50,15 @@ public class LectureController {
 //    }
 
     // 추천 알고리즘 전송용 메소드
-    @PostMapping("/admin/hi")
+    @PostMapping("/admin")
     public String endDataForRecommend() {
-        List<AllLecturesResponse> lectures = lectureService.getLectures(); // 전체글에서 필터링해보기
-        for(int i=0;i<lectures.size();i++){
-
-            lectureService.getBestHashtags(lectures.get(i));
-        }
-        lectureService.getBestHashtags(lecture);
-        BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
-
-        lectures.stream().filter(lecture -> lecture);
-
+        List<RecLecturesResponse> recLectures = lectureService.manageRecommendData();
         String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
         StringBuffer stringBuffer = new StringBuffer();
         String sb = "";
-        String tempObject = "";
-        JSONArray array = new JSONArray();
         try {
             JSONObject reqParams = new JSONObject();
-            reqParams.put("data", lectures);
+            reqParams.put("data", recLectures);
             // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
@@ -98,15 +84,11 @@ public class LectureController {
                 System.out.println("test");
             }
             br.close();
-
-            tempObject = sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return "send ok";
     }
-
-
 
 
         //        /*
