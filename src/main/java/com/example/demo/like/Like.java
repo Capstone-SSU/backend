@@ -12,6 +12,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 
+import static com.example.demo.roadmap.QRoadMap.roadMap;
+
 @Entity
 @Table(name = "likes")
 @Data
@@ -59,8 +61,14 @@ public class Like {
         this.user = user;
     }
 
-    public int changeLikeStatus(int status){
+    public int changeLikeStatus(int status) {
         this.likeStatus = status;
         return status;
+    }
+
+    @Builder
+    public Like(RoadMap roadMap, User user) {
+        this.roadmap=roadMap;
+        this.user = user;
     }
 }

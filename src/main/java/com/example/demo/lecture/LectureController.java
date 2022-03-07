@@ -1,6 +1,5 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.hashtag.service.HashtagService;
 import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.lecture.dto.DetailLectureResponse;
@@ -9,7 +8,6 @@ import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.dto.ReviewPostDto;
-import com.example.demo.reviewHashtag.ReviewHashtagService;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
@@ -19,9 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -111,7 +106,6 @@ public class LectureController {
             }
             else {// 좋아요 처음 누른 경우
                 Like like = new Like(lecture, user);
-//                em.persist(like);
                 likeService.saveLike(like);
                 return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
             }
@@ -160,7 +154,6 @@ public class LectureController {
         }
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
-        System.out.println("hashtags = " + hashtags);
         lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }

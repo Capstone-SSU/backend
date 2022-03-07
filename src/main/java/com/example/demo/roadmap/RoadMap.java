@@ -67,4 +67,8 @@ public class RoadMap {
         this.user=user;
     }
 
+    public void updateRoadmapLectureOrder(Integer order){
+        this.roadmapLectureOrder=order;
+    }
+
 }

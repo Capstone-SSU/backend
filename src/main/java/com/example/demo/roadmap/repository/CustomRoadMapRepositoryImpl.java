@@ -30,7 +30,7 @@ public class CustomRoadMapRepositoryImpl implements CustomRoadMapRepository{
     public List<RoadMap> findAllRoadmapsByGroupId(Integer groupId) {
         List<RoadMap> roadmaps=jpaQueryFactory
                 .selectFrom(roadMap)
-                .where(roadMap.roadmapGroupId.eq(groupId))
+                .where(roadMap.roadmapGroupId.eq(groupId),roadMap.roadmapStatus.eq(1))
                 .orderBy(roadMap.roadmapLectureOrder.asc())
                 .fetch();
         return roadmaps;

@@ -50,4 +50,5 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .where(like.roadmap.eq(roadMap),like.likeStatus.eq(1))
                 .fetch();
     }
+
 }
