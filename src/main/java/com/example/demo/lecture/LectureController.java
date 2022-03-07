@@ -1,5 +1,6 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
+import com.example.demo.lecture.dto.ExcelData;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
@@ -8,25 +9,24 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
-import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = {"Lecture"})
@@ -41,13 +41,43 @@ public class LectureController {
     private final LikeService likeService;
 
     // 추천 알고리즘용 강의 리뷰 데이터 POST
-//    @PostMapping("/admin")
-//    public ResponseEntity<ResponseMessage> createLecture(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        // Excel 2007 이상인 경우
-//        OPCPackage opcPackage = OPCPackage.open(new File("파일 경로"));
-//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-//
-//    }
+    @GetMapping("/data")
+    public String readExcel() throws IOException, InvalidFormatException {
+        String email = "baegopa2@naver.com";
+        User user = userDetailsService.findUserByEmail(email);
+        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+        Sheet worksheet = workbook.getSheetAt(0);
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows()-20; i++) { // 4
+            Row row = worksheet.getRow(i);
+            String lectureUrl = row.getCell(0).getStringCellValue();
+            String lectureTitle = row.getCell(1).getStringCellValue();
+            String lecturer = row.getCell(2).getStringCellValue();
+            String siteName = row.getCell(3).getStringCellValue();
+            String thumbnailUrl = row.getCell(4).getStringCellValue();
+            // 강의에 들어갈 내용
+            String hashtags = row.getCell(5).getStringCellValue();
+            List<String> processedHashtags = List.of(hashtags.split(", "));
+            String commentTitle = row.getCell(6).getStringCellValue();
+            String comment = row.getCell(7).getStringCellValue();
+            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+            lecture.setUser(user);
+            lectureService.saveLecture(lecture);
+
+            // 리뷰 갯수도 랜덤 생성
+            int loop = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
+            for (int j = 0; j < loop; j++) {
+                int rate = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
+                Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
+                review.setLecture(lecture);
+                review.setUser(user);
+                reviewService.saveReview(review); // 리뷰 저장
+                lectureService.manageHashtag(processedHashtags, review); // reviewHashtag에 등록 및 hashtag 관리
+            }
+        }
+        opcPackage.close();
+        return "save ok";
+    }
 
     // 추천 알고리즘 전송용 메소드
     @PostMapping("/admin")
@@ -76,10 +106,6 @@ public class LectureController {
             String line = null;
             while ((line = br.readLine()) != null) {
                 sb = sb + line + "\n";
-            }
-            System.out.println("========br======\n" + sb.toString());
-            if (sb.toString().contains("ok")) {
-                System.out.println("test");
             }
             br.close();
         } catch (IOException e) {

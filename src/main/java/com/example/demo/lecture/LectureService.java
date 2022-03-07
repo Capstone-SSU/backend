@@ -3,6 +3,7 @@ package com.example.demo.lecture;
 import com.example.demo.hashtag.repository.HashtagRepository;
 import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
+import com.example.demo.lecture.dto.ExcelData;
 import com.example.demo.lecture.dto.RecLecturesResponse;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
@@ -13,11 +14,19 @@ import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.reviewHashtag.ReviewHashtagRepository;
+import com.example.demo.user.User;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,6 +120,40 @@ public class LectureService {
         }
         return recLectures;
     }
+
+//    // 추천용 강의 엑셀 데이터 정리 함수
+//    public void getExcelData(User user) throws InvalidFormatException, IOException {
+//        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
+//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+//        Sheet worksheet = workbook.getSheetAt(0);
+//        for (int i = 1; i < worksheet.getPhysicalNumberOfRows()-20; i++) { // 4
+//            Row row = worksheet.getRow(i);
+//            String lectureUrl = row.getCell(0).getStringCellValue();
+//            String lectureTitle = row.getCell(1).getStringCellValue();
+//            String lecturer = row.getCell(2).getStringCellValue();
+//            String siteName = row.getCell(3).getStringCellValue();
+//            String thumbnailUrl = row.getCell(4).getStringCellValue();
+//            // 강의에 들어갈 내용
+//            String hashtags = row.getCell(5).getStringCellValue();
+//            System.out.println("hashtags = " + hashtags);
+//
+//            String commentTitle = row.getCell(6).getStringCellValue();
+//            String comment = row.getCell(7).getStringCellValue();
+//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+//            lecture.setUser(user);
+//            this.saveLecture(lecture);
+//
+//            int loop = (int)(Math.random()*5)+1; // 리뷰 갯수 1~5 랜덤 숫자 생성
+//            for(int j=0;j<loop;j++){
+//                int rate = (int)(Math.random()*5)+1; // 평점 1~5 랜덤 숫자 생성
+//                Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
+//                review.setLecture(lecture);
+//                review.setUser(user);
+//                reviewService.saveReview(review); // 리뷰 저장
+//                lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
+//            }
+//        }
+//    }
 
     public void manageHashtag(List<String> hashtags, Review review){
         for (int i = 0; i < hashtags.size(); i++) {
