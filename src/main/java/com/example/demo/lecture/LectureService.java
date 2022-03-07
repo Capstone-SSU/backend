@@ -40,9 +40,20 @@ public class LectureService {
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
 
-    public long saveLecture(Lecture lecture){
-        Lecture savedLecture = lectureRepository.save(lecture);
-        return savedLecture.getLectureId();
+    // 추천용 강의 데이터 가공 함수
+    public List<RecLecturesResponse> manageRecommendData(){
+        List<RecLecturesResponse> recLectures = new ArrayList<>();
+        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
+        for(int i=0;i<lectures.size();i++){
+            Long lectureId = lectures.get(i).getLectureId();
+            Lecture lecture = findById(lectureId);
+            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
+            BeanUtils.copyProperties(lectures.get(i), recLecturesResponse,"thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
+            recLecturesResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
+            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
+            recLectures.add(recLecturesResponse);
+        }
+        return recLectures;
     }
 
     // 전체 강의 조회
@@ -100,61 +111,59 @@ public class LectureService {
                 .findFirst().isPresent();
     }
 
+    // 특정 강의 조회
     public Lecture findById(Long lectureId){
         Optional<Lecture> lecture = lectureRepository.findById(lectureId);
         return lecture.orElse(null);
     }
 
-    // 추천용 강의 데이터 가공 함수
-    public List<RecLecturesResponse> manageRecommendData(){
-        List<RecLecturesResponse> recLectures = new ArrayList<>();
-        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
-        for(int i=0;i<lectures.size();i++){
-            Long lectureId = lectures.get(i).getLectureId();
-            Lecture lecture = findById(lectureId);
-            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
-            BeanUtils.copyProperties(lectures.get(i), recLecturesResponse,"thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
-            recLecturesResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
-            recLectures.add(recLecturesResponse);
+    // 강의글 상세 조회
+    public DetailLectureResponse getLecture(long lectureId, long userId){
+        DetailLectureResponse detailLectureResponse = new DetailLectureResponse();
+        Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
+        if(optionalLecture.isEmpty())
+            return detailLectureResponse;
+        Lecture lecture = optionalLecture.get();
+        detailLectureResponse.setLectureId(lecture.getLectureId());
+        detailLectureResponse.setLectureTitle(lecture.getLectureTitle());
+        detailLectureResponse.setLecturer(lecture.getLecturer());
+        detailLectureResponse.setSiteName(lecture.getSiteName());
+        detailLectureResponse.setLectureUrl(lecture.getLectureUrl());
+        detailLectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
+        detailLectureResponse.setReviewCnt(getReviewCnt(lecture)); // 리뷰 개수 세팅
+
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        double totalRate=0;
+        List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
+        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
+            DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
+            BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
+            String nickname = reviews.get(i).getUser().getUserNickname();
+            detailReviewResponse.setNickname(nickname);
+
+            if(userId == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
+                detailReviewResponse.setWriterStatus(true);
+            else
+                detailReviewResponse.setWriterStatus(false);
+            detailReviewResponses.add(detailReviewResponse);
+            totalRate += reviews.get(i).getRate();
         }
-        return recLectures;
+        detailLectureResponse.setReviews(detailReviewResponses);
+        detailLectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
+        detailLectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
+
+        List<Like> likes = likeRepository.findLikeByLecture(lecture);
+        detailLectureResponse.setLikeCnt(likes.size());
+        return detailLectureResponse;
     }
 
-//    // 추천용 강의 엑셀 데이터 정리 함수
-//    public void getExcelData(User user) throws InvalidFormatException, IOException {
-//        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
-//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-//        Sheet worksheet = workbook.getSheetAt(0);
-//        for (int i = 1; i < worksheet.getPhysicalNumberOfRows()-20; i++) { // 4
-//            Row row = worksheet.getRow(i);
-//            String lectureUrl = row.getCell(0).getStringCellValue();
-//            String lectureTitle = row.getCell(1).getStringCellValue();
-//            String lecturer = row.getCell(2).getStringCellValue();
-//            String siteName = row.getCell(3).getStringCellValue();
-//            String thumbnailUrl = row.getCell(4).getStringCellValue();
-//            // 강의에 들어갈 내용
-//            String hashtags = row.getCell(5).getStringCellValue();
-//            System.out.println("hashtags = " + hashtags);
-//
-//            String commentTitle = row.getCell(6).getStringCellValue();
-//            String comment = row.getCell(7).getStringCellValue();
-//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-//            lecture.setUser(user);
-//            this.saveLecture(lecture);
-//
-//            int loop = (int)(Math.random()*5)+1; // 리뷰 갯수 1~5 랜덤 숫자 생성
-//            for(int j=0;j<loop;j++){
-//                int rate = (int)(Math.random()*5)+1; // 평점 1~5 랜덤 숫자 생성
-//                Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
-//                review.setLecture(lecture);
-//                review.setUser(user);
-//                reviewService.saveReview(review); // 리뷰 저장
-//                lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
-//            }
-//        }
-//    }
+    // 강의 등록
+    public long saveLecture(Lecture lecture){
+        Lecture savedLecture = lectureRepository.save(lecture);
+        return savedLecture.getLectureId();
+    }
 
+    // 해시태그 저장
     public void manageHashtag(List<String> hashtags, Review review){
         for (int i = 0; i < hashtags.size(); i++) {
             Optional<Hashtag> existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i)));
@@ -221,46 +230,6 @@ public class LectureService {
     public int getReviewCnt(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         return reviews.size();
-    }
-
-    // 특정 강의 조회
-    public DetailLectureResponse getLecture(long lectureId, long userId){
-        DetailLectureResponse detailLectureResponse = new DetailLectureResponse();
-        Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
-        if(optionalLecture.isEmpty())
-            return detailLectureResponse;
-        Lecture lecture = optionalLecture.get();
-        detailLectureResponse.setLectureId(lecture.getLectureId());
-        detailLectureResponse.setLectureTitle(lecture.getLectureTitle());
-        detailLectureResponse.setLecturer(lecture.getLecturer());
-        detailLectureResponse.setSiteName(lecture.getSiteName());
-        detailLectureResponse.setLectureUrl(lecture.getLectureUrl());
-        detailLectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
-        detailLectureResponse.setReviewCnt(getReviewCnt(lecture)); // 리뷰 개수 세팅
-
-        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        double totalRate=0;
-        List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
-        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
-            DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
-            BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
-            String nickname = reviews.get(i).getUser().getUserNickname();
-            detailReviewResponse.setNickname(nickname);
-
-            if(userId == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
-                detailReviewResponse.setWriterStatus(true);
-            else
-                detailReviewResponse.setWriterStatus(false);
-            detailReviewResponses.add(detailReviewResponse);
-            totalRate += reviews.get(i).getRate();
-        }
-        detailLectureResponse.setReviews(detailReviewResponses);
-        detailLectureResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-        detailLectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
-
-        List<Like> likes = likeRepository.findLikeByLecture(lecture);
-        detailLectureResponse.setLikeCnt(likes.size());
-        return detailLectureResponse;
     }
 
     // url 중복 조회용
