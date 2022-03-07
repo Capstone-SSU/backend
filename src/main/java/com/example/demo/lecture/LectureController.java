@@ -11,14 +11,25 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
+import com.nimbusds.jose.shaded.json.JSONArray;
+import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = {"Lecture"})
@@ -33,54 +44,115 @@ public class LectureController {
     private final LikeService likeService;
 
     // 추천 알고리즘용 강의 리뷰 데이터 POST
-    @PostMapping("/admin")
-    public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto) {
-        // 리뷰 데이터 넣는 유저
-        /*
-        * 내가 얻어야 하는 데이터 = [’강의 번호’,’강의 제목’,’평점’,’리뷰를 한 사용자의 수’,’키워드(해시)’]
-        * */
-        String email = "baegopa2@naver.com";
-        User user = userDetailsService.findUserByEmail(email);
+//    @PostMapping("/admin")
+//    public ResponseEntity<ResponseMessage> createLecture(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        // Excel 2007 이상인 경우
+//        OPCPackage opcPackage = OPCPackage.open(new File("파일 경로"));
+//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+//
+//    }
 
-        // 리뷰 개수도 다르게
-        // 여기까지는 lecture table에 들어가는 것
-        String lectureUrl = lectureDto.getLectureUrl();
-        String lectureTitle = lectureDto.getLectureTitle();
-        String lecturer = lectureDto.getLecturer();
-        String siteName = lectureDto.getSiteName();
-        String thumbnailUrl = lectureDto.getThumbnailUrl();
+    // 추천 알고리즘 전송용 메소드
+    @PostMapping("/admin/hi")
+    public String endDataForRecommend() {
+        List<AllLecturesResponse> lectures = lectureService.getLectures(); // 전체글에서 필터링해보기
+        for(int i=0;i<lectures.size();i++){
 
-        // review_hashTag 테이블에 들어가는 것
-        List<String> hashtags = lectureDto.getHashtags();
-
-        int rate = lectureDto.getRate().intValue();
-        String commentTitle = lectureDto.getCommentTitle();
-        String comment = lectureDto.getComment();
-        // 강의 id 에 해당하는 내가 쓴 리뷰가 존재하는 경우
-
-        Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
-
-        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-        if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
-            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-            lecture.setUser(user);
-            lectureService.saveLecture(lecture);
-            review.setLecture(lecture);
+            lectureService.getBestHashtags(lectures.get(i));
         }
-        else {  // 강의가 이미 존재하는 경우
-            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
-                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
+        lectureService.getBestHashtags(lecture);
+        BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
 
-            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
-            if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
-                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-            review.setLecture(existedLecture);
+        lectures.stream().filter(lecture -> lecture);
+
+        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
+        StringBuffer stringBuffer = new StringBuffer();
+        String sb = "";
+        String tempObject = "";
+        JSONArray array = new JSONArray();
+        try {
+            JSONObject reqParams = new JSONObject();
+            reqParams.put("data", lectures);
+            // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
+
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            //데이터 전송
+            OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
+            os.write(reqParams.toString());
+
+            os.flush();
+            // 전송된 결과를 읽어옴
+            BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+            String line = null;
+
+            System.out.println("before while");
+            while ((line = br.readLine()) != null) {
+                sb = sb + line + "\n";
+            }
+            System.out.println("========br======\n" + sb.toString());
+            if (sb.toString().contains("ok")) {
+                System.out.println("test");
+            }
+            br.close();
+
+            tempObject = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        review.setUser(user);
-        reviewService.saveReview(review); // 리뷰 저장
-        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
+        return "send ok";
     }
+
+
+
+
+        //        /*
+//        * 내가 얻어야 하는 데이터 = [’강의 번호’,’강의 제목’,’평점’,’리뷰를 한 사용자의 수’,’키워드(해시)’]
+//        * */
+//        String email = "baegopa2@naver.com";
+//        User user = userDetailsService.findUserByEmail(email);
+//
+//        // 리뷰 개수도 다르게
+//        // 여기까지는 lecture table에 들어가는 것
+//        String lectureUrl = lectureDto.getLectureUrl();
+//        String lectureTitle = lectureDto.getLectureTitle();
+//        String lecturer = lectureDto.getLecturer();
+//        String siteName = lectureDto.getSiteName();
+//        String thumbnailUrl = lectureDto.getThumbnailUrl();
+//
+//        // review_hashTag 테이블에 들어가는 것
+//        List<String> hashtags = lectureDto.getHashtags();
+//
+//        int rate = lectureDto.getRate().intValue();
+//        String commentTitle = lectureDto.getCommentTitle();
+//        String comment = lectureDto.getComment();
+//        // 강의 id 에 해당하는 내가 쓴 리뷰가 존재하는 경우
+//
+//        Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
+//
+//        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
+//        if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
+//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+//            lecture.setUser(user);
+//            lectureService.saveLecture(lecture);
+//            review.setLecture(lecture);
+//        }
+//        else {  // 강의가 이미 존재하는 경우
+//            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
+//                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
+//
+//            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
+//            if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
+//                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+//            review.setLecture(existedLecture);
+//        }
+//        review.setUser(user);
+//        reviewService.saveReview(review); // 리뷰 저장
+//        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
+//        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
 
 
     // 전체 강의 글 조회 . 필터링 된 강의 글 조회

@@ -116,7 +116,7 @@ public class LectureService {
     public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         Map<Long, Integer> hashtagCnt = new HashMap<>(); // 해시태그 상위 3개 찾기 위해서
-        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
+        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 돌면서 해시태그 개수 세기
             List<ReviewHashtag> reviewHashtags = reviewHashtagRepository.findByReview(reviews.get(i));
 
             for(int j=0;j<reviewHashtags.size();j++){

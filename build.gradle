@@ -53,7 +53,14 @@ dependencies {
 
 	// excel 파일용 dependency
 	compile group: 'org.apache.poi', name: 'poi', version: '3.11'
-	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.11'
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.14'
+	compile group: 'org.apache.poi', name: 'poi-ooxml-schemas', version: '3.11'
+	compile group: 'org.apache.poi', name: 'poi-scratchpad', version: '3.11'
+	compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.1'
+	compile group: 'org.apache.poi', name: 'poi-excelant', version: '3.12'
+	compile group: 'org.apache.poi', name: 'poi-contrib', version: '3.6'
+	compile group: 'org.apache.poi', name: 'ooxml-security', version: '1.0'
+
 	compile group: 'commons-io', name: 'commons-io', version: '2.4'
 }
 
