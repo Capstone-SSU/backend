@@ -1,9 +1,9 @@
 package com.example.demo.like.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
-import com.example.demo.roadmap.QRoadMap;
 import com.example.demo.roadmap.RoadMap;
 import com.example.demo.study.domain.StudyPost;
+import com.example.demo.user.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -51,4 +51,13 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .fetch();
     }
 
+    @Override
+    public List<Lecture> findLectureLikeByUser(User user) {
+        return jpaQueryFactory
+                .select(like.lecture) // 강의만 뽑아가기
+                .from(like)
+                .where(like.user.eq(user), like.likeStatus.eq(1))
+                .where(like.lecture.isNotNull())
+                .fetch();
+    }
 }

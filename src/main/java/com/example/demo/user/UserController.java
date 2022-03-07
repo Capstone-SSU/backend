@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 
-@Api(tags = { "User"})
+@Api(tags = {"User"})
 @RestController
 public class UserController {
 
