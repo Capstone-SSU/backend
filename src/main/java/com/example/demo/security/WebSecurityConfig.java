@@ -67,7 +67,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
             /* swagger v3 */
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/lectures/**" // 알고리즘 테스트용
+            "/lectures/admin", // 알고리즘 테스트용
+            "/lectures/data", // 알고리즘 입력용
     };
 
     @Override

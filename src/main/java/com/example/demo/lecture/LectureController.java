@@ -1,5 +1,6 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
+import com.example.demo.lecture.dto.ExcelData;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
@@ -8,25 +9,24 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
-import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags = {"Lecture"})
@@ -41,13 +41,43 @@ public class LectureController {
     private final LikeService likeService;
 
     // 추천 알고리즘용 강의 리뷰 데이터 POST
-//    @PostMapping("/admin")
-//    public ResponseEntity<ResponseMessage> createLecture(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        // Excel 2007 이상인 경우
-//        OPCPackage opcPackage = OPCPackage.open(new File("파일 경로"));
-//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-//
-//    }
+    @GetMapping("/data")
+    public String readExcel() throws IOException, InvalidFormatException {
+        String email = "baegopa2@naver.com";
+        User user = userDetailsService.findUserByEmail(email);
+        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+        Sheet worksheet = workbook.getSheetAt(0);
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows()-20; i++) { // 4
+            Row row = worksheet.getRow(i);
+            String lectureUrl = row.getCell(0).getStringCellValue();
+            String lectureTitle = row.getCell(1).getStringCellValue();
+            String lecturer = row.getCell(2).getStringCellValue();
+            String siteName = row.getCell(3).getStringCellValue();
+            String thumbnailUrl = row.getCell(4).getStringCellValue();
+            // 강의에 들어갈 내용
+            String hashtags = row.getCell(5).getStringCellValue();
+            List<String> processedHashtags = List.of(hashtags.split(", "));
+            String commentTitle = row.getCell(6).getStringCellValue();
+            String comment = row.getCell(7).getStringCellValue();
+            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+            lecture.setUser(user);
+            lectureService.saveLecture(lecture);
+
+            // 리뷰 갯수도 랜덤 생성
+            int loop = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
+            for (int j = 0; j < loop; j++) {
+                int rate = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
+                Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
+                review.setLecture(lecture);
+                review.setUser(user);
+                reviewService.saveReview(review); // 리뷰 저장
+                lectureService.manageHashtag(processedHashtags, review); // reviewHashtag에 등록 및 hashtag 관리
+            }
+        }
+        opcPackage.close();
+        return "save ok";
+    }
 
     // 추천 알고리즘 전송용 메소드
     @PostMapping("/admin")
@@ -77,10 +107,6 @@ public class LectureController {
             while ((line = br.readLine()) != null) {
                 sb = sb + line + "\n";
             }
-            System.out.println("========br======\n" + sb.toString());
-            if (sb.toString().contains("ok")) {
-                System.out.println("test");
-            }
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +114,7 @@ public class LectureController {
         return "send ok";
     }
 
-    // 전체 강의 글 조회 . 필터링 된 강의 글 조회
+    // 전체 강의 글 조회 + 필터링 된 강의 글 조회
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category) {
         if(keyword == null && category == null) { // 모든 강의 조회
@@ -101,7 +127,8 @@ public class LectureController {
         }
     }
 
-    @GetMapping("/{lectureId}") // 강의글 상세 조회
+    // 강의글 상세 조회
+    @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
@@ -113,61 +140,8 @@ public class LectureController {
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/{lectureId}/reviews") // 강의에 들어가서 리뷰 다는 경우
-    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        Lecture lecture = lectureService.findById(lectureId);
-        List<String> hashtags = reviewPostDto.getHashtags();
-        if(lecture!=null){ // 강의가 있는 경우
-            Review review = reviewService.findByUserAndLecture(user, lecture);
-            if(review == null) { // 리뷰 등록한 적 없는 경우
-                review = new Review();
-                review.setLectureReview(reviewPostDto, user, lecture);
-                reviewService.saveReview(review);
-                lectureService.manageHashtag(hashtags, review);
-                return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
-            }
-            else
-                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-        }
-        else
-            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping("/{lectureId}/likes") // 강의글 좋아요
-    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
-        // 현재로그인한 사용자 아이디 가져오기
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        Lecture lecture = lectureService.findById(lectureId);
-        if(lecture!=null) { // 강의정보가 있는 경우
-            Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
-            if(existedLike!=null) { // 좋아요가 존재하는 경우
-                if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
-                    existedLike.changeLikeStatus(0);
-                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
-                }
-                else {
-                    existedLike.changeLikeStatus(1);
-                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
-                }
-//                int status = likeService.changeLikeStatus(existedLike, existedLike.getLikeStatus());
-//                if(status==1)
-//                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
-//                else
-//                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
-            }
-            else {// 좋아요 처음 누른 경우
-                Like like = new Like(lecture, user);
-                likeService.saveLike(like);
-                return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
-            }
-        }
-        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
-    }
-
-    @PostMapping("") // 강의 등록
+    // 강의 등록
+    @PostMapping("")
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
@@ -210,6 +184,57 @@ public class LectureController {
         reviewService.saveReview(review); // 리뷰 저장
         lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
+    }
+
+    // 강의에 들어가서 리뷰 다는 경우
+    @PostMapping("/{lectureId}/reviews")
+    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        Lecture lecture = lectureService.findById(lectureId);
+        List<String> hashtags = reviewPostDto.getHashtags();
+        if(lecture!=null){ // 강의가 있는 경우
+            Review review = reviewService.findByUserAndLecture(user, lecture);
+            if(review == null) { // 리뷰 등록한 적 없는 경우
+                review = new Review();
+                review.setLectureReview(reviewPostDto, user, lecture);
+                reviewService.saveReview(review);
+                lectureService.manageHashtag(hashtags, review);
+                return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
+            }
+            else
+                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+        }
+        else
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+    }
+
+    // 강의글 좋아요
+    @PostMapping("/{lectureId}/likes")
+    public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        // 현재로그인한 사용자 아이디 가져오기
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        Lecture lecture = lectureService.findById(lectureId);
+        if(lecture!=null) { // 강의정보가 있는 경우
+            Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
+            if(existedLike!=null) { // 좋아요가 존재하는 경우
+                if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
+                    existedLike.changeLikeStatus(0);
+                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
+                }
+                else {
+                    existedLike.changeLikeStatus(1);
+                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
+                }
+            }
+            else {// 좋아요 처음 누른 경우
+                Like like = new Like(lecture, user);
+                likeService.saveLike(like);
+                return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
+            }
+        }
+        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/urls") // 중복링크 찾기
