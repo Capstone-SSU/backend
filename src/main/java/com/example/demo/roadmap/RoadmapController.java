@@ -45,7 +45,15 @@ public class RoadmapController {
             }
             return new ResponseEntity<>(ResponseMessage.withData(200,"전체 로드맵 조회 성공",roadmapsResponses), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(200,"다른조건필요"),HttpStatus.OK);
+
+        List<RoadMapGroup> filteredRoadmaps=roadmapGroupService.getAllRoadmapGroupsWithFilter(keyword);
+        if(filteredRoadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 로드맵이 없습니다."),HttpStatus.OK);
+        }
+        for(RoadMapGroup group:filteredRoadmaps){
+            roadmapsResponses.add(roadmapGroupService.getAllRoadmapsResponse(group));
+        }
+        return new ResponseEntity<>(ResponseMessage.withData(200,"조건에 맞는 로드맵 조회 성공",roadmapsResponses),HttpStatus.OK);
     }
 
     @GetMapping("/roadmaps/lectures/{userId}")

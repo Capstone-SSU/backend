@@ -51,6 +51,11 @@ public class RoadmapGroupService {
         return groups;
     }
 
+    public List<RoadMapGroup> getAllRoadmapGroupsWithFilter(String keyword){
+        String[] keywords=keyword.split(" ");
+        return roadmapGroupRepository.findAllRoadmapsWithFilter(keywords);
+    }
+
     public DetailRoadmapResponse getDetailRoadmapResponse(User user, RoadMapGroup group,User roadmapWriter){
 
         DetailRoadmapResponse detailRoadmapResponse=new DetailRoadmapResponse();
