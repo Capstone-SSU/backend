@@ -1,7 +1,7 @@
 package com.example.demo.like;
 
 import com.example.demo.lecture.Lecture;
-import com.example.demo.roadmap.RoadMap;
+import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -18,7 +18,7 @@ import static com.example.demo.roadmap.QRoadMap.roadMap;
 @Table(name = "likes")
 @Data
 @NoArgsConstructor // jpa에는 기본 contructor가 필요함 -> 없을 경우에 "No default constructor for Entity 에러 발생" -> NoArgsConstructor로 해결 가능
-@ToString(exclude={"user","lecture","roadmap"})
+@ToString(exclude={"user","lecture","roadmapGroup"})
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,10 +44,10 @@ public class Like {
     @JoinColumn(name = "userId")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoadMap.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoadMapGroup.class)
     @JsonBackReference
-    @JoinColumn(name = "roadmapId")
-    private RoadMap roadmap;
+    @JoinColumn(name = "roadmapGroupId")
+    private RoadMapGroup roadmapGroup;
 
     @Builder
     public Like(User user, StudyPost post){
@@ -67,8 +67,8 @@ public class Like {
     }
 
     @Builder
-    public Like(RoadMap roadMap, User user) {
-        this.roadmap=roadMap;
+    public Like(RoadMapGroup roadMapGroup, User user) {
+        this.roadmapGroup=roadMapGroup;
         this.user = user;
     }
 }

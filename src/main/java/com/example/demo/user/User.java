@@ -6,6 +6,7 @@ import com.example.demo.report.Report;
 import com.example.demo.review.Review;
 import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.roadmap.RoadMap;
+import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -87,9 +88,9 @@ public class User {
     @JsonManagedReference
     private List<StudyComment> studyComments =new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", targetEntity = RoadMap.class)
+    @OneToMany(mappedBy = "user", targetEntity = RoadMapGroup.class)
     @JsonManagedReference
-    private List<RoadMap> roadMaps =new ArrayList<>();
+    private List<RoadMapGroup> roadmapGroups =new ArrayList<>();
 
     @Builder
     public User(String name, String nickname, String email, String pwd){
