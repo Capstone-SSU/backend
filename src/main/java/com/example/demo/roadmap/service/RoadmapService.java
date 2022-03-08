@@ -51,5 +51,37 @@ public class RoadmapService {
         return lectures;
     }
 
+    public void updateRoadmaps(List<Long> changedLectureIds,RoadMapGroup group){
+        List<Lecture> lectures=new ArrayList<>();
+        for(Long lectureId:changedLectureIds){
+            Lecture lecture=lectureService.findById(lectureId);
+            lectures.add(lecture);
+        }
+        roadmapRepository.updateExistingRoadmaps(lectures,group);
+        List<RoadMap> inDatabaseRoadmaps=roadmapRepository.findRoadmapsByGroupAndLectures(group,lectures);
+        if(inDatabaseRoadmaps.isEmpty())
+            return;
+        List<Lecture> inDatabaseLectures=new ArrayList<>();
+        for(RoadMap map:inDatabaseRoadmaps){
+            inDatabaseLectures.add(map.getLecture());
+        }
+
+        for(Lecture lecture:inDatabaseLectures){
+            if(lectures.contains(lecture)){
+                int index=lectures.indexOf(lecture);
+                lectures.set(index,null); //이미 디비에 있는 애들은 새로 추가할 필요가 없으므로 null로 둔다.
+            }
+        }
+
+        for(int i=0;i<lectures.size();i++){
+            Lecture lecture=lectures.get(i);
+            if(lecture==null)
+                continue;
+            RoadMap roadMap=new RoadMap(lecture,i+1,group); //null 이 아닌 것만 새롭게 디비에 추가
+            saveRoadmap(roadMap);
+        }
+
+    }
+
 
 }

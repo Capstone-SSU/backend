@@ -55,4 +55,10 @@ public class RoadmapGroupService {
             return null;
     }
 
+    public void updateRoadmapTitleAndRecommendation(String title, String recommendation, RoadMapGroup group){
+        group.setRoadmapGroupTitle(title);
+        group.setRoadmapGroupRecommendation(recommendation);
+        saveRoadmapGroup(group);
+    }
+
 }

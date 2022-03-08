@@ -116,6 +116,26 @@ public class RoadmapController {
         }
     }
 
+    @PatchMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> modifyRoadmap(@PathVariable Long roadmapGroupId, @RequestBody RoadMapDto roadMapDto,Principal principal){
+
+        RoadMapGroup group=roadmapGroupService.findRoadmapGroupById(roadmapGroupId);
+        if(group==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+        User user=userDetailsService.findUserByEmail(principal.getName());
+
+        List<Long> changedLectureIds=roadMapDto.getLectureIds();
+        String changedTitle=roadMapDto.getRoadmapTitle();
+        String changedRecommendation=roadMapDto.getRoadmapRecommendation();
+
+        roadmapGroupService.updateRoadmapTitleAndRecommendation(changedTitle,changedRecommendation,group);
+        roadmapService.updateRoadmaps(changedLectureIds,group);
+
+        return new ResponseEntity<>(new ResponseMessage(200,"로드맵 수정 성공"),HttpStatus.OK);
+
+    }
+
 
 
 
