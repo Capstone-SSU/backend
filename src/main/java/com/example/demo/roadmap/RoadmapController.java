@@ -144,6 +144,17 @@ public class RoadmapController {
 
     }
 
+    @DeleteMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> deleteRoadmap(@PathVariable Long roadmapGroupId){
+        RoadMapGroup group=roadmapGroupService.findRoadmapGroupById(roadmapGroupId);
+        if(group==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+        group.setRoadmapGroupStatus(0);
+        roadmapGroupService.saveRoadmapGroup(group);
+        return new ResponseEntity<>(new ResponseMessage(200,roadmapGroupId+"번 로드맵 삭제 성공"),HttpStatus.OK);
+    }
+
 
 
 
