@@ -60,4 +60,14 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .where(like.lecture.isNotNull())
                 .fetch();
     }
+
+    @Override
+    public List<StudyPost> findStudyLikeByUser(User user) {
+        return jpaQueryFactory
+                .select(like.studyPost) // 강의만 뽑아가기
+                .from(like)
+                .where(like.user.eq(user), like.likeStatus.eq(1))
+                .where(like.studyPost.isNotNull())
+                .fetch();
+    }
 }

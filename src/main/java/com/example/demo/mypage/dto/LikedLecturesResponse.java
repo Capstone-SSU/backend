@@ -1,4 +1,4 @@
-package com.example.demo.lecture.dto;
+package com.example.demo.mypage.dto;
 import lombok.Getter;
 import lombok.Setter;
 

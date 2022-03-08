@@ -14,4 +14,6 @@ public interface CustomLikeRepository {
     List<Like> findLikeByStudyPost(StudyPost post);
     List<Like> findLikeByRoadMap(RoadMap roadMap);
     List<Lecture> findLectureLikeByUser(User user);
+    List<StudyPost> findStudyLikeByUser(User user);
+
 }
