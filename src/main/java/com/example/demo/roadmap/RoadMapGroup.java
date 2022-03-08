@@ -4,6 +4,7 @@ import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +24,7 @@ public class RoadMapGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roadmapGroupId;
 
-    @Column(nullable = false)
+    @Column
     private String roadmapGroupTitle;
 
     @Column
@@ -48,4 +49,11 @@ public class RoadMapGroup {
     @OneToMany(mappedBy="roadmapGroup",targetEntity = RoadMap.class)
     @JsonManagedReference
     private List<RoadMap> roadMaps=new ArrayList<>();
+
+    @Builder
+    public RoadMapGroup (String title, String recommendation, User user){
+        this.roadmapGroupTitle=title;
+        this.roadmapGroupRecommendation=recommendation;
+        this.user=user;
+    }
 }
