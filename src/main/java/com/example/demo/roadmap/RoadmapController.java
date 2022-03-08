@@ -7,10 +7,7 @@ import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
-import com.example.demo.roadmap.dto.DetailRoadmapLectureResponse;
-import com.example.demo.roadmap.dto.DetailRoadmapResponse;
-import com.example.demo.roadmap.dto.RoadMapDto;
-import com.example.demo.roadmap.dto.RoadmapUploadLectureDto;
+import com.example.demo.roadmap.dto.*;
 import com.example.demo.roadmap.service.RoadmapGroupService;
 import com.example.demo.roadmap.service.RoadmapService;
 import com.example.demo.user.User;
@@ -34,6 +31,22 @@ public class RoadmapController {
     private final LectureService lectureService;
     private final ReviewService reviewService;
     private final LikeService likeService;
+
+    @GetMapping("/roadmaps")
+    public ResponseEntity<ResponseMessage> getAllRoadmaps(@RequestParam(required = false) String keyword){
+        List<RoadMapGroup> allRoadmaps=roadmapGroupService.getAllRoadmapGroups();
+        if(allRoadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"등록된 로드맵이 없습니다."),HttpStatus.OK);
+        }
+        List<AllRoadmapsResponse> roadmapsResponses=new ArrayList<>();
+        if(keyword==null){
+            for(RoadMapGroup group:allRoadmaps){
+                roadmapsResponses.add(roadmapGroupService.getAllRoadmapsResponse(group));
+            }
+            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 로드맵 조회 성공",roadmapsResponses), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(200,"다른조건필요"),HttpStatus.OK);
+    }
 
     @GetMapping("/roadmaps/lectures/{userId}")
     public ResponseEntity<ResponseMessage> getAllLecturesForRoadmap(@PathVariable Long userId){
