@@ -3,6 +3,7 @@ package com.example.demo.roadmap;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
+import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
@@ -92,6 +93,27 @@ public class RoadmapController {
         detailRoadmapResponse.setLectures(detailRoadmapLectureResponses);
 
         return new ResponseEntity<>(ResponseMessage.withData(200,"상세 로드맵 조회 성공",detailRoadmapResponse),HttpStatus.OK);
+    }
+
+    @PostMapping("/roadmaps/{roadmapGroupId}/likes")
+    public ResponseEntity<ResponseMessage> setLikeOnRoadmap(@PathVariable Long roadmapGroupId,Principal principal){
+        RoadMapGroup group=roadmapGroupService.findRoadmapGroupById(roadmapGroupId);
+
+        if(group==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+
+        User user=userDetailsService.findUserByEmail(principal.getName());
+        Like foundLike = likeService.findLikeByRoadmapAndUser(user,group);
+        if(foundLike==null){
+            Like like=new Like(group,user);
+            likeService.saveLike(like);
+            return new ResponseEntity<>(new ResponseMessage(201,"좋아요가 등록되었습니다."),HttpStatus.CREATED);
+        }else{
+            foundLike.changeLikeStatus(foundLike.getLikeStatus()==0?1:0);
+            likeService.saveLike(foundLike);
+            return new ResponseEntity<>(new ResponseMessage(200,"좋아요 상태 변경 성공"),HttpStatus.OK);
+        }
     }
 
 
