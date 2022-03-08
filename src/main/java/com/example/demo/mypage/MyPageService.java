@@ -6,6 +6,9 @@ import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.mypage.dto.LikedStudiesResponse;
+import com.example.demo.mypage.dto.MyReviewsResponse;
+import com.example.demo.review.Review;
+import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.service.StudyPostService;
 import com.example.demo.user.User;
@@ -23,8 +26,8 @@ import java.util.List;
 @Transactional
 public class MyPageService {
     private final LikeRepository likeRepository;
+    private final ReviewRepository reviewRepository;
     private final LectureService lectureService;
-    private final StudyPostService studyPostService;
 
     // 좋아요한 강의
     public List<LikedLecturesResponse> getLikedLectures(User user){
@@ -58,5 +61,24 @@ public class MyPageService {
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
+    }
+
+    // 작성한 강의리뷰 조회
+    public List<MyReviewsResponse> getMyStudies(User user){
+        List<Review> reviews = reviewRepository.findByUser(user);
+        List<MyReviewsResponse> myReviews = new ArrayList<>();
+        for(int i=0;i<reviews.size();i++){
+            Review review = reviews.get(i);
+            Lecture lecture = review.getLecture();
+            long lectureId = lecture.getLectureId();
+            String thumbnailUrl = lecture.getThumbnailUrl();
+            String lectureTitle = lecture.getLectureTitle();
+            String commentTitle = review.getCommentTitle();
+            String comment = review.getComment();
+            double avgRate = lectureService.getAvgRate(lecture);
+            MyReviewsResponse myReviewsResponse = new MyReviewsResponse(lectureId, thumbnailUrl, lectureTitle, avgRate, commentTitle, comment);
+            myReviews.add(myReviewsResponse);
+        }
+        return myReviews;
     }
 }

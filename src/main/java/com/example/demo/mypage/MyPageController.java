@@ -2,6 +2,7 @@ package com.example.demo.mypage;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.mypage.dto.LikedStudiesResponse;
+import com.example.demo.mypage.dto.MyReviewsResponse;
 import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import io.swagger.annotations.Api;
@@ -42,5 +43,16 @@ public class MyPageController {
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
         List<LikedStudiesResponse> likedStudies = myPageService.getLikedStudies(user);
         return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 스터디 조회", likedStudies), HttpStatus.OK);
+    }
+
+    // 작성한 강의리뷰 조회
+    @GetMapping("/{userId}/reviews")
+    public ResponseEntity<ResponseMessage> getMyReviews(@PathVariable("userId") String userId) {
+        Long id = Long.parseLong(userId);
+        User user = userDetailsService.findUserById(id);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        List<MyReviewsResponse> myReviews = myPageService.getMyStudies(user);
+        return new ResponseEntity<>(new ResponseMessage(200, "작성한 강의리뷰 조회", myReviews), HttpStatus.OK);
     }
 }
