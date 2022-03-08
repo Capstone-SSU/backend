@@ -3,6 +3,7 @@ package com.example.demo.like;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
 import com.example.demo.roadmap.RoadMap;
+import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.example.demo.like.repository.LikeRepository;
@@ -53,6 +54,14 @@ public class LikeService {
     public Integer getLikeCountOnStudyPost(StudyPost post){
         List<Like> likesOnPost=likeRepository.findLikeByStudyPost(post);
         return likesOnPost.size();
+    }
+
+    public Like findLikeByRoadmapAndUser(User user, RoadMapGroup group){
+        return likeRepository.findLikeByRoadmapGroupAndUser(group,user);
+    }
+
+    public Integer getLikeCountOnRoadmap(RoadMapGroup group){
+        return likeRepository.findLikeByRoadmap(group).size();
     }
 
 

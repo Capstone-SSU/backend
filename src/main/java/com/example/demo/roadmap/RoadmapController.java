@@ -6,6 +6,8 @@ import com.example.demo.lecture.LectureService;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
+import com.example.demo.roadmap.dto.DetailRoadmapLectureResponse;
+import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.dto.RoadMapDto;
 import com.example.demo.roadmap.dto.RoadmapUploadLectureDto;
 import com.example.demo.roadmap.service.RoadmapGroupService;
@@ -73,6 +75,26 @@ public class RoadmapController {
         }
         return new ResponseEntity<>(new ResponseMessage(201,"새로운 로드맵 등록 성공"),HttpStatus.OK);
     }
+
+    @GetMapping("/roadmaps/{roadmapGroupId}")
+    public ResponseEntity<ResponseMessage> getRoadmap(@PathVariable Long roadmapGroupId,Principal principal) {
+        RoadMapGroup group=roadmapGroupService.findRoadmapGroupById(roadmapGroupId);
+
+        User user=userDetailsService.findUserByEmail(principal.getName());
+        if(group==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 로드맵에 대한 요청입니다."),HttpStatus.OK);
+        }
+
+        List<RoadMap> roadmaps=roadmapService.getAllRoadMapsByGroup(group);
+        User roadmapWriter=group.getUser();
+        DetailRoadmapResponse detailRoadmapResponse = roadmapGroupService.getDetailRoadmapResponse(user,group,roadmapWriter);
+        List<DetailRoadmapLectureResponse> detailRoadmapLectureResponses=roadmapService.getAllDetailLecturesInRoadmap(roadmaps,roadmapWriter);
+        detailRoadmapResponse.setLectures(detailRoadmapLectureResponses);
+
+        return new ResponseEntity<>(ResponseMessage.withData(200,"상세 로드맵 조회 성공",detailRoadmapResponse),HttpStatus.OK);
+    }
+
+
 
 
 }
