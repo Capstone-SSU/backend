@@ -64,6 +64,10 @@ public class RoadmapController {
         String recommendation=roadMapDto.getRoadmapRecommendation();
 
         List<Long> lectures=roadMapDto.getLectureIds();
+        Boolean validateLectures=roadmapGroupService.validateUserLectureForRoadmap(lectures,user);
+        if(!validateLectures){
+            return new ResponseEntity<>(new ResponseMessage(403,"사용자가 리뷰를 작성하지 않은 강의가 포함되어 있습니다."),HttpStatus.OK);
+        }
         RoadMapGroup roadMapGroup=new RoadMapGroup(title,recommendation,user);
         RoadMapGroup savedGroup=roadmapGroupService.saveRoadmapGroup(roadMapGroup);
 
@@ -126,6 +130,10 @@ public class RoadmapController {
         User user=userDetailsService.findUserByEmail(principal.getName());
 
         List<Long> changedLectureIds=roadMapDto.getLectureIds();
+        Boolean validateLectures=roadmapGroupService.validateUserLectureForRoadmap(changedLectureIds,user);
+        if(!validateLectures){
+            return new ResponseEntity<>(new ResponseMessage(403,"사용자가 리뷰를 작성하지 않은 강의가 포함되어 있습니다."),HttpStatus.OK);
+        }
         String changedTitle=roadMapDto.getRoadmapTitle();
         String changedRecommendation=roadMapDto.getRoadmapRecommendation();
 

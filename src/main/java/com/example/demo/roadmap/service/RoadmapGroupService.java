@@ -1,7 +1,9 @@
 package com.example.demo.roadmap.service;
 
+import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
+import com.example.demo.review.Review;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.repository.RoadmapGroupRepository;
@@ -10,6 +12,8 @@ import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,6 +63,19 @@ public class RoadmapGroupService {
         group.setRoadmapGroupTitle(title);
         group.setRoadmapGroupRecommendation(recommendation);
         saveRoadmapGroup(group);
+    }
+
+    public Boolean validateUserLectureForRoadmap(List<Long> lectureIds, User user){
+        List<Review> reviews = user.getReviews();
+        List<Long> userLectureIds=new ArrayList<>();
+        for(Review review:reviews){
+            userLectureIds.add(review.getLecture().getLectureId());
+        }
+        for(Long id:lectureIds){
+            if(!userLectureIds.contains(id))
+                return false;
+        }
+        return true;
     }
 
 }
