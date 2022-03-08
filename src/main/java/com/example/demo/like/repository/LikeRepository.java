@@ -17,5 +17,4 @@ public interface LikeRepository extends JpaRepository<Like, Long>, CustomLikeRep
     List<Like> findAllLikeByStudyPost(StudyPost post); //한 스터디글에 대한 모든 좋아요 정보 가져오기
     Optional<Like> findLikeByLectureAndUser(Lecture lecture, User user);
     Optional<Like> findLikeByUserAndStudyPost(User user, StudyPost post);
-    Optional<Like> findLikeByRoadmapAndUser(RoadMap roadMap, User user);
 }

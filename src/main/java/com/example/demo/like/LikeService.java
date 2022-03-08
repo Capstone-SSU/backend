@@ -55,15 +55,6 @@ public class LikeService {
         return likesOnPost.size();
     }
 
-    public Like findLikeByRoadmapAndUser(RoadMap roadMap,User user){
-        Optional<Like> like=likeRepository.findLikeByRoadmapAndUser(roadMap,user);
-        return like.orElse(null);
-    }
-
-    public Integer getLikeCountOnRoadmap(RoadMap roadmap){
-        List<Like> likesOnRoadmap=likeRepository.findLikeByRoadMap(roadmap);
-        return likesOnRoadmap.size();
-    }
 
 
 }
