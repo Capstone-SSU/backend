@@ -57,7 +57,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
     public Like findLikeByRoadmapGroupAndUser(RoadMapGroup group, User user) {
         return jpaQueryFactory
                 .selectFrom(like)
-                .where(like.roadmapGroup.eq(group),like.user.eq(user),like.likeStatus.eq(1))
+                .where(like.roadmapGroup.eq(group),like.user.eq(user))
                 .fetchFirst();
     }
 

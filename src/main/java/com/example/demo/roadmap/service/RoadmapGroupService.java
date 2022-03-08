@@ -1,5 +1,6 @@
 package com.example.demo.roadmap.service;
 
+import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.roadmap.dto.DetailRoadmapResponse;
@@ -38,12 +39,20 @@ public class RoadmapGroupService {
         detailRoadmapResponse.setRoadmapTitle(group.getRoadmapGroupTitle());
         detailRoadmapResponse.setRoadmapGroupId(group.getRoadmapGroupId());
         detailRoadmapResponse.setRoadmapRecommendation(group.getRoadmapGroupRecommendation());
-        detailRoadmapResponse.setIsLikedByUser(likeService.findLikeByRoadmapAndUser(user,group)!=null);
+        detailRoadmapResponse.setIsLikedByUser(checkRoadmapLikedByUser(user,group)!=null);
         detailRoadmapResponse.setIsThisUserRoadmapWriter(roadmapWriter.getUserId()==user.getUserId());
         detailRoadmapResponse.setRoadmapWriter(userDetailsService.getSimpleUserDto(roadmapWriter));
         detailRoadmapResponse.setLikeCount(likeService.getLikeCountOnRoadmap(group));
 
         return detailRoadmapResponse;
+    }
+
+    public Like checkRoadmapLikedByUser(User user,RoadMapGroup group){
+        Like like=likeService.findLikeByRoadmapAndUser(user,group);
+        if(like!=null&&like.getLikeStatus()==1)
+            return like;
+        else
+            return null;
     }
 
 }
