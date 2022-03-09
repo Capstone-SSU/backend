@@ -1,7 +1,10 @@
 package com.example.demo.study.repository;
 
+import com.example.demo.mypage.dto.MyStudiesResponse;
 import com.example.demo.study.domain.StudyPost;
+import com.example.demo.user.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,7 +20,7 @@ public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository 
 
     @Override
     public List<StudyPost> findPostsByTest(String[] categories, String[] keywords, String location) {
-        BooleanBuilder booleanBuilder=new BooleanBuilder();
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
         //모든 categories에 대해 or조건을 더해준다
         List<StudyPost> postList = jpaQueryFactory
                 .selectFrom(studyPost)
@@ -28,36 +31,48 @@ public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository 
 
     }
 
-    private BooleanBuilder predicate(String[] categories, String[] keywords, String location){
-        BooleanBuilder builder=new BooleanBuilder();
-        if(categories!=null){
+    private BooleanBuilder predicate(String[] categories, String[] keywords, String location) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (categories != null) {
             builder.and(checkCategory(categories));
         }
-        if(keywords!=null){
+        if (keywords != null) {
             builder.and(checkKeyword(keywords));
         }
-        if(location!=null){
+        if (location != null) {
             builder.and(studyPost.studyLocation.eq(location));
         }
         return builder.and(studyPost.studyStatus.eq(1));
     }
 
-    private BooleanBuilder checkCategory(String[] categories){
-        BooleanBuilder booleanBuilder=new BooleanBuilder();
-        for(String category:categories){
+    private BooleanBuilder checkCategory(String[] categories) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        for (String category : categories) {
             booleanBuilder.or(studyPost.studyCategoryName.eq(category));
         }
         return booleanBuilder;
     }
 
-    private BooleanBuilder checkKeyword(String[] keywords){
-        BooleanBuilder booleanBuilder=new BooleanBuilder();
-        for(String keyword:keywords){
+    private BooleanBuilder checkKeyword(String[] keywords) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        for (String keyword : keywords) {
             booleanBuilder.or(studyPost.studyContent.contains(keyword));
             booleanBuilder.or(studyPost.studyTitle.contains(keyword)); // 이게 맞냐,,,,
         }
         return booleanBuilder;
     }
 
-
+    @Override
+    public List<MyStudiesResponse> findByUser(User user) {
+        return jpaQueryFactory
+                .select(Projections.constructor(MyStudiesResponse.class,
+                                studyPost.studyPostId,
+                                studyPost.studyTitle,
+                                studyPost.studyLocation,
+                                studyPost.studyCategoryName,
+                                studyPost.studyRecruitStatus))
+                .from(studyPost)
+                .where(studyPost.user.eq(user), studyPost.studyStatus.eq(1))
+                .fetch();
+    }
 }
