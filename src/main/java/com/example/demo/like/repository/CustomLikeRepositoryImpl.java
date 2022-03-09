@@ -1,7 +1,6 @@
 package com.example.demo.like.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
-import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
@@ -71,11 +70,12 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .where(like.studyPost.isNotNull())
                 .fetch();
     }
+
+    @Override
     public Like findLikeByRoadmapGroupAndUser(RoadMapGroup group, User user) {
         return jpaQueryFactory
                 .selectFrom(like)
                 .where(like.roadmapGroup.eq(group),like.user.eq(user))
                 .fetchFirst();
     }
-
 }
