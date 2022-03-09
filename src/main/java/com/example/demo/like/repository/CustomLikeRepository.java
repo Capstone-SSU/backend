@@ -3,6 +3,7 @@ package com.example.demo.like.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
 import com.example.demo.roadmap.RoadMap;
+import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 
@@ -15,5 +16,6 @@ public interface CustomLikeRepository {
     List<Like> findLikeByRoadMap(RoadMap roadMap);
     List<Lecture> findLectureLikeByUser(User user);
     List<StudyPost> findStudyLikeByUser(User user);
-
+    List<Like> findLikeByRoadmap(RoadMapGroup roadMapGroup);
+    Like findLikeByRoadmapGroupAndUser(RoadMapGroup group, User user);
 }

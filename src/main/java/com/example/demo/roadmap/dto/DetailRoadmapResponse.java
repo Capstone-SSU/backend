@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class DetailRoadmapResponse {
-    private Integer roadmapGroupId;
+    private Long roadmapGroupId;
     private String roadmapTitle;
     private String roadmapRecommendation;
     private Integer likeCount;

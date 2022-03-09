@@ -20,51 +20,32 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "roadmaps")
 public class RoadMap {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roadmapId;
 
     @Column(nullable = false)
-    private String roadmapTitle;
-
-    @Column
-    private String roadmapRecommendation; //추천대상
-
-    @Column
-    private Integer roadmapStatus=1;  //0이면 삭제된 것
-
-    @Column(nullable = false)
-    private Integer roadmapGroupId; //해당 강의가 어떤 로드맵에 속해있는지
-
-    @Column
-    @CreatedDate
-    private LocalDateTime roadmapCreatedDate=LocalDateTime.now();
-
-    @Column(nullable = false)
     private Integer roadmapLectureOrder; //한 로드맵 에서 이 강의의 순서 지정 -> 오름차순으로 정렬
+
+    @Column(nullable = false)
+    private Integer roadmapStatus=1;
 
     //근데 그냥 하나의 roadmap 클래스 안에,,, 렉쳐 컬럼 따로 가지면 될 것 같아서 단방향 OneToOne으로 가겠습니다
     @OneToOne(targetEntity = Lecture.class)
     @JoinColumn(name = "lectureId")
     private Lecture lecture;
 
-    @ManyToOne(targetEntity = User.class)
-    @JoinColumn(name = "userId")
+    @ManyToOne(targetEntity = RoadMapGroup.class)
+    @JoinColumn(name = "roadmapGroupId")
     @JsonBackReference
-    private User user; //직성자 객체 저장
-
-    @OneToMany(mappedBy = "roadmap",targetEntity = Like.class)
-    @JsonManagedReference
-    private List<Like> likes =new ArrayList<>();
+    private RoadMapGroup roadmapGroup; //직성자 객체 저장
 
     @Builder
-    public RoadMap(String title, String recommend, Lecture lecture, Integer order, Integer groupId, User user){
-        this.roadmapTitle=title;
-        this.roadmapRecommendation=recommend;
+    public RoadMap(Lecture lecture, Integer order, RoadMapGroup group){
         this.lecture=lecture;
         this.roadmapLectureOrder=order;
-        this.roadmapGroupId=groupId;
-        this.user=user;
+        this.roadmapGroup=group;
     }
 
     public void updateRoadmapLectureOrder(Integer order){
