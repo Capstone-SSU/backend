@@ -4,6 +4,8 @@ import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.mypage.dto.LikedStudiesResponse;
 import com.example.demo.mypage.dto.MyReviewsResponse;
 import com.example.demo.mypage.dto.MyStudiesResponse;
+import com.example.demo.study.domain.StudyPost;
+import com.example.demo.study.service.StudyPostService;
 import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import io.swagger.annotations.Api;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class MyPageController {
     private final UserDetailsServiceImpl userDetailsService;
+    private final StudyPostService studyPostService;
     private final MyPageService myPageService;
 
     // 좋아요한 강의 조회
@@ -68,14 +71,34 @@ public class MyPageController {
         return new ResponseEntity<>(new ResponseMessage(200, "작성한 스터디 조회", myStudies), HttpStatus.OK);
     }
 
-    // 작성한 로드맵 조회
-    @GetMapping("/{userId}/studies")
-    public ResponseEntity<ResponseMessage> getMyStudies(@PathVariable("userId") String userId) {
+    // 스터디 상태변경 _ 마이페이지
+    @PatchMapping("/{userId}/studies/{studyId}")
+    public ResponseEntity<ResponseMessage> changeRecruitStatus(@PathVariable("userId") String userId, @PathVariable("studyId") String studyId) {
         Long id = Long.parseLong(userId);
+        Long studyPostId = Long.parseLong(studyId);
         User user = userDetailsService.findUserById(id);
-        if(user == null)
+        if (user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        List<MyStudiesResponse> myStudies = myPageService.getMyStudies(user);
-        return new ResponseEntity<>(new ResponseMessage(200, "작성한 스터디 조회", myStudies), HttpStatus.OK);
+        StudyPost study = studyPostService.findStudyPostById(studyPostId);
+        if (study == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 스터디"), HttpStatus.NOT_FOUND);
+        if (study.getStudyRecruitStatus() == 1) { // 모집중이라면
+            study.updateRecruitStatus(0);
+            return new ResponseEntity<>(new ResponseMessage(200, "스터디 모집상태 모집완료로 변경"), HttpStatus.OK);
+        } else {
+            study.updateRecruitStatus(1);
+            return new ResponseEntity<>(new ResponseMessage(200, "스터디 모집상태 모집중으로 변경"), HttpStatus.OK);
+        }
     }
+
+    // 작성한 로드맵 조회
+//    @GetMapping("/{userId}/roadmaps")
+//    public ResponseEntity<ResponseMessage> getMyStudies(@PathVariable("userId") String userId) {
+//        Long id = Long.parseLong(userId);
+//        User user = userDetailsService.findUserById(id);
+//        if(user == null)
+//            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+//        List<MyStudiesResponse> myStudies = myPageService.getMyStudies(user);
+//        return new ResponseEntity<>(new ResponseMessage(200, "작성한 스터디 조회", myStudies), HttpStatus.OK);
+//    }
 }

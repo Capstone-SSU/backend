@@ -212,8 +212,6 @@ public class LectureController {
     // 강의글 좋아요
     @PostMapping("/{lectureId}/likes")
     public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
-        // 현재로그인한 사용자 아이디 가져오기
-
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
