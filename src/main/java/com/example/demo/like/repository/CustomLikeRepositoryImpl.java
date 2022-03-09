@@ -1,7 +1,6 @@
 package com.example.demo.like.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
-import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
@@ -44,6 +43,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .fetch();
     }
 
+
     @Override
     public List<Like> findLikeByRoadmap(RoadMapGroup roadMapGroup) {
         return jpaQueryFactory
@@ -63,6 +63,16 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
     }
 
     @Override
+    public List<RoadMapGroup> findRoadmapLikeByUser(User user) {
+        return jpaQueryFactory
+                .select(like.roadmapGroup) // 로드맵 그룹만 뽑아가기
+                .from(like)
+                .where(like.user.eq(user), like.likeStatus.eq(1))
+                .where(like.roadmapGroup.isNotNull())
+                .fetch();
+    }
+
+    @Override
     public List<StudyPost> findStudyLikeByUser(User user) {
         return jpaQueryFactory
                 .select(like.studyPost) // 강의만 뽑아가기
@@ -71,11 +81,12 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .where(like.studyPost.isNotNull())
                 .fetch();
     }
+
+    @Override
     public Like findLikeByRoadmapGroupAndUser(RoadMapGroup group, User user) {
         return jpaQueryFactory
                 .selectFrom(like)
                 .where(like.roadmapGroup.eq(group),like.user.eq(user))
                 .fetchFirst();
     }
-
 }

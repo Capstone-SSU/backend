@@ -1,9 +1,6 @@
 package com.example.demo.mypage;
 import com.example.demo.dto.ResponseMessage;
-import com.example.demo.mypage.dto.LikedLecturesResponse;
-import com.example.demo.mypage.dto.LikedStudiesResponse;
-import com.example.demo.mypage.dto.MyReviewsResponse;
-import com.example.demo.mypage.dto.MyStudiesResponse;
+import com.example.demo.mypage.dto.*;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.service.StudyPostService;
 import com.example.demo.user.User;
@@ -49,6 +46,17 @@ public class MyPageController {
         return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 스터디 조회", likedStudies), HttpStatus.OK);
     }
 
+    // 좋아요한 로드맵 조회
+    @GetMapping("/{userId}/liked-roadmaps")
+    public ResponseEntity<ResponseMessage> getLikedRoadmaps(@PathVariable("userId") String userId) {
+        Long id = Long.parseLong(userId);
+        User user = userDetailsService.findUserById(id);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        List<LikedRoadmapsResponse> likedRoadmaps = myPageService.getLikedRoadmaps(user);
+        return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 로드맵 조회", likedRoadmaps), HttpStatus.OK);
+    }
+
     // 작성한 강의리뷰 조회
     @GetMapping("/{userId}/reviews")
     public ResponseEntity<ResponseMessage> getMyReviews(@PathVariable("userId") String userId) {
@@ -92,13 +100,13 @@ public class MyPageController {
     }
 
     // 작성한 로드맵 조회
-//    @GetMapping("/{userId}/roadmaps")
-//    public ResponseEntity<ResponseMessage> getMyStudies(@PathVariable("userId") String userId) {
-//        Long id = Long.parseLong(userId);
-//        User user = userDetailsService.findUserById(id);
-//        if(user == null)
-//            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-//        List<MyStudiesResponse> myStudies = myPageService.getMyStudies(user);
-//        return new ResponseEntity<>(new ResponseMessage(200, "작성한 스터디 조회", myStudies), HttpStatus.OK);
-//    }
+    @GetMapping("/{userId}/roadmaps")
+    public ResponseEntity<ResponseMessage> getMyRoadmaps(@PathVariable("userId") String userId) {
+        Long id = Long.parseLong(userId);
+        User user = userDetailsService.findUserById(id);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        List<MyRoadmapsResponse> myRoadmaps = myPageService.getMyRoadmaps(user);
+        return new ResponseEntity<>(new ResponseMessage(200, "작성한 로드맵 조회", myRoadmaps), HttpStatus.OK);
+    }
 }
