@@ -46,6 +46,17 @@ public class MyPageController {
         return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 스터디 조회", likedStudies), HttpStatus.OK);
     }
 
+    // 좋아요한 로드맵 조회
+    @GetMapping("/{userId}/liked-roadmaps")
+    public ResponseEntity<ResponseMessage> getLikedRoadmaps(@PathVariable("userId") String userId) {
+        Long id = Long.parseLong(userId);
+        User user = userDetailsService.findUserById(id);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        List<LikedRoadmapsResponse> likedRoadmaps = myPageService.getLikedRoadmaps(user);
+        return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 로드맵 조회", likedRoadmaps), HttpStatus.OK);
+    }
+
     // 작성한 강의리뷰 조회
     @GetMapping("/{userId}/reviews")
     public ResponseEntity<ResponseMessage> getMyReviews(@PathVariable("userId") String userId) {

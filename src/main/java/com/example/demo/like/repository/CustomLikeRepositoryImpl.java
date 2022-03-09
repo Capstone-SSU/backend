@@ -43,6 +43,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .fetch();
     }
 
+
     @Override
     public List<Like> findLikeByRoadmap(RoadMapGroup roadMapGroup) {
         return jpaQueryFactory
@@ -58,6 +59,16 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .from(like)
                 .where(like.user.eq(user), like.likeStatus.eq(1))
                 .where(like.lecture.isNotNull())
+                .fetch();
+    }
+
+    @Override
+    public List<RoadMapGroup> findRoadmapLikeByUser(User user) {
+        return jpaQueryFactory
+                .select(like.roadmapGroup) // 로드맵 그룹만 뽑아가기
+                .from(like)
+                .where(like.user.eq(user), like.likeStatus.eq(1))
+                .where(like.roadmapGroup.isNotNull())
                 .fetch();
     }
 

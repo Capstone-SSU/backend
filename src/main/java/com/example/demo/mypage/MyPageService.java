@@ -4,6 +4,7 @@ import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.DetailLectureResponse;
+import com.example.demo.like.Like;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.review.Review;
@@ -73,6 +74,28 @@ public class MyPageService {
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
+    }
+
+    // 좋아요한 로드맵 조회
+    public List<LikedRoadmapsResponse> getLikedRoadmaps(User user){
+        List<LikedRoadmapsResponse> likedRoadmaps = new ArrayList<>();
+        List<RoadMapGroup> allRoadmapGroups = likeRepository.findRoadmapLikeByUser(user);
+        for(RoadMapGroup group:allRoadmapGroups){ // 로드맵을 하나씩 돌면서
+            LikedRoadmapsResponse likedRoadmapsResponse = new LikedRoadmapsResponse();
+            List<RoadMap> roadmaps = roadmapRepository.findAllRoadmapsByGroup(group); // 로드맵에 들어있는 각각의 강의들
+            List<String> thumbnails=new ArrayList<>();
+            for(RoadMap roadMap: roadmaps){
+                thumbnails.add(roadMap.getLecture().getThumbnailUrl());
+            }
+            likedRoadmapsResponse.setRoadmapId(group.getRoadmapGroupId());
+            likedRoadmapsResponse.setRoadmapTitle(group.getRoadmapGroupTitle());
+            likedRoadmapsResponse.setRoadmapWriterCompany(user.getUserCompany());
+            likedRoadmapsResponse.setLectureThumbnails(thumbnails);
+            likedRoadmapsResponse.setRoadmapWriterNickname(user.getUserNickname());
+            likedRoadmapsResponse.setRoadmapCreatedDate(group.getRoadmapGroupCreatedDate());
+            likedRoadmaps.add(likedRoadmapsResponse);
+        }
+        return likedRoadmaps;
     }
 
     // 작성한 강의리뷰 조회

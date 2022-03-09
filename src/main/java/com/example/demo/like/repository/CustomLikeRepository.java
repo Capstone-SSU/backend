@@ -13,8 +13,9 @@ public interface CustomLikeRepository {
     int updateLikeStatus(Like like, int likeStatus);
     List<Like> findLikeByLecture(Lecture lecture); // 강의글 좋아요 가져오기
     List<Like> findLikeByStudyPost(StudyPost post);
+    List<Like> findLikeByRoadmap(RoadMapGroup roadMapGroup);
     List<Lecture> findLectureLikeByUser(User user);
     List<StudyPost> findStudyLikeByUser(User user);
-    List<Like> findLikeByRoadmap(RoadMapGroup roadMapGroup);
+    List<RoadMapGroup> findRoadmapLikeByUser(User user);
     Like findLikeByRoadmapGroupAndUser(RoadMapGroup group, User user);
 }
