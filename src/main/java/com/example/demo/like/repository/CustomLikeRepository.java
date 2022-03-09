@@ -4,6 +4,7 @@ import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
 import com.example.demo.roadmap.RoadMap;
 import com.example.demo.study.domain.StudyPost;
+import com.example.demo.user.User;
 
 import java.util.List;
 
@@ -12,4 +13,7 @@ public interface CustomLikeRepository {
     List<Like> findLikeByLecture(Lecture lecture); // 강의글 좋아요 가져오기
     List<Like> findLikeByStudyPost(StudyPost post);
     List<Like> findLikeByRoadMap(RoadMap roadMap);
+    List<Lecture> findLectureLikeByUser(User user);
+    List<StudyPost> findStudyLikeByUser(User user);
+
 }

@@ -212,9 +212,11 @@ public class LectureController {
     // 강의글 좋아요
     @PostMapping("/{lectureId}/likes")
     public ResponseEntity<ResponseMessage> createLike(@PathVariable("lectureId") Long lectureId, Principal principal) {
-        // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture!=null) { // 강의정보가 있는 경우
             Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
