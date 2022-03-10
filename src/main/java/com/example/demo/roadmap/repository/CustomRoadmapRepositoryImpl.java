@@ -3,6 +3,7 @@ package com.example.demo.roadmap.repository;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
+import com.example.demo.user.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -57,6 +58,7 @@ public class CustomRoadmapRepositoryImpl implements CustomRoadmapRepository{
                 .where(roadMap.roadmapGroup.eq(group),roadMap.lecture.in(lectures))
                 .fetch();
         }
+
 
 
 }

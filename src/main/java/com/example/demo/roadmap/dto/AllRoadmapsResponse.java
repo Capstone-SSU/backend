@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AllRoadmapsResponse {
+    private long roadmapId;
     private String roadmapTitle;
     private LocalDateTime roadmapCreatedDate;
     private String roadmapWriterNickname;
@@ -18,8 +19,10 @@ public class AllRoadmapsResponse {
     private List<String> lectureThumbnails;
     private Integer roadmapLikeCount;
 
+
     @Builder
-    public AllRoadmapsResponse(String title, String nickname, String company, LocalDateTime date, List<String> thumbnails, Integer count){
+    public AllRoadmapsResponse(long roadmapId, String title, String nickname, String company, LocalDateTime date, List<String> thumbnails, Integer count){
+        this.roadmapId = roadmapId;
         this.lectureThumbnails=thumbnails;
         this.roadmapCreatedDate=date;
         this.roadmapTitle=title;
