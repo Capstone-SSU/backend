@@ -1,5 +1,7 @@
 package com.example.demo.user;
 
+import com.example.demo.mypage.dto.MyInfoEditDto;
+import com.example.demo.mypage.dto.MyInfoResponse;
 import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
@@ -32,7 +34,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider) {
-
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
@@ -96,6 +97,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public void deleteUserById(Long userId){
         userRepository.deleteByUserId(userId);
+    }
+
+    public MyInfoResponse getProfile(User user){
+        String email = user.getUserEmail();
+        String nickname = user.getUserNickname();
+        String profileImage = user.getUserProfileImg();
+        String githubName = user.getGithubUrlName();
+        MyInfoResponse myInfoResponse = new MyInfoResponse(email, nickname, profileImage, githubName);
+        return myInfoResponse;
+    }
+
+    public void editProfile(MyInfoEditDto myInfoEditDto, User user){
+        // 프로필 이미지를
     }
 
     //isThisUserWriter 값을 제외한 모든 값을 세팅해준다

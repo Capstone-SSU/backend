@@ -10,7 +10,7 @@ import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
 import com.nimbusds.jose.shaded.json.JSONObject;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -29,7 +29,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Api(tags = {"Lecture"})
+@Api(tags={"강의리뷰 API"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
@@ -115,6 +115,15 @@ public class LectureController {
     }
 
     // 전체 강의 글 조회 + 필터링 된 강의 글 조회
+    @ApiOperation(value="전체 강의글 조회 + 검색 필터링별 강의 조회")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "API 정상 작동 (모든 강의리뷰 조회 / 필터링 된 강의리뷰 조회)"),
+            @ApiResponse(code = 500, message = "서버 에러")
+    })
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="keyword", value="검색어", example="자바", required = false),
+            @ApiImplicitParam(name="category", value="카테고리", example="백엔드", required = false)
+    })
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getLectures(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category) {
         if(keyword == null && category == null) { // 모든 강의 조회
@@ -128,24 +137,43 @@ public class LectureController {
     }
 
     // 강의글 상세 조회
+    @ApiOperation(value="강의글 상세 조회")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "API 정상 작동 (강의 조회)"),
+            @ApiResponse(code = 404, message = "존재하지 않는 유저 or 강의"),
+            @ApiResponse(code = 500, message = "서버 에러")
+    })
+    @ApiImplicitParam(name="lectureId", value="강의 글 번호", example="6", required = true)
     @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {// 강의정보가 있는 경우만
             DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
             return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", detailLectureResponse), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
     }
 
     // 강의 등록
+    @ApiOperation(value="강의글 등록")
+    @ApiResponses({
+            @ApiResponse(code = 201, message = "API 정상 작동 (강의 등록)"),
+            @ApiResponse(code = 404, message = "존재하지 않는 유저"),
+            @ApiResponse(code = 409, message = "리뷰 여러 번 업로드 불가 / 동일한 강의글 업로드 불가"),
+            @ApiResponse(code = 500, message = "서버 에러")
+    })
+    @ApiImplicitParam(name="lectureId", value="강의 글 번호", example="6", required = true)
     @PostMapping("")
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
         // 현재로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
         // 여기까지는 lecture table에 들어가는 것
         String lectureUrl = lectureDto.getLectureUrl();
