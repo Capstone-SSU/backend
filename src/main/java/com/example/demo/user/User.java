@@ -2,6 +2,7 @@ package com.example.demo.user;
 
 import com.example.demo.like.Like;
 import com.example.demo.lecture.Lecture;
+import com.example.demo.mypage.dto.MyInfoEditDto;
 import com.example.demo.report.Report;
 import com.example.demo.review.Review;
 import com.example.demo.reviewHashtag.ReviewHashtag;
@@ -113,6 +114,16 @@ public class User {
 
     public void updateUserCompany(String company){
         this.userCompany=company;
+    }
+
+    public void updatePassword(String password){
+        this.userPassword = password;
+    }
+
+    public void updateProfile(String nickname, String url, String githubUrlName){
+        this.userNickname = nickname;
+        this.userProfileImg = url;
+        this.githubUrlName = githubUrlName;
     }
 
     public void setGithubProvider(String provider){
