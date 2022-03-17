@@ -1,28 +1,22 @@
 package com.example.demo.mypage;
-
-import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.like.Like;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
-import com.example.demo.roadmap.dto.AllRoadmapsResponse;
 import com.example.demo.roadmap.repository.RoadmapGroupRepository;
 import com.example.demo.roadmap.repository.RoadmapRepository;
-import com.example.demo.roadmap.service.RoadmapGroupService;
-import com.example.demo.roadmap.service.RoadmapService;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.repository.StudyPostRepository;
 import com.example.demo.user.User;
+import com.example.demo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +28,44 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class MyPageService {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final LikeRepository likeRepository;
     private final ReviewRepository reviewRepository;
     private final LectureService lectureService;
     private final StudyPostRepository studyPostRepository;
-    private final RoadmapGroupService roadmapGroupService;
     private final RoadmapRepository roadmapRepository;
     private final RoadmapGroupRepository roadmapGroupRepository;
+    private final UserRepository userRepository;
+
+    // 회원정보 조회
+    public MyInfoResponse getProfile(User user){
+        String email = user.getUserEmail();
+        String nickname = user.getUserNickname();
+        String profileImage = user.getUserProfileImg();
+        String githubName = user.getGithubUrlName();
+        MyInfoResponse myInfoResponse = new MyInfoResponse(email, nickname, profileImage, githubName);
+        return myInfoResponse;
+    }
+
+    // 회원정보 수정
+    public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
+        // 프로필 이미지를
+        System.out.println(myInfoEditDto);
+
+//        userRepository.updateUserProfile(myInfoEditDto);
+    }
+
+    public String checkPassword(User user, String password) {
+        // 현재 디비에 있는 비밀번호와 비교한 후
+//        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())){
+//            if()
+//        }
+//        else
+//            return 'not match with original pw'
+//            }
+        return "";
+    }
+
 
     // 좋아요한 강의
     public List<LikedLecturesResponse> getLikedLectures(User user){

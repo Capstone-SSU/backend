@@ -13,6 +13,12 @@ import java.util.Optional;
 public class HashtagService {
     private final HashtagRepository hashtagRepository;
 
+    public List<Hashtag> getAllHashtags(){
+        List<Hashtag> hashtags = hashtagRepository.findAll();
+        System.out.println("hashtags = " + hashtags);
+        return hashtags;
+    }
+
     public long saveHashtag(Hashtag hashtag){
         Hashtag savedHashtag = hashtagRepository.save(hashtag);
         return savedHashtag.getHashtagId();
