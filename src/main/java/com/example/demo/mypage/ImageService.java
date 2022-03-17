@@ -25,9 +25,7 @@ public class ImageService {
     private String bucketName;
 
     public String uploadFile(MultipartFile multipartFile) throws FileUploadException {
-
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
-        System.out.println("fileName = " + fileName);
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
 
@@ -37,7 +35,6 @@ public class ImageService {
         } catch (IOException e) {
             throw new FileUploadException();
         }
-
         return amazonS3Client.getUrl(bucketName, fileName).toString();
     }
 }

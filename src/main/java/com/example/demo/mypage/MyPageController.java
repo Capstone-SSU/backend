@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,33 +31,61 @@ public class MyPageController {
         User user = userService.findUserById(userId);
         if(user==null)
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
-        MyInfoResponse myInfo = userService.getProfile(user);
+        MyInfoResponse myInfo = myPageService.getProfile(user);
         return new ResponseEntity<>(ResponseMessage.withData(200,"회원정보 조회 성공", myInfo),HttpStatus.OK);
     }
 
     @PatchMapping("/{userId}") // 회원정보수정
-    public ResponseEntity<ResponseMessage> editProfile(@RequestBody MyInfoEditDto myInfoEditDto, @PathVariable Long userId) throws FileUploadException {
-        User user = userService.findUserById(userId);
-        if(user==null)
-            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
-        userService.editProfile(myInfoEditDto, user);
-        imageService.uploadFile(myInfoEditDto.getUserProfileImg());
-
-        return new ResponseEntity<>(new ResponseMessage(200,"회원정보 수정 성공"),HttpStatus.OK);
-    }
-
-    @PostMapping("/{userId}")
-    public ResponseEntity<ResponseMessage> postProfile(
-            @RequestParam(value = "file") MultipartFile multipartFile,
+    public ResponseEntity<ResponseMessage> editProfile(
+            @ModelAttribute MyInfoEditDto myInfoEditDto,
             @PathVariable Long userId) throws FileUploadException {
         User user = userService.findUserById(userId);
         if(user==null)
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
-//        userService.editProfile(myInfoEditDto, user);
-        imageService.uploadFile(multipartFile);
+
+        String password = myInfoEditDto.getPassword();
+        String newPassword = myInfoEditDto.getNewPassword();
+        String confirmPassword = myInfoEditDto.getConfirmPassword();
+        if(newPassword!=null && confirmPassword!=null){ // 이게 들어온 경우
+
+        }
+
+//        myPageService.checkPassword(user, password, newPassword, confirmPassword); // 입력한 비밀번호가 맞는지
+
+
+        // 보낼때도 암호화해서 보내면
+        // 비밀번호가 일치하지 않는 경우
+
+        if(newPassword != confirmPassword){
+
+        }
+
+        String url="";
+        if(myInfoEditDto.getUserProfileImg()!=null) {
+            url = imageService.uploadFile(myInfoEditDto.getUserProfileImg());
+        }
+        myPageService.editProfile(myInfoEditDto, user, url);
 
         return new ResponseEntity<>(new ResponseMessage(200,"회원정보 수정 성공"),HttpStatus.OK);
     }
+
+//    @PatchMapping("/{userId}") // 마이페이지 정보 수정
+//    public ResponseEntity<ResponseMessage> updateProfile(
+////            @RequestParam(value = "file") MultipartFile multipartFile,
+////            @RequestBody MyInfoEditDto myInfoEditDto,
+//            @ModelAttribute MyInfoEditDto myInfoEditDto,
+//            @PathVariable Long userId) throws FileUploadException {
+//        User user = userService.findUserById(userId);
+//        if(user==null)
+//            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
+//        // 일단 S3에 이미지 업로드 하고 나서
+//        String url = imageService.uploadFile(myInfoEditDto.getUserProfileImg());
+//        myPageService.editProfile(myInfoEditDto, user, url);
+//
+//        // 이 url을
+//        System.out.println("url = " + url);
+//        return new ResponseEntity<>(new ResponseMessage(200,"회원정보 수정 성공"),HttpStatus.OK);
+//    }
 
     @DeleteMapping("/{userId}") // 회원탈퇴
     public ResponseEntity<ResponseMessage> resignMembership(@PathVariable Long userId){

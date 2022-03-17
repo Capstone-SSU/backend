@@ -1,10 +1,7 @@
 package com.example.demo.user;
 
-import com.example.demo.mypage.dto.MyInfoEditDto;
-import com.example.demo.mypage.dto.MyInfoResponse;
 import com.example.demo.security.CustomUserDetails;
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepository;
+import com.example.demo.user.repository.UserRepository;
 import com.example.demo.security.jwt.JwtTokenProvider;
 import com.example.demo.user.dto.SimpleUserDto;
 import org.springframework.beans.BeanUtils;
@@ -20,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.Optional;
 
 
@@ -99,18 +95,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userRepository.deleteByUserId(userId);
     }
 
-    public MyInfoResponse getProfile(User user){
-        String email = user.getUserEmail();
-        String nickname = user.getUserNickname();
-        String profileImage = user.getUserProfileImg();
-        String githubName = user.getGithubUrlName();
-        MyInfoResponse myInfoResponse = new MyInfoResponse(email, nickname, profileImage, githubName);
-        return myInfoResponse;
-    }
-
-    public void editProfile(MyInfoEditDto myInfoEditDto, User user){
-        // 프로필 이미지를
-    }
 
     //isThisUserWriter 값을 제외한 모든 값을 세팅해준다
     public SimpleUserDto getSimpleUserDto(User user){
