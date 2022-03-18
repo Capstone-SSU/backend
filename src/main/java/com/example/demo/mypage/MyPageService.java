@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,21 +50,23 @@ public class MyPageService {
 
     // 회원정보 수정
     public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
-        // 프로필 이미지를
-        System.out.println(myInfoEditDto);
-
-//        userRepository.updateUserProfile(myInfoEditDto);
+        String nickname = myInfoEditDto.getUserNickname();
+        String githubUrlName = myInfoEditDto.getGithubUrlName();
+        user.updateProfile(nickname, url, githubUrlName);
     }
 
-    public String checkPassword(User user, String password) {
+    public String checkPassword(User user, String password, String newPassword, String confirmPassword) {
         // 현재 디비에 있는 비밀번호와 비교한 후
-//        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())){
-//            if()
-//        }
-//        else
-//            return 'not match with original pw'
-//            }
-        return "";
+        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())){
+            if(newPassword.equals(confirmPassword)) { // 비밀번호 확인 과정 거친 후 비번 업뎃
+                String hashPassword = bCryptPasswordEncoder.encode(confirmPassword);
+                user.updatePassword(hashPassword);
+                user.setUserPassword(hashPassword);
+                return "success";
+            }
+            else return "not equals";
+        }
+        return "not match";
     }
 
 
