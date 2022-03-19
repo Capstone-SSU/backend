@@ -107,7 +107,7 @@ public class RoadmapGroupService {
             thumbnails.add(roadMap.getLecture().getThumbnailUrl());
         }
         Integer likeCountOnRoadmap = likeService.getLikeCountOnRoadmap(group);
-        return new AllRoadmapsResponse(group.getRoadmapGroupTitle(),writer.getUserNickname(),writer.getUserCompany(),group.getRoadmapGroupCreatedDate(),thumbnails,likeCountOnRoadmap);
+        return new AllRoadmapsResponse(group.getRoadmapGroupId(), group.getRoadmapGroupTitle(),writer.getUserNickname(),writer.getUserCompany(),group.getRoadmapGroupCreatedDate(),thumbnails,likeCountOnRoadmap);
 
     }
 

@@ -96,5 +96,4 @@ public class StudyPostService {
         Collections.reverse(studiesResponseList);
         return studiesResponseList;
     }
-
 }

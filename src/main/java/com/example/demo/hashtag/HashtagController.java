@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Api(tags = { "Lecture Hashtag"})
+@Api(tags = {"Lecture Hashtag"})
 @RestController
 @RequiredArgsConstructor
 @Transactional
@@ -30,15 +31,23 @@ public class HashtagController {
         return new ResponseEntity<>(new ResponseMessage(201, "해시태그가 등록되었습니다."), HttpStatus.CREATED);
     }
 
-    @GetMapping("") // 단어가 포함된 모든 해시태그 조회
-    public ResponseEntity<ResponseMessage> getAllHashtags(@RequestParam("keyword") String keyword){
+    @GetMapping("") // 단어가 포함된 모든 해시태그 조회 (강의 등록시 자동으로 키워드를 포함하는 해시태그 목록 조회하기 위해서)
+    public ResponseEntity<ResponseMessage> getAllHashtags(@RequestParam(value = "keyword", required = false) String keyword){
+        if(keyword==null){
+            List<Hashtag> hashtagList = hashtagService.getAllHashtags();
+            System.out.println("hashtagList = " + hashtagList); // 여기서는 reviewHashtags 안나오는데 왜 리턴할때만 나올까
+            List<HashtagDto> hashtags = new ArrayList<>();
+            for(int i=0;i<hashtagList.size();i++){
+                HashtagDto hashtagDto = new HashtagDto();
+                hashtagDto.setHashtag(hashtagList.get(i).getHashtagName());
+                hashtags.add(hashtagDto);
+            }
+            return new ResponseEntity<>(ResponseMessage.withData(200, "모든 해시태그가 조회되었습니다", hashtags), HttpStatus.OK);
+        }
         List<Hashtag> hashtagList = hashtagService.findByKeyword(keyword);
         if(hashtagList.isEmpty())
             return new ResponseEntity<>(new ResponseMessage(200, "직접 해시태그를 입력해주세요"), HttpStatus.OK);
 
-        for(int i=0;i<hashtagList.size();i++){
-            System.out.println("hashtagList = " + hashtagList.get(i).getHashtagName());
-        }
-        return new ResponseEntity<>(ResponseMessage.withData(200, "해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "'"+keyword+"'키워드가 포함된 해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
     }
 }

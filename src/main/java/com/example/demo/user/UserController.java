@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 
-@Api(tags = { "User"})
+@Api(tags = {"User"})
 @RestController
 public class UserController {
 
@@ -67,7 +67,6 @@ public class UserController {
 
     @GetMapping("/signup/{nickname}")
     public ResponseEntity<ResponseMessage> nicknameCheck(@PathVariable String nickname){
-
         String valid=userService.checkNicknameValidate(nickname);
         if(valid.equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(200,"닉네임 사용가능"), HttpStatus.OK);
@@ -140,16 +139,4 @@ public class UserController {
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
-
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<ResponseMessage> resignMembership(@PathVariable Long userId){
-        User user=userService.findUserById(userId);
-        if(user==null){
-            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 회원에 대한 탈퇴 요청"),HttpStatus.OK);
-        }else{
-            userService.deleteUserById(userId);
-            return new ResponseEntity<>(new ResponseMessage(200,"회원탈퇴 성공"),HttpStatus.OK);
-        }
-    }
-
 }
