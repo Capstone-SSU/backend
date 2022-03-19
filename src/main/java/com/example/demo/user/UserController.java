@@ -2,9 +2,7 @@ package com.example.demo.user;
 
 import com.example.demo.dto.*;
 import com.example.demo.security.AuthResponse;
-import com.example.demo.user.dto.SigninDTO;
-import com.example.demo.user.dto.SignupDTO;
-import com.example.demo.user.dto.UserIdDto;
+import com.example.demo.user.dto.*;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
+
+import static com.example.demo.user.UserDetailsServiceImpl.companyKey;
 
 @Api(tags = {"User"})
 @RestController
@@ -139,4 +139,25 @@ public class UserController {
 
         return new ResponseEntity<>(new ResponseMessage(401,"로그인 실패"),HttpStatus.OK);
     }
+
+    @GetMapping("/users/{userId}/company")
+    public ResponseEntity<ResponseMessage> checkUserCompany(@PathVariable Long userId, @RequestParam("email") String email){
+        User user=userService.findUserById(userId);
+        String domain=email.split("@")[1];
+        Company company= userService.checkCompanyExistence(domain);
+        if(company==null){
+            return new ResponseEntity<>(new ResponseMessage(404,"지원되지 않는 소속에 대한 인증 요청 입니다."),HttpStatus.OK);
+        }
+
+        //고유번호 생성 -> 입력한 이메일로 메일 보내기
+        Boolean success=userService.sendMail(userId,email,company.getCompanyName());
+        if(success){
+            return new ResponseEntity<>(new ResponseMessage(200,"인증 메일 전송 성공"),HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(new ResponseMessage(400,"인증 메일 전송 실패"),HttpStatus.OK);
+        }
+
+    }
+
+
 }

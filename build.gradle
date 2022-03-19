@@ -56,6 +56,9 @@ dependencies {
 	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.0.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	//smtp 사용 이메일 인증
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
