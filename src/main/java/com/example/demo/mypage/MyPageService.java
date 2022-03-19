@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +37,19 @@ public class MyPageService {
     private final RoadmapGroupRepository roadmapGroupRepository;
     private final UserRepository userRepository;
 
-    // 회원정보 조회
-    public MyInfoResponse getProfile(User user){
+    // 회원정보 수정 페이지 조회
+    public InfoResponse getProfile(User user){
         String email = user.getUserEmail();
         String nickname = user.getUserNickname();
         String profileImage = user.getUserProfileImg();
         String githubName = user.getGithubUrlName();
-        MyInfoResponse myInfoResponse = new MyInfoResponse(email, nickname, profileImage, githubName);
+        InfoResponse myInfoResponse = new InfoResponse(email, nickname, profileImage, githubName);
         return myInfoResponse;
+    }
+
+    // 다른 사용자의 마이페이지 조회
+    public void getMyPage(User user){
+
     }
 
     // 회원정보 수정

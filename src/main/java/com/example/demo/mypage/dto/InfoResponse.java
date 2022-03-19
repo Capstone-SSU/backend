@@ -6,14 +6,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MyInfoResponse {
+public class InfoResponse {
     private String userEmail;
     private String userNickname;
     private String userProfileImg;
     private String githubUrlName;
 
     @Builder
-    public MyInfoResponse(String userEmail, String userNickname, String userProfileImg, String githubUrlName) {
+    public InfoResponse(String userEmail, String userNickname, String userProfileImg, String githubUrlName) {
         this.userEmail = userEmail;
         this.userNickname = userNickname;
         this.userProfileImg = userProfileImg;
