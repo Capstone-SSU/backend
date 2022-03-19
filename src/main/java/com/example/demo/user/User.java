@@ -65,6 +65,15 @@ public class User {
     @Column(unique=true)
     private String githubUrlName;
 
+    @Column
+    private Boolean reviewWriteStatus=false;
+
+    @Column
+    private Integer readCount;
+
+    @Column
+    private Boolean publicProfileStatus=false;
+
     @OneToMany(mappedBy="user", targetEntity = Lecture.class)
     @JsonManagedReference
     private List<Lecture> lectures = new ArrayList<>();
@@ -110,6 +119,14 @@ public class User {
 
     public void updateProfileImage(String url){
         this.userProfileImg=url;
+    }
+
+    public void updateReviewStatus(){
+        this.reviewWriteStatus = true;
+    }
+
+    public void updateProfileStatus(){
+        this.publicProfileStatus = true;
     }
 
     public void updateUserCompany(String company){

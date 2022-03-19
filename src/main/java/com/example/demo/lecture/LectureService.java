@@ -181,6 +181,8 @@ public class LectureService {
         }
     }
 
+//    public List<String> getHashtags()
+
     // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수
     public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기

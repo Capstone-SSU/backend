@@ -11,6 +11,7 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name="studyPosts")
+@ToString(exclude={"reports", "likes", "studyComments"})
 public class StudyPost {
 
     @Id

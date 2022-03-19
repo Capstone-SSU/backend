@@ -1,6 +1,5 @@
 package com.example.demo.lecture;
 import com.example.demo.dto.*;
-import com.example.demo.lecture.dto.ExcelData;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
@@ -39,6 +38,7 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
+    private final UserDetailsServiceImpl userService;
 
     // 추천 알고리즘용 강의 리뷰 데이터 POST
     @GetMapping("/data")
@@ -177,10 +177,10 @@ public class LectureController {
 
         // 여기까지는 lecture table에 들어가는 것
         String lectureUrl = lectureDto.getLectureUrl();
-        String lectureTitle = lectureDto.getLectureTitle();
-        String lecturer = lectureDto.getLecturer();
-        String siteName = lectureDto.getSiteName();
-        String thumbnailUrl = lectureDto.getThumbnailUrl();
+//        String lectureTitle = lectureDto.getLectureTitle();
+//        String lecturer = lectureDto.getLecturer();
+//        String siteName = lectureDto.getSiteName();
+//        String thumbnailUrl = lectureDto.getThumbnailUrl();
 
         // review_hashTag 테이블에 들어가는 것
         List<String> hashtags = lectureDto.getHashtags();
@@ -194,15 +194,15 @@ public class LectureController {
 
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
-            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-            lecture.setUser(user);
-            lectureService.saveLecture(lecture);
-            review.setLecture(lecture);
+//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+//            lecture.setUser(user);
+//            lectureService.saveLecture(lecture);
+//            review.setLecture(lecture);
+            return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없음"), HttpStatus.NOT_FOUND);
         }
         else {  // 강의가 이미 존재하는 경우
-            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
-                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
-
+//            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
+//                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
             Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
             if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
                 return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
@@ -228,6 +228,7 @@ public class LectureController {
                 review.setLectureReview(reviewPostDto, user, lecture);
                 reviewService.saveReview(review);
                 lectureService.manageHashtag(hashtags, review);
+                user.updateReviewStatus(); // 리뷰 등록했으면 status = true 로 변경
                 return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
             }
             else
