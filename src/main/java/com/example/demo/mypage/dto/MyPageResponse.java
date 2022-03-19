@@ -12,6 +12,9 @@ public class MyPageResponse {
     private String userProfileImg;
     private String githubUrlName;
     private String userCompany;
+    private List<LikedLecturesResponse> likedLectures;
+    private List<LikedStudiesResponse> likedStudies;
+    private List<LikedRoadmapsResponse> likedRoadmaps;
     private List<MyReviewsResponse> myReviews;
     private List<MyStudiesResponse> myStudies;
     private List<MyRoadmapsResponse> myRoadmaps;

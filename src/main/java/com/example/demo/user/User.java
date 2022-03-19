@@ -126,7 +126,10 @@ public class User {
     }
 
     public void updateProfileStatus(){
-        this.publicProfileStatus = true;
+        if(this.publicProfileStatus == true) // 공개라면
+            this.publicProfileStatus = false;
+        else
+            this.publicProfileStatus = true;
     }
 
     public void updateUserCompany(String company){
