@@ -159,5 +159,18 @@ public class UserController {
 
     }
 
+    @PostMapping("/users/{userId}/company")
+    public ResponseEntity<ResponseMessage> checkCompanyEmailCertificate(@PathVariable Long userId, @RequestBody CompanyCertificateDto companyCertificateDto){
+        CompanyNameKey nameAndKey = companyKey.get(userId);
+        companyKey.remove(userId);
+        Integer userInput=companyCertificateDto.getCertificateNumber();
+        Integer randomKey=nameAndKey.getRandomKey();
+        String success=userService.certificateCompanyNumber(userId,userInput,nameAndKey);
+        if(success.equals("fail")){
+            return new ResponseEntity<>(new ResponseMessage(400,"잘못된 인증번호를 입력하셨습니다."),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseMessage(201,"사용자 소속 등록 성공"),HttpStatus.OK);
+
+    }
 
 }

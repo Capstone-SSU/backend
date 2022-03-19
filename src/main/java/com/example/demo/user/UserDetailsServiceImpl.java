@@ -137,6 +137,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return success;
     }
 
+    public String certificateCompanyNumber(Long userId, Integer userInput,CompanyNameKey nameAndKey){
+        String companyName=nameAndKey.getCompanyName();
+        Integer randomKey=nameAndKey.getRandomKey();
+        if(randomKey.equals(userInput)){
+            User user = userRepository.findById(userId).get();
+            user.updateUserCompany(companyName);
+            userRepository.save(user);
+            return companyName;
+        }else{
+            return "fail";
+        }
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
