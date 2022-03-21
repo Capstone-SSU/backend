@@ -51,6 +51,10 @@ public class Lecture {
     @NotNull
     private String thumbnailUrl;
 
+    @Column
+    @NotNull
+    private Double avgRate=0.0;
+
     // lecture : review = 1:N
     @OneToMany(mappedBy = "lecture", targetEntity = Review.class)
     @JsonManagedReference

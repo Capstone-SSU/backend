@@ -153,7 +153,7 @@ public class MyPageService {
             String lectureTitle = lecture.getLectureTitle();
             String commentTitle = review.getCommentTitle();
             String comment = review.getComment();
-            double avgRate = lectureService.getAvgRate(lecture);
+            double avgRate = lecture.getAvgRate();
             MyReviewsResponse myReviewsResponse = new MyReviewsResponse(lectureId, thumbnailUrl, lectureTitle, avgRate, commentTitle, comment);
             myReviews.add(myReviewsResponse);
         }

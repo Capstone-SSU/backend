@@ -69,7 +69,7 @@ public class User {
     private Boolean reviewWriteStatus=false;
 
     @Column
-    private Integer readCount;
+    private Integer readCount=0;
 
     @Column
     private Boolean publicProfileStatus=false;
@@ -125,6 +125,9 @@ public class User {
         this.reviewWriteStatus = true;
     }
 
+    public void updateReadCount(){
+        this.readCount += 1;
+    }
     public void updateProfileStatus(){
         if(this.publicProfileStatus == true) // 공개라면
             this.publicProfileStatus = false;

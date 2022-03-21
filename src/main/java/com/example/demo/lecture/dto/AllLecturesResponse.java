@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.xmlbeans.impl.xb.xsdschema.All;
 
 @Getter
 @Setter
@@ -26,10 +25,13 @@ public class AllLecturesResponse {
         this.avgRate = avgRate;
     }
 
-//    public Lecture toEntity(){
-//        return Lecture.builder()
-//                .lectureTitle(lectureTitle)
-//                .thumbnailUrl(thumbnailUrl)
-//                .build();
-//    }
+    public static AllLecturesResponse from(Lecture lecture){
+        return AllLecturesResponse.builder()
+                .lectureId(lecture.getLectureId())
+                .lectureTitle(lecture.getLectureTitle())
+                .thumbnailUrl(lecture.getThumbnailUrl())
+                .likeCnt(lecture.getLikes().size())
+                .avgRate(lecture.getAvgRate())
+                .build();
+    }
 }
