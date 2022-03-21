@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +37,30 @@ public class MyPageService {
     private final RoadmapGroupRepository roadmapGroupRepository;
     private final UserRepository userRepository;
 
-    // 회원정보 조회
-    public MyInfoResponse getProfile(User user){
+    // 회원정보 수정 페이지 조회
+    public InfoResponse getProfile(User user){
         String email = user.getUserEmail();
         String nickname = user.getUserNickname();
         String profileImage = user.getUserProfileImg();
         String githubName = user.getGithubUrlName();
-        MyInfoResponse myInfoResponse = new MyInfoResponse(email, nickname, profileImage, githubName);
+        InfoResponse myInfoResponse = new InfoResponse(email, nickname, profileImage, githubName);
         return myInfoResponse;
+    }
+
+    // 다른 사용자의 마이페이지 조회
+    public MyPageResponse getMyPage(User user){
+        MyPageResponse myPageResponse = new MyPageResponse();
+        myPageResponse.setUserNickname(user.getUserNickname());
+        myPageResponse.setUserProfileImg(user.getUserProfileImg());
+        myPageResponse.setGithubUrlName(user.getGithubUrlName());
+        myPageResponse.setUserCompany(user.getUserCompany());
+        myPageResponse.setLikedLectures(this.getLikedLectures(user));
+        myPageResponse.setLikedStudies(this.getLikedStudies(user));
+        myPageResponse.setLikedRoadmaps(this.getLikedRoadmaps(user));
+        myPageResponse.setMyReviews(this.getMyReviews(user));
+        myPageResponse.setMyStudies(this.getMyStudies(user));
+        myPageResponse.setMyRoadmaps(this.getMyRoadmaps(user));
+        return myPageResponse;
     }
 
     // 회원정보 수정
@@ -138,7 +153,7 @@ public class MyPageService {
             String lectureTitle = lecture.getLectureTitle();
             String commentTitle = review.getCommentTitle();
             String comment = review.getComment();
-            double avgRate = lectureService.getAvgRate(lecture);
+            double avgRate = lecture.getAvgRate();
             MyReviewsResponse myReviewsResponse = new MyReviewsResponse(lectureId, thumbnailUrl, lectureTitle, avgRate, commentTitle, comment);
             myReviews.add(myReviewsResponse);
         }

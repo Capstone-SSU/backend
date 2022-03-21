@@ -2,6 +2,7 @@ package com.example.demo.hashtag.service;
 
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.repository.HashtagRepository;
+import com.example.demo.lecture.Lecture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,5 +38,6 @@ public class HashtagService {
     public List<Hashtag> findByKeyword(String keyword){
         return hashtagRepository.findByKeyword(keyword);
     }
+
 
 }

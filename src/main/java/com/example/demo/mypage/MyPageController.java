@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Api(tags = {"마이페이지 API"})
@@ -27,22 +28,42 @@ public class MyPageController {
     private final ImageService imageService;
 
     @GetMapping("/{userId}") // 마이페이지 정보 수정 페이지 조회
-    public ResponseEntity<ResponseMessage> getProfile(@PathVariable Long userId){
+    public ResponseEntity<ResponseMessage> getProfile(@PathVariable Long userId, Principal principal) {
         User user = userService.findUserById(userId);
         if(user==null)
-            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
-        MyInfoResponse myInfo = myPageService.getProfile(user);
-        return new ResponseEntity<>(ResponseMessage.withData(200,"회원정보 조회 성공", myInfo),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
+        String email = principal.getName();
+        user = userService.findUserByEmail(email); // 로그인한 사용자 정보 받기
+        if (user.getUserId() == userId) {// 자신의 마이페이지를 요청한 경우
+            InfoResponse myInfo = myPageService.getProfile(user);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "나의 회원정보 조회 성공", myInfo), HttpStatus.OK);
+        }
+        else { // 다른 사람의 마이페이지 요청한 경우
+            user = userService.findUserById(userId);
+            if(user.getPublicProfileStatus() == false)
+                return new ResponseEntity<>(new ResponseMessage(403, "비공개 프로필"), HttpStatus.FORBIDDEN);
+            MyPageResponse myPageResponse = myPageService.getMyPage(user);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "다른 유저의 회원정보 조회 성공", myPageResponse), HttpStatus.OK);
+        }
     }
+    @PatchMapping("/{userId}/profiles") // 프로필 공개여부 변경
+    public ResponseEntity<ResponseMessage> changeProfileStatus(@PathVariable Long userId, Principal principal) {
+        User user = userService.findUserById(userId);
+        if(user==null)
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
+        user.updateProfileStatus();
+        return new ResponseEntity<>(new ResponseMessage(200, "프로필 공개여부 변경 완료"), HttpStatus.OK);
 
+    }
     @PatchMapping("/{userId}") // 회원정보수정
     public ResponseEntity<ResponseMessage> editProfile(
             @ModelAttribute MyInfoEditDto myInfoEditDto,
             @PathVariable Long userId) throws FileUploadException {
         User user = userService.findUserById(userId);
         if(user==null)
-            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
 
+//        myPageService.updateProfile(myInfoEditDto);
         String password = myInfoEditDto.getPassword();
         String newPassword = myInfoEditDto.getNewPassword();
         String confirmPassword = myInfoEditDto.getConfirmPassword();
