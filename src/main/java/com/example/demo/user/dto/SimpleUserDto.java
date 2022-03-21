@@ -10,7 +10,7 @@ public class SimpleUserDto {
 
     private String userNickname;
 
-//    private String userCompany;
+    private String userCompany;
 
     private String userProfileImg;
 }
