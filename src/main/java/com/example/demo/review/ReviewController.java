@@ -42,6 +42,8 @@ public class ReviewController {
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
             reviewService.deleteReview(reviewId);
+            // review_write_status
+//            reviewService.
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);

@@ -122,12 +122,16 @@ public class User {
     }
 
     public void updateReviewStatus(){
-        this.reviewWriteStatus = true;
+        if(this.reviewWriteStatus == true)
+            this.reviewWriteStatus = false;
+        else
+            this.reviewWriteStatus = true;
     }
 
     public void updateReadCount(){
         this.readCount += 1;
     }
+
     public void updateProfileStatus(){
         if(this.publicProfileStatus == true) // 공개라면
             this.publicProfileStatus = false;
