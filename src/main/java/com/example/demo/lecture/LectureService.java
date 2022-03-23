@@ -61,53 +61,38 @@ public class LectureService {
 
     // 전체 강의 조회
     public Page<AllLecturesResponse> getLectures(Pageable pageable){
-//        List<AllLecturesResponse> allLectures = new ArrayList<>();
-//        List<Lecture> lectures = lectureRepository.findAll(pageable).getContent();
-
+        List<Lecture> lectures = lectureRepository.findAll();
         return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
-//        for(int i=0;i<lectures.size();i++){
-//            AllLecturesResponse lecture = new AllLecturesResponse();
-//            lecture.setLectureId(lectures.get(i).getLectureId());
-//            lecture.setLectureTitle(lectures.get(i).getLectureTitle());
-//            lecture.setThumbnailUrl(lectures.get(i).getThumbnailUrl());
-//            lecture.setLikeCnt(lectures.get(i).getLikes().size());
-//            lecture.setAvgRate(getAvgRate(lectures.get(i))); // 리뷰평점 평균
-//            allLectures.add(lecture);
-//        }
-//        return allLectures;
     }
 
     // 검색어별 조회
-//    public List<AllLecturesResponse> getFilteredLectures(Pageable pageable,String keyword, String category){
-//        List<AllLecturesResponse> allLectures = new ArrayList<>();
-//        List<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
-//
-//        if(keyword!=null){ // 키워드만 있는 경우
-//            String[] keywords = keyword.split(" ");
-//            for(int i=0;i<keywords.length;i++){
-//                String word = keywords[i];
-//                allLectures.addAll(lectures.stream() // 제목에 키워드 포함된 거 가져오기
-//                        .filter(lecture -> lecture.getLectureTitle().contains(word))
-//                        .collect(Collectors.toList()));
-//            }
-//        }
-//
-//        if(category!=null){ // 카테고리(해시태그)만 있는 경우
-//            List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
-//            for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
-//                Lecture lecture = this.findById(lectures.get(i).getLectureId());
-//                List<String> hashtags = this.getBestHashtags(lecture); // 강의의 해시태그 3개 가져오기
-//                List<String> finalList = hashtags.stream()
-//                        .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
-//                        .collect(Collectors.toList());
-//                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
-//                    lectures.remove(i--); // remove 할 때 인덱스도 같이 줄여줌
-//                }
-//            }
-//            allLectures.addAll(lectures);
-//        }
-//        return allLectures;
-//    }
+    public Page<AllLecturesResponse> getFilteredLectures(Pageable pageable,String keyword, String category){
+        Page<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
+        if(keyword!=null){ // 키워드만 있는 경우
+            String[] keywords = keyword.split(" ");
+            for(int i=0;i<keywords.length;i++){
+                String word = keywords[i];
+                lectures.getContent().stream() // 제목에 키워드 포함된 거 가져오기
+                        .filter(lecture -> lecture.getLectureTitle().contains(word))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        if(category!=null){ // 카테고리(해시태그)만 있는 경우
+            List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
+            for(int i=0;i<lectures.getContent().size();i++) { // 강의 전체를 돌면서
+                Lecture lecture = this.findById(lectures.getContent().get(i).getLectureId());
+                List<String> hashtags = this.getBestHashtags(lecture); // 강의의 해시태그 3개 가져오기
+                List<String> finalList = hashtags.stream()
+                        .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
+                        .collect(Collectors.toList());
+                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
+                    lectures.getContent().remove(i--); // remove 할 때 인덱스도 같이 줄여줌
+                }
+            }
+        }
+        return lectures;
+    }
 
     public static <T> boolean listContains(List<T> array, T element) { // categories / hashtag 중 하나
         // (1,2,3) in (3,4,5) -> 3 출력

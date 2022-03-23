@@ -55,6 +55,7 @@ public class MyPageController {
         return new ResponseEntity<>(new ResponseMessage(200, "프로필 공개여부 변경 완료"), HttpStatus.OK);
 
     }
+
     @PatchMapping("/{userId}") // 회원정보수정
     public ResponseEntity<ResponseMessage> editProfile(
             @ModelAttribute MyInfoEditDto myInfoEditDto,
