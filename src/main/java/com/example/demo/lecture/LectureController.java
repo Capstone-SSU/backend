@@ -85,7 +85,7 @@ public class LectureController {
     // 추천 알고리즘 전송용 메소드
     @PostMapping("/admin")
     public String endDataForRecommend(Pageable pageable) {
-//        List<RecLecturesResponse> recLectures = lectureService.manageRecommendData(pageable);
+        List<RecLecturesResponse> recLectures = lectureService.manageRecommendData(pageable);
         String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
         StringBuffer stringBuffer = new StringBuffer();
         String sb = "";
@@ -153,7 +153,6 @@ public class LectureController {
 //    @ApiImplicitParam(name="lectureId", value="강의 글 번호", example=6, required = true)
     @GetMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> getLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
-
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user.getReadCount() == 5 && user.getReviewWriteStatus() == false) // 리뷰 안썼는데 5번 조회한 경우
@@ -224,7 +223,9 @@ public class LectureController {
         reviewService.saveReview(review); // 리뷰 저장
         lectureService.setAvgRate(existedLecture, review.getRate()); // 특정 강의의 평점 업뎃
         lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
-        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다.", existedLecture), HttpStatus.CREATED);
+
+//        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
 
     // 강의에 들어가서 리뷰 다는 경우

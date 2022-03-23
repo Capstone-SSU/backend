@@ -7,6 +7,7 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.User;
 import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
@@ -25,7 +26,7 @@ import java.util.List;
 @Table(name="reviews")
 @Data
 @NoArgsConstructor
-@ToString(exclude={"user","lecture","reports","reviewHashtags"})
+@JsonIgnoreProperties(value={"user", "lecture","reports","reviewHashtags"})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +40,7 @@ public class Review {
     @NotNull
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Lecture.class)
     @JoinColumn(name="lecture_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull

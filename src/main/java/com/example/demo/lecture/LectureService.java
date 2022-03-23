@@ -44,24 +44,23 @@ public class LectureService {
     private final LikeRepository likeRepository;
 
     // 추천용 강의 데이터 가공 함수
-//    public List<RecLecturesResponse> manageRecommendData(Pageable pageable){
-//        List<RecLecturesResponse> recLectures = new ArrayList<>();
-//        List<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
-//        for(int i=0;i<lectures.size();i++){
-//            Long lectureId = lectures.get(i).getLectureId();
-//            Lecture lecture = findById(lectureId);
-//            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
-//            BeanUtils.copyProperties(lectures.get(i), recLecturesResponse,"thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
-//            recLecturesResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-//            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
-//            recLectures.add(recLecturesResponse);
-//        }
-//        return recLectures;
-//    }
+    public List<RecLecturesResponse> manageRecommendData(Pageable pageable){
+        List<RecLecturesResponse> recLectures = new ArrayList<>();
+        Page<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
+        for(int i=0;i<lectures.getContent().size();i++){
+            Long lectureId = lectures.getContent().get(i).getLectureId();
+            Lecture lecture = findById(lectureId);
+            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
+            BeanUtils.copyProperties(lectures.getContent().get(i), recLecturesResponse,"thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
+            recLecturesResponse.setHashtags(getBestHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
+            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
+            recLectures.add(recLecturesResponse);
+        }
+        return recLectures;
+    }
 
     // 전체 강의 조회
     public Page<AllLecturesResponse> getLectures(Pageable pageable){
-        List<Lecture> lectures = lectureRepository.findAll();
         return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
     }
 
