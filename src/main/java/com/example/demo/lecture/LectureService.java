@@ -227,13 +227,11 @@ public class LectureService {
     // url 중복 조회 후 있으면 리턴
     public LectureUrlResponse getLectureUrl(String lectureUrl){
         Optional<Lecture> lecture = Optional.ofNullable(this.findByUrl(lectureUrl));
-        LectureUrlResponse lectureUrlResponse = LectureUrlResponse.from(lecture.get());
         if(lecture.isPresent()) {
-            System.out.println("this.getHashtags(lecture.get()) = " + this.getHashtags(lecture.get()));
+            LectureUrlResponse lectureUrlResponse = LectureUrlResponse.from(lecture.get());
             lectureUrlResponse.setHashtags(this.getHashtags(lecture.get()));
-    
-
+            return lectureUrlResponse;
         }
-        return lectureUrlResponse;
+        else return null;
     }
 }

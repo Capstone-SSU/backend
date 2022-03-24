@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 
 @Api(tags = {"Review"})
 @RestController
@@ -81,11 +82,17 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}") // 리뷰 삭제
     public ResponseEntity<ResponseMessage> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
+        // 현재 로그인한 사용자 아이디 가져오기
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
             reviewService.deleteReview(reviewId);
-            // review_write_status
-//            reviewService.
+            List<Review> reviews = reviewService.findAllReviewsByUser(user);
+            if(reviews.size() == 0) {// 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
+                user.updateReviewStatus();
+                user.setReadCount(0);
+            }
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);

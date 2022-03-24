@@ -203,7 +203,6 @@ public class LectureController {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         Lecture lecture = lectureService.findById(lectureId);
-        List<String> hashtags = reviewPostDto.getHashtags();
         if(lecture!=null){ // 강의가 있는 경우
             Review review = reviewService.findByUserAndLecture(user, lecture);
             if(review == null) { // 리뷰 등록한 적 없는 경우
@@ -256,7 +255,6 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody UrlCheckDto urlCheckDto){
         String lectureUrl = urlCheckDto.getLectureUrl();
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lectureUrl);
-        System.out.println("lectureUrlResponse = " + lectureUrlResponse.getHashtags());
         if(lectureUrlResponse!=null)// 중복링크가 있으면 해시태그까지 출력되도록
             return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lectureUrlResponse), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(200, "중복된 링크가 없습니다."), HttpStatus.OK);

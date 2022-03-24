@@ -25,13 +25,12 @@ public class MyPageResponse {
     private List<MyStudiesResponse> myStudies;
     private List<MyRoadmapsResponse> myRoadmaps;
 
-//    public static MyPageResponse from(Lecture lecture, User user){
-//        return MyPageResponse.builder()
-//                .userNickname(builder().userNickname)
-//                .userProfileImg(user.getUserProfileImg())
-//                .githubUrlName(user.getGithubUrlName())
-//                .userCompany(user.getUserCompany())
-//                .likedLectures()
-//                .build();
-//    }
+    public static MyPageResponse from(User user){
+        return MyPageResponse.builder()
+                .userNickname(user.getUserNickname())
+                .userProfileImg(user.getUserProfileImg())
+                .githubUrlName(user.getGithubUrlName())
+                .userCompany(user.getUserCompany())
+                .build();
+    }
 }

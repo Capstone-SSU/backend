@@ -51,22 +51,16 @@ public class MyPageService {
     }
 
     // 다른 사용자의 마이페이지 조회
-//    public MyPageResponse getMyPage(User user){
-////        return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
-//
-//        MyPageResponse myPageResponse = new MyPageResponse.from(lecture, user);
-//        myPageResponse.setUserNickname(user.getUserNickname());
-//        myPageResponse.setUserProfileImg(user.getUserProfileImg());
-//        myPageResponse.setGithubUrlName(user.getGithubUrlName());
-//        myPageResponse.setUserCompany(user.getUserCompany());
-//        myPageResponse.setLikedLectures(this.getLikedLectures(user));
-//        myPageResponse.setLikedStudies(this.getLikedStudies(user));
-//        myPageResponse.setLikedRoadmaps(this.getLikedRoadmaps(user));
-//        myPageResponse.setMyReviews(this.getMyReviews(user));
-//        myPageResponse.setMyStudies(this.getMyStudies(user));
-//        myPageResponse.setMyRoadmaps(this.getMyRoadmaps(user));
-//        return myPageResponse;
-//    }
+    public MyPageResponse getMyPage(User user){
+        MyPageResponse myPageResponse = MyPageResponse.from(user);
+        myPageResponse.setLikedLectures(this.getLikedLectures(user));
+        myPageResponse.setLikedStudies(this.getLikedStudies(user));
+        myPageResponse.setLikedRoadmaps(this.getLikedRoadmaps(user));
+        myPageResponse.setMyReviews(this.getMyReviews(user));
+        myPageResponse.setMyStudies(this.getMyStudies(user));
+        myPageResponse.setMyRoadmaps(this.getMyRoadmaps(user));
+        return myPageResponse;
+    }
 
     // 회원정보 수정
     public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
