@@ -21,7 +21,6 @@ public class LectureUrlResponse {
                 .lectureTitle(lecture.getLectureTitle())
                 .lecturer(lecture.getLecturer())
                 .siteName(lecture.getSiteName())
-                .hashtags(lecture.ge)
                 .build();
     }
 }

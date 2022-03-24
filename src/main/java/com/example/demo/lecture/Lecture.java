@@ -1,5 +1,6 @@
 package com.example.demo.lecture;
 
+import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.example.demo.review.Review;
@@ -72,4 +73,18 @@ public class Lecture {
         this.lectureUrl = lectureUrl;
         this.thumbnailUrl = thumbnailUrl;
     }
+
+//    public static Lecture from(LectureDto lectureDto){
+//        return Lecture.builder()
+//                .lectureId()
+//                .lectureTitle(lectureDto.getLectureTitle())
+//                .lecturer(lectureDto.getLecturer())
+//                .lectureUrl(lectureDto.getLectureUrl())
+//                .siteName(lectureDto.getSiteName())
+//                .avgRate(0.0)
+//                .reviews(null)
+//                .likes(null)
+//                .thumbnailUrl(lectureDto.getThumbnailUrl())
+//                .build();
+//    }
 }

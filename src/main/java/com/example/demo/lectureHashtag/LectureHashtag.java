@@ -1,7 +1,6 @@
 package com.example.demo.lectureHashtag;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.Lecture;
-import com.example.demo.review.Review;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import lombok.Getter;
