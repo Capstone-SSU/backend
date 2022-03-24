@@ -15,7 +15,7 @@ public class DetailLectureResponse {
     private String lectureUrl;
     private String thumbnailUrl;
     private double avgRate; // 별점 평균
-    private List<String> hashtags; // 해시태그 가장 많은 3개 리스트
+    private List<String> hashtags; // 해시태그들
     private int reviewCnt; // 리뷰 개수
     private int likeCnt; // 좋아요 개수
     private List<DetailReviewResponse> reviews; // 강의 리뷰

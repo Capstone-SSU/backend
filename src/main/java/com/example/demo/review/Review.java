@@ -2,10 +2,9 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.report.Report;
-import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.User;
-import com.example.demo.reviewHashtag.ReviewHashtag;
+import com.example.demo.lectureHashtag.ReviewHashtag;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -13,8 +12,6 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.DynamicInsert;
 
 
 import javax.persistence.*;

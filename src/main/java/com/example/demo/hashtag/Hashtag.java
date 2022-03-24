@@ -1,6 +1,6 @@
 package com.example.demo.hashtag;
 
-import com.example.demo.reviewHashtag.ReviewHashtag;
+import com.example.demo.lectureHashtag.ReviewHashtag;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;

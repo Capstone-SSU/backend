@@ -3,33 +3,23 @@ package com.example.demo.lecture;
 import com.example.demo.hashtag.repository.HashtagRepository;
 import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.lecture.dto.ExcelData;
 import com.example.demo.lecture.dto.RecLecturesResponse;
+import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
-import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
-import com.example.demo.reviewHashtag.ReviewHashtagRepository;
-import com.example.demo.user.User;
+import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +29,7 @@ import java.util.stream.Collectors;
 public class LectureService {
     private final LectureRepository lectureRepository;
     private final ReviewRepository reviewRepository;
-    private final ReviewHashtagRepository reviewHashtagRepository;
+    private final LectureHashtagRepository reviewHashtagRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
 
@@ -153,31 +143,29 @@ public class LectureService {
     }
 
     // 해시태그 저장
-    public void manageHashtag(List<String> hashtags, Review review){
-        for (int i = 0; i < hashtags.size(); i++) {
-            Optional<Hashtag> existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i)));
-            ReviewHashtag reviewHashtag = new ReviewHashtag();
-            if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
-                reviewHashtag.setHashtag(existedHashtag.get());
-            }
-            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
-                Hashtag hashtag = new Hashtag(hashtags.get(i));
-                hashtagRepository.save(hashtag);
-                reviewHashtag.setHashtag(hashtag);
-            }
-            reviewHashtag.setReview(review);
-            reviewHashtagRepository.save(reviewHashtag);
-        }
-    }
-
-//    public List<String> getHashtags()
+//    public void manageHashtag(List<String> hashtags, Review review){
+//        for (int i = 0; i < hashtags.size(); i++) {
+//            Optional<Hashtag> existedHashtag = hashtagRepository.findByHashtagName((hashtags.get(i)));
+//            LectureHashtag lectureHashtag = new LectureHashtag();
+//            if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
+//                reviewHashtag.setHashtag(existedHashtag.get());
+//            }
+//            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag 에 넣기
+//                Hashtag hashtag = new Hashtag(hashtags.get(i));
+//                hashtagRepository.save(hashtag);
+//                reviewHashtag.setHashtag(hashtag);
+//            }
+//            reviewHashtag.setReview(review);
+//            reviewHashtagRepository.save(reviewHashtag);
+//        }
+//    }
 
     // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수
     public List<String> getBestHashtags(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         Map<Long, Integer> hashtagCnt = new HashMap<>(); // 해시태그 상위 3개 찾기 위해서
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 돌면서 해시태그 개수 세기
-            List<ReviewHashtag> reviewHashtags = reviewHashtagRepository.findByReview(reviews.get(i));
+            List<LectureHashtag> reviewHashtags = reviewHashtagRepository.findByReview(reviews.get(i));
 
             for(int j=0;j<reviewHashtags.size();j++){
                 long hashtagId = reviewHashtags.get(j).getHashtag().getHashtagId();
@@ -222,6 +210,8 @@ public class LectureService {
     // url 중복 조회용
     public Lecture findByUrl(String lectureUrl){
         Optional<Lecture> lecture = lectureRepository.findBylectureUrl(lectureUrl);
+        lecture.
+
         return lecture.orElse(null);
     }
 }

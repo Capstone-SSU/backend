@@ -2,11 +2,9 @@ package com.example.demo.user;
 
 import com.example.demo.like.Like;
 import com.example.demo.lecture.Lecture;
-import com.example.demo.mypage.dto.MyInfoEditDto;
 import com.example.demo.report.Report;
 import com.example.demo.review.Review;
-import com.example.demo.reviewHashtag.ReviewHashtag;
-import com.example.demo.roadmap.RoadMap;
+import com.example.demo.lectureHashtag.ReviewHashtag;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;

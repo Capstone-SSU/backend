@@ -1,6 +1,7 @@
 package com.example.demo.mypage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
+import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.demo.lecture.QLecture.lecture;
 
 @Service
 @RequiredArgsConstructor
@@ -48,20 +51,22 @@ public class MyPageService {
     }
 
     // 다른 사용자의 마이페이지 조회
-    public MyPageResponse getMyPage(User user){
-        MyPageResponse myPageResponse = new MyPageResponse();
-        myPageResponse.setUserNickname(user.getUserNickname());
-        myPageResponse.setUserProfileImg(user.getUserProfileImg());
-        myPageResponse.setGithubUrlName(user.getGithubUrlName());
-        myPageResponse.setUserCompany(user.getUserCompany());
-        myPageResponse.setLikedLectures(this.getLikedLectures(user));
-        myPageResponse.setLikedStudies(this.getLikedStudies(user));
-        myPageResponse.setLikedRoadmaps(this.getLikedRoadmaps(user));
-        myPageResponse.setMyReviews(this.getMyReviews(user));
-        myPageResponse.setMyStudies(this.getMyStudies(user));
-        myPageResponse.setMyRoadmaps(this.getMyRoadmaps(user));
-        return myPageResponse;
-    }
+//    public MyPageResponse getMyPage(User user){
+////        return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
+//
+//        MyPageResponse myPageResponse = new MyPageResponse.from(lecture, user);
+//        myPageResponse.setUserNickname(user.getUserNickname());
+//        myPageResponse.setUserProfileImg(user.getUserProfileImg());
+//        myPageResponse.setGithubUrlName(user.getGithubUrlName());
+//        myPageResponse.setUserCompany(user.getUserCompany());
+//        myPageResponse.setLikedLectures(this.getLikedLectures(user));
+//        myPageResponse.setLikedStudies(this.getLikedStudies(user));
+//        myPageResponse.setLikedRoadmaps(this.getLikedRoadmaps(user));
+//        myPageResponse.setMyReviews(this.getMyReviews(user));
+//        myPageResponse.setMyStudies(this.getMyStudies(user));
+//        myPageResponse.setMyRoadmaps(this.getMyRoadmaps(user));
+//        return myPageResponse;
+//    }
 
     // 회원정보 수정
     public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
@@ -101,22 +106,31 @@ public class MyPageService {
 
     // 좋아요한 스터디
     public List<LikedStudiesResponse> getLikedStudies(User user){
-        List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
+//        return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
+//        return likeRepository.findAll().map(LikedStudiesResponse::from);
         List<LikedStudiesResponse> likedStudies = new ArrayList<>();
+        List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
         for(int i=0;i<studies.size();i++){
-            StudyPost studyPost = studies.get(i);
-            long studyPostId = studyPost.getStudyPostId();
-            String studyTitle = studyPost.getStudyTitle();
-            LocalDateTime studyCreatedDate = studyPost.getStudyCreatedDate();
-            String studyLocation = studyPost.getStudyLocation();
-            String studyRecruitState = (studyPost.getStudyRecruitStatus()==1) ? "모집중" : "모집완료";
-            String studyCategoryName = studyPost.getStudyCategoryName();
-            String nickname = user.getUserNickname();
-            String profileImage = user.getUserProfileImg();
-            LikedStudiesResponse likedStudiesResponse = new LikedStudiesResponse(studyPostId, studyTitle, studyCreatedDate, studyLocation, studyRecruitState, studyCategoryName, nickname, profileImage);
+            LikedStudiesResponse likedStudiesResponse = LikedStudiesResponse.from(studies.get(i), user);
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
+
+        //        List<LikedStudiesResponse> likedStudies = new ArrayList<>();
+//        for(int i=0;i<studies.size();i++){
+//            StudyPost studyPost = studies.get(i);
+//            long studyPostId = studyPost.getStudyPostId();
+//            String studyTitle = studyPost.getStudyTitle();
+//            LocalDateTime studyCreatedDate = studyPost.getStudyCreatedDate();
+//            String studyLocation = studyPost.getStudyLocation();
+//            String studyRecruitState = (studyPost.getStudyRecruitStatus()==1) ? "모집중" : "모집완료";
+//            String studyCategoryName = studyPost.getStudyCategoryName();
+//            String nickname = user.getUserNickname();
+//            String profileImage = user.getUserProfileImg();
+//            LikedStudiesResponse likedStudiesResponse = new LikedStudiesResponse(studyPostId, studyTitle, studyCreatedDate, studyLocation, studyRecruitState, studyCategoryName, nickname, profileImage);
+//            likedStudies.add(likedStudiesResponse);
+//        }
+//        return likedStudies;
     }
 
     // 좋아요한 로드맵 조회

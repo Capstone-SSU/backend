@@ -65,6 +65,7 @@ public class LectureController {
             String comment = row.getCell(7).getStringCellValue();
             Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
             lecture.setUser(user);
+            // 강의를 생성할 때 해시태그를 넣어야 함
             lectureService.saveLecture(lecture);
 
             // 리뷰 갯수도 랜덤 생성
@@ -75,7 +76,7 @@ public class LectureController {
                 review.setLecture(lecture);
                 review.setUser(user);
                 reviewService.saveReview(review); // 리뷰 저장
-                lectureService.manageHashtag(processedHashtags, review); // reviewHashtag에 등록 및 hashtag 관리
+                lectureService.manageHashtag(processedHashtags, review); // 에 등록 및 hashtag 관리
             }
         }
         opcPackage.close();
@@ -178,7 +179,7 @@ public class LectureController {
     })
     @PostMapping("")
     public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
-        // 현재로그인한 사용자 아이디 가져오기
+        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
@@ -186,46 +187,22 @@ public class LectureController {
 
         // 여기까지는 lecture table에 들어가는 것
         String lectureUrl = lectureDto.getLectureUrl();
-        String lectureTitle = lectureDto.getLectureTitle();
-        String lecturer = lectureDto.getLecturer();
-        String siteName = lectureDto.getSiteName();
-        String thumbnailUrl = lectureDto.getThumbnailUrl();
-
-        // review_hashTag 테이블에 들어가는 것
-        List<String> hashtags = lectureDto.getHashtags();
-
-        int rate = lectureDto.getRate().intValue();
-        String commentTitle = lectureDto.getCommentTitle();
-        String comment = lectureDto.getComment();
-        // 강의 id 에 해당하는 내가 쓴 리뷰가 존재하는 경우
-
-        Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
-
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-        if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우
-//            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-//            lecture.setUser(user);
-//            lectureService.saveLecture(lecture);
-//            review.setLecture(lecture);
+        if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우 -> 링크 확인 버튼 눌렀을 때 없는 경우면 강의 등록 요청하도록
             return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없음"), HttpStatus.NOT_FOUND);
         }
-        else {  // 강의가 이미 존재하는 경우
-//            if(existedLecture.getUser().getUserId() == user.getUserId())// 동일인물이 중복된 강의를 올리려는 경우
-//                return new ResponseEntity<>(new ResponseMessage(409, "동일한 강의리뷰 업로드 불가"), HttpStatus.CONFLICT);
-            Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
-            if(user.getReviewWriteStatus() == false) // 리뷰안썼다고 되어있으면 상태 변경
-                user.updateReviewStatus();
-            if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
-                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-            review.setLecture(existedLecture);
-        }
+
+        // 강의가 이미 존재하는 경우
+        Review review = reviewService.findByUserAndLecture(user, existedLecture);
+        if(user.getReviewWriteStatus() == false) // 리뷰안썼다고 되어있으면 상태 변경
+            user.updateReviewStatus();
+        if(review != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
+            return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+        review.setLecture(existedLecture);
         review.setUser(user);
         reviewService.saveReview(review); // 리뷰 저장
         lectureService.setAvgRate(existedLecture, review.getRate()); // 특정 강의의 평점 업뎃
-        lectureService.manageHashtag(hashtags, review); // reviewHashtag에 등록 및 hashtag 관리
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다.", existedLecture), HttpStatus.CREATED);
-
-//        return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다."), HttpStatus.CREATED);
     }
 
     // 강의에 들어가서 리뷰 다는 경우
@@ -288,7 +265,7 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody UrlCheckDto urlCheckDto){
         String lectureUrl = urlCheckDto.getLectureUrl();
         Lecture lecture = lectureService.findByUrl(lectureUrl);
-        if(lecture!=null)// 중복링크가 있으면
+        if(lecture!=null)// 중복링크가 있으면 해시태그까지
             return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lecture), HttpStatus.OK);
         return new ResponseEntity<>(new ResponseMessage(200, "중복된 링크가 없습니다."), HttpStatus.OK);
     }
