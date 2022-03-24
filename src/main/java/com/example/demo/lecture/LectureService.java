@@ -14,6 +14,7 @@ import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
+import com.example.demo.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -98,22 +99,10 @@ public class LectureService {
     }
 
     // 강의글 상세 조회
-    public DetailLectureResponse getLecture(long lectureId, long userId){
-        DetailLectureResponse detailLectureResponse = new DetailLectureResponse();
-        Optional<Lecture> optionalLecture = lectureRepository.findById(lectureId); // lecture 데이터 가져와서
-        if(optionalLecture.isEmpty())
-            return detailLectureResponse;
-        Lecture lecture = optionalLecture.get();
-        detailLectureResponse.setLectureId(lecture.getLectureId());
-        detailLectureResponse.setLectureTitle(lecture.getLectureTitle());
-        detailLectureResponse.setLecturer(lecture.getLecturer());
-        detailLectureResponse.setSiteName(lecture.getSiteName());
-        detailLectureResponse.setLectureUrl(lecture.getLectureUrl());
-        detailLectureResponse.setThumbnailUrl(lecture.getThumbnailUrl());
+    public DetailLectureResponse getLecture(Lecture lecture, User user){
+        DetailLectureResponse detailLectureResponse = DetailLectureResponse.from(lecture);
         detailLectureResponse.setReviewCnt(getReviewCnt(lecture)); // 리뷰 개수 세팅
-
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        double totalRate=0;
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
@@ -121,19 +110,21 @@ public class LectureService {
             String nickname = reviews.get(i).getUser().getUserNickname();
             detailReviewResponse.setNickname(nickname);
 
-            if(userId == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
+            if(user.getUserId() == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
                 detailReviewResponse.setWriterStatus(true);
             else
                 detailReviewResponse.setWriterStatus(false);
             detailReviewResponses.add(detailReviewResponse);
-            totalRate += reviews.get(i).getRate();
         }
         detailLectureResponse.setReviews(detailReviewResponses);
-        detailLectureResponse.setHashtags(this.getHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-        detailLectureResponse.setAvgRate(totalRate/reviews.size()); // 평균 점수 계산
+        detailLectureResponse.setHashtags(this.getHashtags(lecture));
 
-        List<Like> likes = likeRepository.findLikeByLecture(lecture);
-        detailLectureResponse.setLikeCnt(likes.size());
+        // 좋아요 누른 여부
+        Optional<Like> like = likeRepository.findLikeByLectureAndUser(lecture, user);
+        if(like.isPresent())
+            detailLectureResponse.setLikeStatus(true);
+        else
+            detailLectureResponse.setLikeStatus(false);
         return detailLectureResponse;
     }
 

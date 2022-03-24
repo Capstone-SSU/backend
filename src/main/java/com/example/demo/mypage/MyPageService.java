@@ -90,7 +90,7 @@ public class MyPageService {
         List<LikedLecturesResponse> likedLectures = new ArrayList<>();
         for(int i=0;i<lectures.size();i++){
             Lecture lecture = lectures.get(i);
-            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
+            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture, user);
             LikedLecturesResponse likedLecturesResponse = new LikedLecturesResponse();
             BeanUtils.copyProperties(detailLectureResponse, likedLecturesResponse,"reviewCnt", "likeCnt", "reviews"); // 원본 객체, 복사 대상 객체
             likedLectures.add(likedLecturesResponse);

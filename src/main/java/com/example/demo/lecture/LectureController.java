@@ -161,7 +161,7 @@ public class LectureController {
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {// 강의정보가 있는 경우만
-            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture.getLectureId(), user.getUserId());
+            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture, user);
             user.updateReadCount(); // 강의 조회 시 readCount 늘려주기
             return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", detailLectureResponse), HttpStatus.OK);
         }
