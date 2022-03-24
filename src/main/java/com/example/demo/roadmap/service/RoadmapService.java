@@ -40,7 +40,7 @@ public class RoadmapService {
             DetailRoadmapLectureResponse lectureResponse=new DetailRoadmapLectureResponse();
             Lecture lecture=roadMap.getLecture();
             BeanUtils.copyProperties(lecture,lectureResponse);
-            lectureResponse.setLectureHashtags(lectureService.getBestHashtags(lecture));
+            lectureResponse.setLectureHashtags(lectureService.getHashtags(lecture));
             lectureResponse.setLectureAvgRate(lecture.getAvgRate());
             Review review=reviewService.findByUserAndLecture(roadmapWriter,lecture); //로드맵 작성자의 리뷰를 찾아야함
             lectureResponse.setLectureReviewTitle(review.getCommentTitle());

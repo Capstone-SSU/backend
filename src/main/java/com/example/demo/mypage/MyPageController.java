@@ -46,6 +46,7 @@ public class MyPageController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "다른 유저의 회원정보 조회 성공", myPageResponse), HttpStatus.OK);
         }
     }
+
     @PatchMapping("/{userId}/profiles") // 프로필 공개여부 변경
     public ResponseEntity<ResponseMessage> changeProfileStatus(@PathVariable Long userId, Principal principal) {
         User user = userService.findUserById(userId);

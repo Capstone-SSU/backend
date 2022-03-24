@@ -5,6 +5,7 @@ import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import static com.example.demo.roadmap.QRoadMap.roadMap;
 @Table(name = "likes")
 @Data
 @NoArgsConstructor // jpa에는 기본 contructor가 필요함 -> 없을 경우에 "No default constructor for Entity 에러 발생" -> NoArgsConstructor로 해결 가능
-@ToString(exclude={"user","lecture","roadmapGroup"})
+@JsonIgnoreProperties(value={"user","lecture","roadmapGroup"})
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,22 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 public class AllLecturesResponse {
     private long lectureId;
     private String lectureTitle;
     private String thumbnailUrl;
     private int likeCnt; // 좋아요 개수
     private double avgRate; // 별점
-
-    @Builder
-    public AllLecturesResponse(long lectureId, String lectureTitle, String thumbnailUrl, int likeCnt, double avgRate) {
-        this.lectureId = lectureId;
-        this.lectureTitle = lectureTitle;
-        this.thumbnailUrl = thumbnailUrl;
-        this.likeCnt = likeCnt;
-        this.avgRate = avgRate;
-    }
 
     public static AllLecturesResponse from(Lecture lecture){
         return AllLecturesResponse.builder()

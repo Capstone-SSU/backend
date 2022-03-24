@@ -72,7 +72,7 @@ public class RoadmapController {
             Lecture lecture=review.getLecture();
             RoadmapUploadLectureDto roadmapUploadLectureDto =new RoadmapUploadLectureDto();
             BeanUtils.copyProperties(lecture, roadmapUploadLectureDto);
-            roadmapUploadLectureDto.setHashTags(lectureService.getBestHashtags(lecture));
+            roadmapUploadLectureDto.setHashTags(lectureService.getHashtags(lecture));
             userLectureList.add(roadmapUploadLectureDto);
         }
         return new ResponseEntity<>(ResponseMessage.withData(200,"사용자가 등록한 강의 목록입니다.",userLectureList),HttpStatus.OK);

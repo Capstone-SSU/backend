@@ -1,6 +1,7 @@
 package com.example.demo.hashtag;
 
-import com.example.demo.reviewHashtag.ReviewHashtag;
+import com.example.demo.lectureHashtag.LectureHashtag;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString(exclude={"reviewHashtags"})
+@JsonIgnoreProperties(value="lectureHashtags")
 public class Hashtag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +27,9 @@ public class Hashtag {
     private String hashtagName;
 
     // hashtag : reviewHashtag = 1:N
-    @OneToMany(mappedBy = "hashtag", targetEntity = ReviewHashtag.class)
+    @OneToMany(mappedBy = "hashtag", targetEntity = LectureHashtag.class)
     @JsonManagedReference
-    private List<ReviewHashtag> reviewHashtags = new ArrayList<>();
+    private List<LectureHashtag> lectureHashtags = new ArrayList<>();
 
     @Builder
     public Hashtag(String hashtagName) {

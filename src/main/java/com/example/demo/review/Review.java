@@ -1,19 +1,17 @@
 package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
+import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.report.Report;
-import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.User;
-import com.example.demo.reviewHashtag.ReviewHashtag;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.DynamicInsert;
 
 
 import javax.persistence.*;
@@ -25,7 +23,7 @@ import java.util.List;
 @Table(name="reviews")
 @Data
 @NoArgsConstructor
-@ToString(exclude={"user","lecture","reports","reviewHashtags"})
+@JsonIgnoreProperties(value={"user", "lecture","reports","lectureHashtags"})
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +37,7 @@ public class Review {
     @NotNull
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Lecture.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Lecture.class)
     @JoinColumn(name="lecture_id")
     @JsonBackReference // 연관관계의 주인
     @NotNull
@@ -72,10 +70,6 @@ public class Review {
     @OneToMany(mappedBy = "review", targetEntity = Report.class) // 하나의 리뷰글에 여러개의 신고, Report 엔티티의 review 라는 컬럼과 연결되어 있음
     @JsonManagedReference
     private List<Report> reports=new ArrayList<>();
-
-    // review : reviewHashtag = 1:N
-    @OneToMany(mappedBy = "review", targetEntity = ReviewHashtag.class)
-    private List<ReviewHashtag> reviewHashtags = new ArrayList<>();
 
     // rate, commentTitle, comment
     @Builder
