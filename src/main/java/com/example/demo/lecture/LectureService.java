@@ -143,6 +143,12 @@ public class LectureService {
         requestedLectureRepository.save(requestedLecture);
     }
 
+    // 강의 요청된 url 확인
+    public RequestedLecture findRequestedLecture(String url){
+        Optional<RequestedLecture> requestedLecture = requestedLectureRepository.findByLectureUrl(url);
+        return requestedLecture.orElse(null);
+    }
+
     // 해시태그 저장
     public void manageHashtag(List<String> hashtags, Lecture lecture){
         for (int i = 0; i < hashtags.size(); i++) {

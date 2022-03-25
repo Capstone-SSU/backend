@@ -11,4 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface RequestedLectureRepository extends JpaRepository<RequestedLecture, Long> {
+    Optional<RequestedLecture> findByLectureUrl(String url);
 }

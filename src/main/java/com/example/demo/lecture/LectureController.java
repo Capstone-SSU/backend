@@ -142,7 +142,6 @@ public class LectureController {
         } else { // 검색어별 조회 or 해시태그(카테고리)별 조회
             Page<AllLecturesResponse> lectures = lectureService.getFilteredLectures(pageable, keyword, category);
             return new ResponseEntity<>(ResponseMessage.withData(200, "필터링 된 강의리뷰 조회", lectures.getContent()), HttpStatus.OK);
-
         }
     }
 
@@ -178,7 +177,7 @@ public class LectureController {
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        if(user.getRole() != "ADMIN") // 관리자 유저가 아닌경우
+        if(!user.getRole().equals("ADMIN")) // 관리자 유저가 아닌경우
             return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
 
         String lectureUrl = lectureDto.getLectureUrl();
@@ -208,12 +207,20 @@ public class LectureController {
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-
         String requestUrl = params.get("url");
+        // 이미 등록된 강의
+        Lecture lecture = lectureService.findByUrl(requestUrl);
+        if(lecture != null)
+            return new ResponseEntity<>(new ResponseMessage(409, "이미 등록된 강의입니다.", lecture), HttpStatus.CONFLICT);
+        // 이미 등록 요청된 강의
+        RequestedLecture rqLecture = lectureService.findRequestedLecture(requestUrl);
+        if(rqLecture != null)
+            return new ResponseEntity<>(new ResponseMessage(409, "이미 등록 요청된 강의입니다"), HttpStatus.CONFLICT);
         lectureService.saveRequestedLecture(requestUrl);
-
         return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다."), HttpStatus.CREATED);
     }
+
+    // 등록 요청 처리하기
 
 //    public String readExcel() throws IOException, InvalidFormatException {
 //        String email = "baegopa2@naver.com";
