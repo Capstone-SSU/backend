@@ -17,13 +17,15 @@ public class RoadmapSpecification {
 
     public static Specification<RoadMapGroup> getRoadmapByFilter(String[] keywords) {
         return ((root, query, criteriaBuilder) -> {
+            Predicate existence=criteriaBuilder.equal(root.get("roadmapGroupStatus"),1);
             List<Predicate> predicates=new ArrayList<>();
             for(String keyword:keywords){
                 predicates.add(criteriaBuilder.like(root.get("roadmapGroupRecommendation").as(String.class),"%"+keyword+"%"));
                 predicates.add(criteriaBuilder.like(root.get("roadmapGroupTitle").as(String.class),"%"+keyword+"%"));
             }
-            criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
-            return criteriaBuilder.equal(root.get("roadmapGroupStatus"),1);
+            Predicate or = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));//criteria에 or랑 and 둘 다 넣는 법,,,,,
+            return criteriaBuilder.and(existence,or);
+
         });
 
 

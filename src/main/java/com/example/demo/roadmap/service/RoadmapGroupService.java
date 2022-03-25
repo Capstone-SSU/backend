@@ -55,11 +55,14 @@ public class RoadmapGroupService {
         return groups;
     }
 
-    public List<RoadMapGroup> getAllRoadmapGroupsWithFilter(String keyword,Pageable pageable){
+    public List<AllRoadmapsResponse> getAllRoadmapGroupsWithFilter(String keyword,Pageable pageable){
         String[] keywords=keyword.split(" ");
-//        return roadmapGroupRepository.findAllRoadmapsWithFilter(keywords);
         Page<RoadMapGroup> roadMapGroups = roadmapGroupRepository.findAll(RoadmapSpecification.getRoadmapByFilter(keywords), pageable);
-        return roadMapGroups.getContent();
+        List<AllRoadmapsResponse> responseGroups=new ArrayList<>();
+        for(RoadMapGroup group:roadMapGroups){
+            responseGroups.add(getAllRoadmapsResponse(group));
+        }
+        return responseGroups;
     }
 
     public DetailRoadmapResponse getDetailRoadmapResponse(User user, RoadMapGroup group,User roadmapWriter){
