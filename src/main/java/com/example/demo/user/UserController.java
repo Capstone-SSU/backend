@@ -5,6 +5,7 @@ import com.example.demo.security.AuthResponse;
 import com.example.demo.user.dto.*;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,7 +39,7 @@ public class UserController {
         String pwd= signupDTO.getPassword();
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
         String imgUrl= signupDTO.getImageUrl();
-
+        String role = signupDTO.getRole();
         if(!userService.checkEmailValidate(signupDTO.getEmail()).equals("email valid")||!userService.checkNicknameValidate(signupDTO.getNickname()).equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(401,"이메일 또는 닉네임 중복체크를 진행해주세요."), HttpStatus.OK);
         }
@@ -47,8 +48,11 @@ public class UserController {
         if(imgUrl!=null){
             user.updateProfileImage(imgUrl);
         }
-        Long savedId=userService.saveUser(user);
+        if(role == "ADMIN") {
+            user.updateUserRole();
+        }
 
+        userService.saveUser(user);
         return new ResponseEntity<>(new ResponseMessage(201,"회원가입 성공"), HttpStatus.CREATED);
     }
 
