@@ -14,6 +14,9 @@ import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +36,18 @@ public class RoadmapController {
     private final LikeService likeService;
 
     @GetMapping("/roadmaps")
-    public ResponseEntity<ResponseMessage> getAllRoadmaps(@RequestParam(required = false) String keyword){
+    public ResponseEntity<ResponseMessage> getAllRoadmaps(@RequestParam(required = false) String keyword,
+                                                          @PageableDefault(size = 3,sort = "roadmapGroupId", direction = Sort.Direction.DESC) Pageable pageable){
         List<RoadMapGroup> allRoadmaps=roadmapGroupService.getAllRoadmapGroups();
         if(allRoadmaps.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"등록된 로드맵이 없습니다."),HttpStatus.OK);
         }
         List<AllRoadmapsResponse> roadmapsResponses=new ArrayList<>();
         if(keyword==null){
-            for(RoadMapGroup group:allRoadmaps){
-                roadmapsResponses.add(roadmapGroupService.getAllRoadmapsResponse(group));
-            }
-            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 로드맵 조회 성공",roadmapsResponses), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 로드맵 조회 성공",roadmapGroupService.getAllResponseByPageable(pageable)), HttpStatus.OK);
         }
 
-        List<RoadMapGroup> filteredRoadmaps=roadmapGroupService.getAllRoadmapGroupsWithFilter(keyword);
+        List<RoadMapGroup> filteredRoadmaps=roadmapGroupService.getAllRoadmapGroupsWithFilter(keyword,pageable);
         if(filteredRoadmaps.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 로드맵이 없습니다."),HttpStatus.OK);
         }

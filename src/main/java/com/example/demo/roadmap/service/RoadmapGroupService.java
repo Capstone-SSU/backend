@@ -9,9 +9,13 @@ import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.roadmap.dto.AllRoadmapsResponse;
 import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.repository.RoadmapGroupRepository;
+import com.example.demo.roadmap.repository.RoadmapSpecification;
 import com.example.demo.user.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,15 +55,16 @@ public class RoadmapGroupService {
         return groups;
     }
 
-    public List<RoadMapGroup> getAllRoadmapGroupsWithFilter(String keyword){
+    public List<RoadMapGroup> getAllRoadmapGroupsWithFilter(String keyword,Pageable pageable){
         String[] keywords=keyword.split(" ");
-        return roadmapGroupRepository.findAllRoadmapsWithFilter(keywords);
+//        return roadmapGroupRepository.findAllRoadmapsWithFilter(keywords);
+        Page<RoadMapGroup> roadMapGroups = roadmapGroupRepository.findAll(RoadmapSpecification.getRoadmapByFilter(keywords), pageable);
+        return roadMapGroups.getContent();
     }
 
     public DetailRoadmapResponse getDetailRoadmapResponse(User user, RoadMapGroup group,User roadmapWriter){
 
         DetailRoadmapResponse detailRoadmapResponse=new DetailRoadmapResponse();
-
         detailRoadmapResponse.setRoadmapTitle(group.getRoadmapGroupTitle());
         detailRoadmapResponse.setRoadmapGroupId(group.getRoadmapGroupId());
         detailRoadmapResponse.setRoadmapRecommendation(group.getRoadmapGroupRecommendation());
@@ -99,7 +104,6 @@ public class RoadmapGroupService {
     }
 
     public AllRoadmapsResponse getAllRoadmapsResponse(RoadMapGroup group){
-
         User writer=group.getUser();
         List<RoadMap> roadMaps=roadmapService.getAllRoadMapsByGroup(group);
         List<String> thumbnails=new ArrayList<>();
@@ -109,6 +113,15 @@ public class RoadmapGroupService {
         Integer likeCountOnRoadmap = likeService.getLikeCountOnRoadmap(group);
         return new AllRoadmapsResponse(group.getRoadmapGroupId(), group.getRoadmapGroupTitle(),writer.getUserNickname(),writer.getUserCompany(),group.getRoadmapGroupCreatedDate(),thumbnails,likeCountOnRoadmap);
 
+    }
+
+    public List<AllRoadmapsResponse> getAllResponseByPageable(Pageable pageable){
+        Page<RoadMapGroup> groups = roadmapGroupRepository.findAll(RoadmapSpecification.getExistingRoadmap(),pageable); //findAll 에 specification 포함시키기
+        List<AllRoadmapsResponse> roadmapsResponses=new ArrayList<>();
+        for(RoadMapGroup group:groups){
+            roadmapsResponses.add(getAllRoadmapsResponse(group));
+        }
+        return roadmapsResponses;
     }
 
 
