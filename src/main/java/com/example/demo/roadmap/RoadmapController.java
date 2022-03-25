@@ -176,6 +176,20 @@ public class RoadmapController {
         return new ResponseEntity<>(new ResponseMessage(200,roadmapGroupId+"번 로드맵 삭제 성공"),HttpStatus.OK);
     }
 
+    @GetMapping("/roadmaps/{userId}/company")
+    public ResponseEntity<ResponseMessage> checkUserCompanyStatusInRoadmap(@PathVariable Long userId){
+        String status= userDetailsService.checkUserCompanyStatus(userId);
+        String responseMsg;
+        if(status.equals("ask")){
+            responseMsg="소속인증 요청 필요";
+        }else if(status.equals("no request")){
+            responseMsg="소속인증 요청 거부";
+        }else{
+            responseMsg="소속인증 완료";
+        }
+        return new ResponseEntity<>(new ResponseMessage(200,responseMsg),HttpStatus.OK);
+    }
+
 
 
 

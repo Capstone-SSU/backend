@@ -120,6 +120,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return companyRepository.findByCompanyDomain(domain);
     }
 
+    public String checkUserCompanyStatus(Long userId){
+        User user=userRepository.findById(userId).get();
+        String requestStatus=user.getUserCompany();
+        if(requestStatus==null){
+            return "ask";
+        }else if(requestStatus.equals("NO_REQUEST")){
+            return "no request";
+        }else{
+            return requestStatus;
+        }
+    }
+
     public Boolean sendMail(Long userId,String email,String companyName){
         Boolean success=false;
         try{
