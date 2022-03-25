@@ -187,6 +187,18 @@ public class RoadmapController {
         return new ResponseEntity<>(new ResponseMessage(200,responseMsg),HttpStatus.OK);
     }
 
+    @PostMapping("/roadmaps/{userId}/company")
+    public String updateUserCompanyStatusInRoadmap(@PathVariable Long userId, @RequestBody UserRoadmapCompanyDto userRoadmapCompanyDto){
+        String answer=userRoadmapCompanyDto.getRoadmapCompanyRequestAnswer();
+        if(answer.equals("NO_REQUEST")){
+            //두 번 다시는 보지 않겠다는 의미 -> 요청 거절
+            User user=userDetailsService.findUserById(userId);
+            user.updateUserCompany("NO_REQUEST");
+            userDetailsService.saveUser(user);
+        }
+        return "사용자 선택 결과 반영 성공";
+    }
+
 
 
 
