@@ -1,6 +1,5 @@
 package com.example.demo.lecture;
 
-import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.example.demo.review.Review;
@@ -9,7 +8,6 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;

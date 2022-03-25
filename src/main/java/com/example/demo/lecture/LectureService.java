@@ -5,6 +5,7 @@ import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.lecture.dto.LectureUrlResponse;
 import com.example.demo.lecture.dto.RecLecturesResponse;
+import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class LectureService {
+    private final RequestedLectureRepository requestedLectureRepository;
     private final LectureRepository lectureRepository;
     private final ReviewRepository reviewRepository;
     private final LectureHashtagRepository lectureHashtagRepository;
@@ -132,6 +134,13 @@ public class LectureService {
     public long saveLecture(Lecture lecture){
         Lecture savedLecture = lectureRepository.save(lecture);
         return savedLecture.getLectureId();
+    }
+
+    // 강의 요청 url 등록
+    public void saveRequestedLecture(String url){
+        RequestedLecture requestedLecture = new RequestedLecture();
+        requestedLecture.setLectureUrl(url);
+        requestedLectureRepository.save(requestedLecture);
     }
 
     // 해시태그 저장
