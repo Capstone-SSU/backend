@@ -1,10 +1,10 @@
 package com.example.demo.lecture;
 
+import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.example.demo.review.Review;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name="lectures")
 @Data
 @NoArgsConstructor
-@ToString(exclude={"user","reviews","likes"})
+@JsonIgnoreProperties(value={"likes", "reviews"})
 public class Lecture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +61,7 @@ public class Lecture {
     private List<Review> reviews =new ArrayList<>();
 
     // lecture : like = 1:N
-    @OneToMany(mappedBy = "lecture", targetEntity = Like.class)
+    @OneToMany( mappedBy = "lecture", targetEntity = Like.class)
     @JsonManagedReference
     private List<Like> likes =new ArrayList<>();
 
@@ -73,4 +73,18 @@ public class Lecture {
         this.lectureUrl = lectureUrl;
         this.thumbnailUrl = thumbnailUrl;
     }
+
+//    public static Lecture from(LectureDto lectureDto){
+//        return Lecture.builder()
+//                .lectureId()
+//                .lectureTitle(lectureDto.getLectureTitle())
+//                .lecturer(lectureDto.getLecturer())
+//                .lectureUrl(lectureDto.getLectureUrl())
+//                .siteName(lectureDto.getSiteName())
+//                .avgRate(0.0)
+//                .reviews(null)
+//                .likes(null)
+//                .thumbnailUrl(lectureDto.getThumbnailUrl())
+//                .build();
+//    }
 }
