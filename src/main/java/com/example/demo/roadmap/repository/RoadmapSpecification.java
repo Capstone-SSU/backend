@@ -23,7 +23,7 @@ public class RoadmapSpecification {
                 predicates.add(criteriaBuilder.like(root.get("roadmapGroupRecommendation").as(String.class),"%"+keyword+"%"));
                 predicates.add(criteriaBuilder.like(root.get("roadmapGroupTitle").as(String.class),"%"+keyword+"%"));
             }
-            Predicate or = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));//criteria에 or랑 and 둘 다 넣는 법,,,,,
+            Predicate or = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
             return criteriaBuilder.and(existence,or);
 
         });

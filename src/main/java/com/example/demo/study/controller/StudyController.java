@@ -48,11 +48,13 @@ public class StudyController {
 
 
     @GetMapping("/studies")
-    public ResponseEntity<ResponseMessage> getStudiesByKeyword(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) String category){
-        //2글자 이상: 프론트에서 컷 + 해시태그와 키워드 동시에 적용된 검색도 가능해야함
+    public ResponseEntity<ResponseMessage> getStudiesByKeyword(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) String category,
+                                                               @RequestParam String sort, @RequestParam(required = false) Integer recruitStatus){
 
-       if(keyword==null&&location==null&&category==null){ //쿼리 파라미터가 없으면 전체 스터디글 조회
-            List<StudyPost> studyPostList=studyPostService.getAllStudyPosts();
+        //requestParam : recruitStatus = 1 (모집중) 모집 아니면 null, order = asc (오래된 순), desc (최신순), likes (좋아요 순)
+        //pageable 없을 경우: sort 사용 -> 좋아요순 (Sort.by(likeCount), 최신순 (Sort.by(studyPostId, asc) where studyStatus == 1, 오래된 순 (Sort.by(studyPostId, dsc) where studyStatus == 1
+       if(keyword==null&&location==null&&category==null){
+            List<StudyPost> studyPostList=studyPostService.getAllStudyPosts(recruitStatus, sort);
             if(studyPostList.isEmpty()){
                 return new ResponseEntity<>(new ResponseMessage(200,"등록된 스터디글이 없습니다."),HttpStatus.OK);
             }
@@ -60,7 +62,7 @@ public class StudyController {
             return new ResponseEntity<>(ResponseMessage.withData(200,"전체 스터디글 조회 성공",studiesResponseList), HttpStatus.OK);
         }
 
-        List<StudyPost> filteredPosts=studyPostService.getStudyPostsWithFilter(category,keyword,location);
+        List<StudyPost> filteredPosts=studyPostService.getStudyPostsWithFilter(category,keyword,location,recruitStatus,sort);
         if(filteredPosts.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 스터디글이 없습니다."),HttpStatus.OK);
         }
@@ -146,7 +148,6 @@ public class StudyController {
             return new ResponseEntity<>(new ResponseMessage(409,"이미 신고한 스터디글"),HttpStatus.OK);
         }
         Report report=new Report(content,post,user);
-        em.persist(report);
         reportService.saveReport(report);
 
         Integer reportCount=post.getStudyReportCount();
@@ -172,7 +173,6 @@ public class StudyController {
         if(like ==null){
             //최초 좋아요 등록
             like =new Like(user,post);
-            em.persist(like);
             likeService.saveLike(like);
 
             return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.CREATED); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
