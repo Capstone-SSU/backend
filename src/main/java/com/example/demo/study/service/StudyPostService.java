@@ -96,7 +96,6 @@ public class StudyPostService {
         List<StudyPostLikeCalc> calcList=new ArrayList<>();
         for(StudyPost post:studyPosts){
             Integer likeCount=likeService.getLikeCountOnStudyPost(post);
-            System.out.println("post id: "+post.getStudyPostId()+", likeCount: "+likeCount);
             calcList.add(new StudyPostLikeCalc(post,likeCount));
         }
         Collections.sort(calcList,new StudyPostLikeComparator());
@@ -117,7 +116,12 @@ public class StudyPostService {
         if(originKeywords!=null){
             keywords=originKeywords.split(" ");
         }
-        return studyPostRepository.findPostsByTest(categories,keywords,location);
+
+        List<StudyPost> filteredPosts = studyPostRepository.findPostsWithFilter(categories, keywords, location, recruitStatus, sort);
+        if(sort!=null&&sort.contains("likes")){
+            filteredPosts=getLikeOrderedStudyPosts(filteredPosts);
+        }
+        return filteredPosts;
     }
 
     //전체 스터디글을 화면에 보여줄 때 list 데이터
@@ -131,7 +135,7 @@ public class StudyPostService {
             studyResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료");
             studiesResponseList.add(studyResponse);
         }
-        Collections.reverse(studiesResponseList);
+
         return studiesResponseList;
     }
 }
