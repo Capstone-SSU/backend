@@ -120,6 +120,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return companyRepository.findByCompanyDomain(domain);
     }
 
+    public String checkUserCompanyStatus(Long userId){
+        User user=userRepository.findById(userId).get();
+        String requestStatus=user.getUserCompany();
+        if(requestStatus==null){
+            return "ask";
+        }else if(requestStatus.equals("NO_REQUEST")){
+            return "no request";
+        }else{
+            return requestStatus;
+        }
+    }
+
     public Boolean sendMail(Long userId,String email,String companyName){
         Boolean success=false;
         try{
@@ -130,6 +142,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             message.setText("소속 인증을 완료하려면 다음 고유번호 4자리를 사이트에 입력해주세요.\n"+randomKey);
             javaMailSender.send(message);
             success=true;
+            //인증메일을 재전송 하는 경우, companyKey에 이전 기록이 저장되어 있다면 그거 지우고 put
+            companyKey.remove(userId);
             companyKey.put(userId,new CompanyNameKey(randomKey,companyName));
         }catch (MailException e){
             e.printStackTrace();

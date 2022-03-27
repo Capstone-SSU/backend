@@ -86,9 +86,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
                 .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
                 .anyRequest().authenticated() //위를 제외한 다른 모든 요청은 권한 확인
-                .and()
-                .formLogin()
-                .loginPage("http://localhost:3000/login") // 권한 없는 사용자가 페이지에 접근하면? -> 프론트의 login 라우터로 연결 (로그인 페이지)
+//                .and()
+//                .formLogin()
+//                .loginPage("http://localhost:3000/login") // 권한 없는 사용자가 페이지에 접근하면? -> 프론트의 login 라우터로 연결 (로그인 페이지)
                 .and()
                 .oauth2Login().userInfoEndpoint().userService(customOAuth2UserService)
                 .and()
