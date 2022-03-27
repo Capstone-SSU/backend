@@ -18,6 +18,7 @@ import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.user.User;
 import lombok.RequiredArgsConstructor;
+import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,28 +61,30 @@ public class LectureService {
     }
 
     // 검색어별 조회
-    public Page<AllLecturesResponse> getFilteredLectures(Pageable pageable,String keyword, String category){
-        Page<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
+    public List<AllLecturesResponse> getFilteredLectures(Pageable pageable,String keyword, String category){
+        List<AllLecturesResponse> lectures = new ArrayList<>();
+
         if(keyword!=null){ // 키워드만 있는 경우
             String[] keywords = keyword.split(" ");
             for(int i=0;i<keywords.length;i++){
                 String word = keywords[i];
-                return lectureRepository.findAll(LectureSpecs.titleLike(word), pageable).map(AllLecturesResponse::from);
-
+                lectures.addAll(lectureRepository.findAll(LectureSpecs.titleLike(word), pageable).map(AllLecturesResponse::from).getContent());
             }
         }
 
         if(category!=null){ // 카테고리(해시태그)만 있는 경우
+            List<String> hashtags = this.getHashtags()
             List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
-            for(int i=0;i<lectures.getContent().size();i++) { // 강의 전체를 돌면서
-                Lecture lecture = this.findById(lectures.getContent().get(i).getLectureId());
-                List<String> hashtags = this.getHashtags(lecture);
-                List<String> finalList = hashtags.stream()
-                        .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
-                        .collect(Collectors.toList());
-                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
-                    lectures.getContent().remove(i--); // remove 할 때 인덱스도 같이 줄여줌
-                }
+            lectures.addAll(lectureRepository.findAll(LectureSpecs.categoryMatch(categories), pageable).map(AllLecturesResponse::from).getContent()));
+
+//                Lecture lecture = this.findById(lectures.getContent().get(i).getLectureId());
+//                List<String> hashtags = this.getHashtags(lecture);
+//                List<String> finalList = hashtags.stream()
+//                        .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
+//                        .collect(Collectors.toList());
+//                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
+//                    lectures.getContent().remove(i--); // remove 할 때 인덱스도 같이 줄여줌
+//                }
             }
         }
         return lectures;
@@ -116,12 +119,12 @@ public class LectureService {
 //        return lectures;
 //    }
 
-    public static <T> boolean listContains(List<T> array, T element) { // categories / hashtag 중 하나
-        // (1,2,3) in (3,4,5) -> 3 출력
-        return array.stream()
-                .filter(e -> e.equals(element)) // categories 의 category에서 hashtag랑 같은거
-                .findFirst().isPresent();
-    }
+//    public static <T> boolean listContains(List<T> array, T element) { // categories / hashtag 중 하나
+//        // (1,2,3) in (3,4,5) -> 3 출력
+//        return array.stream()
+//                .filter(e -> e.equals(element)) // categories 의 category에서 hashtag랑 같은거
+//                .findFirst().isPresent();
+//    }
 
     // 특정 강의 조회
     public Lecture findById(Long lectureId){

@@ -29,7 +29,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -133,15 +132,15 @@ public class LectureController {
     })
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getLectures(
-            @PageableDefault(size = 20) Pageable pageable,
+            @PageableDefault(size = 2) Pageable pageable,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category) {
         if (keyword == null && category == null) { // 모든 강의 조회
             Page<AllLecturesResponse> lectures = lectureService.getLectures(pageable);
             return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures.getContent()), HttpStatus.OK);
         } else { // 검색어별 조회 or 해시태그(카테고리)별 조회
-            Page<AllLecturesResponse> lectures = lectureService.getFilteredLectures(pageable, keyword, category);
-            return new ResponseEntity<>(ResponseMessage.withData(200, "필터링 된 강의리뷰 조회", lectures.getContent()), HttpStatus.OK);
+            List<AllLecturesResponse> lectures = lectureService.getFilteredLectures(pageable, keyword, category);
+            return new ResponseEntity<>(ResponseMessage.withData(200, "필터링 된 강의리뷰 조회", lectures), HttpStatus.OK);
         }
     }
 
