@@ -4,6 +4,7 @@ import com.example.demo.mypage.dto.MyStudiesResponse;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.user.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
@@ -19,19 +20,21 @@ public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository 
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<StudyPost> findPostsByTest(String[] categories, String[] keywords, String location) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-        //모든 categories에 대해 or조건을 더해준다
-        List<StudyPost> postList = jpaQueryFactory
-                .selectFrom(studyPost)
-                .where(predicate(categories, keywords, location))
-                .fetch();
+    public List<StudyPost> findPostsWithFilter(String[] categories, String[] keywords, String location,Integer recruitStatus, String sort) {
+        OrderSpecifier<Long> orderSpecifier=studyPost.studyPostId.desc();
+        if(sort!=null&&(sort.contains("ASC")||sort.contains("asc"))){
+            orderSpecifier=studyPost.studyPostId.asc();
+        }
 
-        return postList; // 조회된게 없으면 empty list가 return 됨
+        return jpaQueryFactory
+                .selectFrom(studyPost)
+                .where(predicate(categories, keywords, location,recruitStatus))
+                .orderBy(orderSpecifier)
+                .fetch();
 
     }
 
-    private BooleanBuilder predicate(String[] categories, String[] keywords, String location) {
+    private BooleanBuilder predicate(String[] categories, String[] keywords, String location,Integer recruitStatus) {
         BooleanBuilder builder = new BooleanBuilder();
         if (categories != null) {
             builder.and(checkCategory(categories));
@@ -41,6 +44,9 @@ public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository 
         }
         if (location != null) {
             builder.and(studyPost.studyLocation.eq(location));
+        }
+        if(recruitStatus!=null&&recruitStatus.equals(1)){
+            builder.and(studyPost.studyRecruitStatus.eq(1));
         }
         return builder.and(studyPost.studyStatus.eq(1));
     }

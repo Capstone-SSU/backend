@@ -4,11 +4,13 @@ import com.example.demo.like.LikeService;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.dto.AllStudyPostsResponse;
 import com.example.demo.study.dto.StudyPostDTO;
+import com.example.demo.study.util.StudyPostLikeCalc;
+import com.example.demo.study.util.StudyPostLikeComparator;
 import com.example.demo.user.UserDetailsServiceImpl;
-import com.example.demo.user.dto.DetailUserDto;
 import com.example.demo.study.repository.StudyPostRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,24 +55,59 @@ public class StudyPostService {
         }
     }
 
-    public List<StudyPost> getAllStudyPosts(){
-        List<StudyPost> studyPosts = studyPostRepository.findAll();
+    public List<StudyPost> getAllStudyPosts(Integer recruitStatus, String sort){
+        Sort postSort=getSort(sort);
+        List<StudyPost> studyPosts;
+        studyPosts=postSort==null?studyPostRepository.findAll():studyPostRepository.findAll(postSort);
+
         if(studyPosts.isEmpty()){
             return studyPosts;
         }
 
-        //remove를 하는 경우에 enchanced for loop을 사용하면? remove의 fastRemove 에서 데이터 조작으로 인한 오류 발생 -> iterator를 사용하자!
         Iterator<StudyPost> itr=studyPosts.iterator();
         while(itr.hasNext()){
             StudyPost post=itr.next();
             if(post.getStudyStatus()==0){
-                itr.remove(); // iterator를 사용하는 경우, StudyPosts자체에 대해 remove를 사용하면 오류가 발생한다. -> 반드시 iterator 자체에 대해서 remove를 수행해야함
+                itr.remove();
+            }else if(recruitStatus!=null&&recruitStatus.equals(1)&&post.getStudyRecruitStatus()==0){ //모집중인 애들만 요구하면 얘도 바줘야함
+                itr.remove();
             }
+        } //studyPosts status==1, 모집중인 애들만 요구한 경우: recruitStatus==1인 애들만 남는다.
+
+        if(sort!=null&&sort.contains("likes")){
+            studyPosts=getLikeOrderedStudyPosts(studyPosts);
+        }
+
+        return studyPosts;
+    }
+
+    private Sort getSort(String sort){
+        if(sort==null){
+            return null;
+        }
+        else if(sort.contains("asc")||sort.contains("ASC")){ //오래된 순
+            return Sort.by(Sort.Direction.ASC, "studyPostId");
+        }else{ //최신순
+            return Sort.by(Sort.Direction.DESC,"studyPostId");
+        }
+    }
+
+    private List<StudyPost> getLikeOrderedStudyPosts(List<StudyPost> studyPosts){
+        List<StudyPostLikeCalc> calcList=new ArrayList<>();
+        for(StudyPost post:studyPosts){
+            Integer likeCount=likeService.getLikeCountOnStudyPost(post);
+            calcList.add(new StudyPostLikeCalc(post,likeCount));
+        }
+        Collections.sort(calcList,new StudyPostLikeComparator());
+        studyPosts.clear();
+        for(StudyPostLikeCalc calc:calcList){
+            studyPosts.add(calc.getStudyPost());
         }
         return studyPosts;
     }
 
-    public List<StudyPost> getStudyPostsWithFilter(String originCategories, String originKeywords, String location){
+
+    public List<StudyPost> getStudyPostsWithFilter(String originCategories, String originKeywords, String location, Integer recruitStatus, String sort){
         String[] categories=null;
         String[] keywords=null;
         if(originCategories!=null){
@@ -79,7 +116,12 @@ public class StudyPostService {
         if(originKeywords!=null){
             keywords=originKeywords.split(" ");
         }
-        return studyPostRepository.findPostsByTest(categories,keywords,location);
+
+        List<StudyPost> filteredPosts = studyPostRepository.findPostsWithFilter(categories, keywords, location, recruitStatus, sort);
+        if(sort!=null&&sort.contains("likes")){
+            filteredPosts=getLikeOrderedStudyPosts(filteredPosts);
+        }
+        return filteredPosts;
     }
 
     //전체 스터디글을 화면에 보여줄 때 list 데이터
@@ -93,7 +135,7 @@ public class StudyPostService {
             studyResponse.setStudyRecruitState(post.getStudyRecruitStatus()==1?"모집중":"모집완료");
             studiesResponseList.add(studyResponse);
         }
-        Collections.reverse(studiesResponseList);
+
         return studiesResponseList;
     }
 }
