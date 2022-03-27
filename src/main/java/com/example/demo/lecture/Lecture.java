@@ -18,7 +18,7 @@ import java.util.List;
 @Table(name="lectures")
 @Data
 @NoArgsConstructor
-@JsonIgnoreProperties(value={"likes", "reviews", "lectureHashtags"})
+@JsonIgnoreProperties(value={"likes", "reviews"})
 public class Lecture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

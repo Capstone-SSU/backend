@@ -19,6 +19,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.regexp.RE;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -132,7 +133,7 @@ public class LectureController {
     })
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getLectures(
-            @PageableDefault(size = 2) Pageable pageable,
+            @PageableDefault(size = 2, direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category) {
         if (keyword == null && category == null) { // 모든 강의 조회
