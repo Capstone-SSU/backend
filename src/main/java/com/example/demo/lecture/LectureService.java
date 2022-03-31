@@ -186,7 +186,7 @@ public class LectureService {
             if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
                 lectureHashtag.setHashtag(existedHashtag.get());
             }
-            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag에 넣기
+            else { // 없는 해시태그라면 해시태그를 생성하고 나서 lectureHashtag에 넣기
                 Hashtag hashtag = new Hashtag(hashtags.get(i));
                 hashtagRepository.save(hashtag);
                 lectureHashtag.setHashtag(hashtag);
