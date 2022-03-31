@@ -133,7 +133,7 @@ public class LectureController {
     })
     @GetMapping("")
     public ResponseEntity<ResponseMessage> getLectures(
-            @PageableDefault(size = 2, direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 20, direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category) {
         if (keyword == null && category == null) { // 모든 강의 조회
