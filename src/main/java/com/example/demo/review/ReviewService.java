@@ -18,9 +18,8 @@ import java.util.Optional;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
 
-    public long saveReview(Review review){
-        Review savedReview = reviewRepository.save(review);
-        return savedReview.getReviewId();
+    public void saveReview(Review review){
+        reviewRepository.save(review);
     }
     
     public Review findByReviewId(Long reviewId){

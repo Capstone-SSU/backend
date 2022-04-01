@@ -44,7 +44,6 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
-    private final UserDetailsServiceImpl userService;
 
     // 추천 알고리즘 전송용 메소드
     @PostMapping("/admin")
@@ -55,7 +54,7 @@ public class LectureController {
         String sb = "";
         try {
             JSONObject reqParams = new JSONObject();
-//            reqParams.put("data", recLectures);
+            reqParams.put("data", recLectures);
             // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
@@ -130,35 +129,35 @@ public class LectureController {
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
     }
 
-    // 관리자용 강의 등록
-    @PostMapping("")
-    public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        if(user == null)
-            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        if(!user.getRole().equals("ADMIN")) // 관리자 유저가 아닌경우
-            return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
-
-        String lectureUrl = lectureDto.getLectureUrl();
-        String lectureTitle = lectureDto.getLectureTitle();
-        String lecturer = lectureDto.getLecturer();
-        String siteName = lectureDto.getSiteName();
-        String thumbnailUrl = lectureDto.getThumbnailUrl();
-        List<String> hashtags = lectureDto.getHashtags();
-
-        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-        if(existedLecture!=null) { // 강의가 이미 존재하는 경우
-            return new ResponseEntity<>(new ResponseMessage(409,"이미 등록된 강의"), HttpStatus.CONFLICT);
-        }
-
-        Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-        lecture.setUser(user);
-        lectureService.saveLecture(lecture);
-        lectureService.manageHashtag(hashtags, lecture);
-        return new ResponseEntity<>(new ResponseMessage(201, "강의가 등록되었습니다.", lecture), HttpStatus.CREATED);
-    }
+//    // 관리자용 강의 등록
+//    @PostMapping("")
+//    public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
+//        // 현재 로그인한 사용자 아이디 가져오기
+//        String email = principal.getName();
+//        User user = userDetailsService.findUserByEmail(email);
+//        if(user == null)
+//            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+//        if(!user.getRole().equals("ADMIN")) // 관리자 유저가 아닌경우
+//            return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
+//
+//        String lectureUrl = lectureDto.getLectureUrl();
+//        String lectureTitle = lectureDto.getLectureTitle();
+//        String lecturer = lectureDto.getLecturer();
+//        String siteName = lectureDto.getSiteName();
+//        String thumbnailUrl = lectureDto.getThumbnailUrl();
+//        List<String> hashtags = lectureDto.getHashtags();
+//
+//        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
+//        if(existedLecture!=null) { // 강의가 이미 존재하는 경우
+//            return new ResponseEntity<>(new ResponseMessage(409,"이미 등록된 강의"), HttpStatus.CONFLICT);
+//        }
+//
+//        Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+//        lecture.setUser(user);
+//        lectureService.saveLecture(lecture);
+//        lectureService.manageHashtag(hashtags, lecture);
+//        return new ResponseEntity<>(new ResponseMessage(201, "강의가 등록되었습니다.", lecture), HttpStatus.CREATED);
+//    }
 
     // 관리자용 강의 등록
     @PostMapping("")
@@ -204,9 +203,9 @@ public class LectureController {
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
         String requestUrl = params.get("url");
         // 이미 등록된 강의
-        Lecture lecture = lectureService.findByUrl(requestUrl);
-        if(lecture != null)
-            return new ResponseEntity<>(new ResponseMessage(409, "이미 등록된 강의입니다.", lecture), HttpStatus.CONFLICT);
+        LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(requestUrl);
+        if(lectureUrlResponse != null)
+            return new ResponseEntity<>(new ResponseMessage(409, "이미 등록된 강의입니다.", lectureUrlResponse), HttpStatus.CONFLICT);
         // 이미 등록 요청된 강의
         RequestedLecture rqLecture = lectureService.findRequestedLecture(requestUrl);
         if(rqLecture != null)
@@ -214,46 +213,6 @@ public class LectureController {
         lectureService.saveRequestedLecture(requestUrl);
         return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다."), HttpStatus.CREATED);
     }
-
-    // 등록 요청 처리하기
-
-//    public String readExcel() throws IOException, InvalidFormatException {
-//        String email = "baegopa2@naver.com";
-//        User user = userDetailsService.findUserByEmail(email);
-//        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
-//        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-//        Sheet worksheet = workbook.getSheetAt(0);
-//        for (int i = 1; i < worksheet.getPhysicalNumberOfRows() - 20; i++) { // 4
-//            Row row = worksheet.getRow(i);
-//            String lectureUrl = row.getCell(0).getStringCellValue();
-//            String lectureTitle = row.getCell(1).getStringCellValue();
-//            String lecturer = row.getCell(2).getStringCellValue();
-//            String siteName = row.getCell(3).getStringCellValue();
-//            String thumbnailUrl = row.getCell(4).getStringCellValue();
-//            // 강의에 들어갈 내용
-//            String hashtags = row.getCell(5).getStringCellValue();
-//            List<String> processedHashtags = List.of(hashtags.split(", "));
-//            String commentTitle = row.getCell(6).getStringCellValue();
-//            String comment = row.getCell(7).getStringCellValue();
-////            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-////            lecture.setUser(user);
-//            // 강의를 생성할 때 해시태그를 넣어야 함
-////            lectureService.saveLecture(lecture);
-//
-//            // 리뷰 갯수도 랜덤 생성
-//            int loop = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
-//            for (int j = 0; j < loop; j++) {
-//                int rate = (int) (Math.random() * 5) + 1; // 1~5 랜덤 숫자 생성
-//                Review review = new Review(rate, LocalDateTime.now(), commentTitle, comment);
-////                review.setLecture(lecture);
-//                review.setUser(user);
-//                reviewService.saveReview(review); // 리뷰 저장
-////                lectureService.manageHashtag(processedHashtags, review); // 에 등록 및 hashtag 관리
-//            }
-//        }
-//        opcPackage.close();
-//        return "save ok";
-//    }
 
     // 강의에 들어가서 리뷰 다는 경우
     @PostMapping("/{lectureId}/reviews")
@@ -265,7 +224,7 @@ public class LectureController {
             Review review = reviewService.findByUserAndLecture(user, lecture);
             if(review == null) { // 리뷰 등록한 적 없는 경우
                 review = new Review();
-                review.setLectureReview(reviewPostDto, user, lecture);
+                review.setLectureReview(reviewPostDto, user, lecture); // 바꾸고싶음
                 reviewService.saveReview(review);
                 lectureService.setAvgRate(lecture, review.getRate()); // 특정 강의의 평점 업뎃
                 if(user.getReviewWriteStatus() == false) // 리뷰 등록했으면 status = true 로 변경
@@ -309,9 +268,10 @@ public class LectureController {
         return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/urls") // 중복링크 찾기
-    public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody UrlCheckDto urlCheckDto){
-        String lectureUrl = urlCheckDto.getLectureUrl();
+    // 중복링크 찾기
+    @PostMapping("/urls")
+    public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody HashMap<String, String> checkUrl){
+        String lectureUrl = checkUrl.get("lectureUrl");
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lectureUrl);
         if(lectureUrlResponse!=null)// 중복링크가 있으면 해시태그까지 출력되도록
             return new ResponseEntity<>(ResponseMessage.withData(200, "중복된 링크가 존재합니다.", lectureUrlResponse), HttpStatus.OK);

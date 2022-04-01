@@ -24,6 +24,7 @@ public class DetailLectureResponse {
     private boolean likeStatus; // 좋아요 한 여부
     private List<DetailReviewResponse> reviews; // 강의 리뷰
 
+    // hashtags, reviews, likeStatus 따로 받아와야 함
     public static DetailLectureResponse from(Lecture lecture){
         return DetailLectureResponse.builder()
                 .lectureId(lecture.getLectureId())
@@ -33,6 +34,7 @@ public class DetailLectureResponse {
                 .lectureUrl(lecture.getLectureUrl())
                 .thumbnailUrl(lecture.getThumbnailUrl())
                 .avgRate(lecture.getAvgRate())
+                .reviewCnt(lecture.getReviews().size())
                 .likeCnt(lecture.getLikes().size())
                 .build();
     }
