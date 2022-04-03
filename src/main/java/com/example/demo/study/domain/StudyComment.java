@@ -52,12 +52,12 @@ public class StudyComment {
     @NotNull
     private Integer commentReportCount=0; // 신고횟수
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
     @JoinColumn(name="userId")
     @JsonBackReference
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = StudyPost.class) // 하나의 스터디글에 여러개의 댓글
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = StudyPost.class) // 하나의 스터디글에 여러개의 댓글
     @JoinColumn(name="studyPostId")
     @JsonBackReference
     private StudyPost studyPost;
