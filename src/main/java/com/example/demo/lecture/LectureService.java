@@ -40,15 +40,20 @@ public class LectureService {
 
     // 추천용 강의 데이터 가공 함수
     public List<RecLecturesResponse> manageRecommendData(Pageable pageable) {
+        /*
+            ’강의 번호’,
+            ’강의 제목’,
+            ’평점’,
+            ’리뷰를 한 사용자의 수’,
+            ’키워드(해시)’
+        */
         List<RecLecturesResponse> recLectures = new ArrayList<>();
         Page<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
         for (int i = 0; i < lectures.getContent().size(); i++) {
             Long lectureId = lectures.getContent().get(i).getLectureId();
             Lecture lecture = findById(lectureId);
-            RecLecturesResponse recLecturesResponse = new RecLecturesResponse();
-            BeanUtils.copyProperties(lectures.getContent().get(i), recLecturesResponse, "thumbnailUrl", "likeCnt"); // 원본 객체, 복사 대상 객체
-            recLecturesResponse.setHashtags(this.getHashtags(lecture)); // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수 호출
-            recLecturesResponse.setReviewCnt(getReviewCnt(lecture));
+            RecLecturesResponse recLecturesResponse = RecLecturesResponse.from(lecture);
+            recLecturesResponse.setHashtags(this.getHashtags(lecture));
             recLectures.add(recLecturesResponse);
         }
         return recLectures;
@@ -132,20 +137,12 @@ public class LectureService {
     // 강의글 상세 조회
     public DetailLectureResponse getLecture(Lecture lecture, User user){
         DetailLectureResponse detailLectureResponse = DetailLectureResponse.from(lecture);
-        detailLectureResponse.setReviewCnt(getReviewCnt(lecture)); // 리뷰 개수 세팅
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
-            DetailReviewResponse detailReviewResponse = new DetailReviewResponse(); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
-            BeanUtils.copyProperties(reviews.get(i), detailReviewResponse,"reviewHashtags"); // 원본 객체, 복사 대상 객체
-            String nickname = reviews.get(i).getUser().getUserNickname();
-            detailReviewResponse.setNickname(nickname);
-
+            DetailReviewResponse detailReviewResponse = DetailReviewResponse.from(reviews.get(i), lecture); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
             if(user.getUserId() == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
                 detailReviewResponse.setWriterStatus(true);
-            else
-                detailReviewResponse.setWriterStatus(false);
-            detailReviewResponses.add(detailReviewResponse);
         }
         detailLectureResponse.setReviews(detailReviewResponses);
         detailLectureResponse.setHashtags(this.getHashtags(lecture));
@@ -186,7 +183,7 @@ public class LectureService {
             if(existedHashtag.isPresent()) { // 이미 들어간 해시태그라면 id 받아오기
                 lectureHashtag.setHashtag(existedHashtag.get());
             }
-            else { // 없는 해시태그라면 해시태그를 생성하고 나서 reviewHashtag에 넣기
+            else { // 없는 해시태그라면 해시태그를 생성하고 나서 lectureHashtag에 넣기
                 Hashtag hashtag = new Hashtag(hashtags.get(i));
                 hashtagRepository.save(hashtag);
                 lectureHashtag.setHashtag(hashtag);
@@ -235,12 +232,6 @@ public class LectureService {
     public void setAvgRate(Lecture lecture, int rate){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         lecture.setAvgRate(Math.round((lecture.getAvgRate()+rate)/reviews.size()*10)/10.0);
-    }
-
-    // 리뷰 개수 세기
-    public int getReviewCnt(Lecture lecture){
-        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        return reviews.size();
     }
 
     // 강의 해시태그 가져오기

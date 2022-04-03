@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManager;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final ReportService reportService;
-    private final EntityManager em;
 
     @ApiOperation(value="리뷰 등록")
     @ApiResponses({
@@ -50,7 +48,7 @@ public class ReviewController {
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
-        // 여기까지는 lecture table에 들어가는 것
+        // LectureDto 까지 필요할까라는 생각이 드는데, 일단 넘어감
         String lectureUrl = lectureDto.getLectureUrl();
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우 -> 링크 확인 버튼 눌렀을 때 없는 경우면 강의 등록 요청하도록
@@ -89,7 +87,7 @@ public class ReviewController {
         if(review != null) {
             reviewService.deleteReview(reviewId);
             List<Review> reviews = reviewService.findAllReviewsByUser(user);
-            if(reviews.size() == 0) {// 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
+            if(reviews.size() == 0) { // 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
                 user.updateReviewStatus();
                 user.setReadCount(0);
             }
@@ -115,7 +113,7 @@ public class ReviewController {
                 int reportCnt = review.getReportCount();
                 Report report = new Report(content, review);
                 reportService.saveReport(report);
-                review.updateReviewReportCount(reportCnt++);
+                review.updateReviewReportCount(++reportCnt);
                 return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 신고되었습니다."), HttpStatus.CREATED);
             }
             return new ResponseEntity<>(new ResponseMessage(409, "이미 신고한 강의리뷰"), HttpStatus.CONFLICT);

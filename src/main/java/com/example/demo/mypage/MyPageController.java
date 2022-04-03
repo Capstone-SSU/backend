@@ -54,7 +54,6 @@ public class MyPageController {
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
         user.updateProfileStatus();
         return new ResponseEntity<>(new ResponseMessage(200, "프로필 공개여부 변경 완료"), HttpStatus.OK);
-
     }
 
     @PatchMapping("/{userId}") // 회원정보수정
