@@ -31,8 +31,8 @@ public class RoadMap {
     @Column(nullable = false)
     private Integer roadmapStatus=1;
 
-    //근데 그냥 하나의 roadmap 클래스 안에,,, 렉쳐 컬럼 따로 가지면 될 것 같아서 단방향 OneToOne으로 가겠습니다
-    @OneToOne(targetEntity = Lecture.class)
+    //단방향 ManyToOne (1 강의가 여러 로드맵 데이터가 될 수 있음) -> OneToOne을 쓰려면 1 강의는 1 로드맵 데이터만 되어야한다! (unique 해야함)
+    @ManyToOne(targetEntity = Lecture.class)
     @JoinColumn(name = "lectureId")
     private Lecture lecture;
 
