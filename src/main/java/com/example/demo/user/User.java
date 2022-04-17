@@ -55,9 +55,8 @@ public class User {
     @Column(unique=true)
     private String githubUrlName;
 
-    @Column(length = 5)
-    @NotNull
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column
     private String loginProvider;
@@ -105,13 +104,13 @@ public class User {
         this.userNickname=nickname;
         this.userEmail=email;
         this.userPassword=pwd;
-        this.role="USER";
+        this.role=Role.USER;
         // 이 외의 값은 초기 builder 패턴으로 생성 시에 NULL로 들어간다.
     }
 
     //디폴트: USER, 관리자라면: ADMIN으로 update
     public void updateUserRole(){
-        this.role="ADMIN";
+        this.role=Role.ADMIN;
     }
 
     public void updateProfileImage(String url){

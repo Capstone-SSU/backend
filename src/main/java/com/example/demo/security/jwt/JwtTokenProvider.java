@@ -1,5 +1,6 @@
 package com.example.demo.security.jwt;
 
+import com.example.demo.user.Role;
 import com.example.demo.user.User;
 import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.UserDetailsServiceImpl;
@@ -44,7 +45,7 @@ public class JwtTokenProvider {
         User user=customUserDetails.getUser();
         Long userId=user.getUserId();
         String userEmail=user.getUserEmail();
-        String userRole=user.getRole();
+        String userRole =user.getRole().name();
         System.out.println("generate jwt token");
 
 
