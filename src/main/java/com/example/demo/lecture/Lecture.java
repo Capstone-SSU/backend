@@ -30,15 +30,15 @@ public class Lecture {
     @JsonBackReference
     private User user;
 
-    @Column
+    @Column(length = 45)
     @NotNull
     private String lectureTitle;
 
-    @Column
+    @Column(length = 15)
     @NotNull
     private String lecturer;
 
-    @Column
+    @Column(length = 15)
     @NotNull
     private String siteName;
 

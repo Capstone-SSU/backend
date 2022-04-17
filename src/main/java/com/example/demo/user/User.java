@@ -30,11 +30,11 @@ public class User {
     @Column
     private long userId;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 10)
     @NotNull
     private String userNickname;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 30)
     @NotNull
     private String userEmail;
 
@@ -42,25 +42,25 @@ public class User {
     @NotNull
     private String userPassword;
 
-    @Column
+    @Column(length = 20)
     @NotNull
     private String userName;
 
-    @Column
+    @Column(length = 15)
     private String userCompany;
 
     @Column
     private String userProfileImg;
 
-    @Column
+    @Column(unique=true)
+    private String githubUrlName;
+
+    @Column(length = 5)
     @NotNull
     private String role;
 
     @Column
     private String loginProvider;
-
-    @Column(unique=true)
-    private String githubUrlName;
 
     @Column
     private Boolean reviewWriteStatus=false;
