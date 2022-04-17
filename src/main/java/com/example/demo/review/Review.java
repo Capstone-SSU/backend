@@ -47,10 +47,11 @@ public class Review {
     @NotNull
     private int rate;
 
-    @Column
+    @Column(length = 45)
     @NotNull
     private String commentTitle;
 
+    @Lob
     @Column
     @NotNull
     private String comment;

@@ -30,11 +30,11 @@ public class User {
     @Column
     private long userId;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 10)
     @NotNull
     private String userNickname;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 30)
     @NotNull
     private String userEmail;
 
@@ -42,25 +42,24 @@ public class User {
     @NotNull
     private String userPassword;
 
-    @Column
+    @Column(length = 20)
     @NotNull
     private String userName;
 
-    @Column
+    @Column(length = 15)
     private String userCompany;
 
     @Column
     private String userProfileImg;
 
-    @Column
-    @NotNull
-    private String role;
+    @Column(unique=true)
+    private String githubUrlName;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column
     private String loginProvider;
-
-    @Column(unique=true)
-    private String githubUrlName;
 
     @Column
     private Boolean reviewWriteStatus=false;
@@ -105,13 +104,13 @@ public class User {
         this.userNickname=nickname;
         this.userEmail=email;
         this.userPassword=pwd;
-        this.role="USER";
+        this.role=Role.USER;
         // 이 외의 값은 초기 builder 패턴으로 생성 시에 NULL로 들어간다.
     }
 
     //디폴트: USER, 관리자라면: ADMIN으로 update
     public void updateUserRole(){
-        this.role="ADMIN";
+        this.role=Role.ADMIN;
     }
 
     public void updateProfileImage(String url){

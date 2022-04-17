@@ -9,14 +9,28 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 
-import static com.example.demo.roadmap.QRoadMap.roadMap;
 
 @Entity
-@Table(name = "likes")
+@Table(
+        name = "likes",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name="UniqueLectureAndUser",
+                        columnNames = {"lectureId", "userId"}
+                ),
+                @UniqueConstraint(
+                        name="UniqueStudyAndUser",
+                        columnNames = {"studyPostId", "userId"}
+                ),
+                @UniqueConstraint(
+                        name="UniqueRoadmapAndUser",
+                        columnNames = {"roadmapGroupId", "userId"}
+                )
+        }
+)
 @Data
 @NoArgsConstructor // jpa에는 기본 contructor가 필요함 -> 없을 경우에 "No default constructor for Entity 에러 발생" -> NoArgsConstructor로 해결 가능
 @JsonIgnoreProperties(value={"user","lecture","roadmapGroup"})

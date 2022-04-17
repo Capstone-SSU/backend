@@ -21,6 +21,7 @@ public class Report {
     private Long reportId;
 
     @Column
+//    @Convert(converter = StringToIntegerConverter.class)
     private String reportContent; // 신고사유 (사용자 선택 + 직접입력)
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class) // M:1 관계일 때, M 에 해당하는 테이블에 해당 annotation 이 붙는다. (한 명의 유저에게 M개의 스터디글)
@@ -64,3 +65,9 @@ public class Report {
     }
 
 }
+
+//@Converter
+//class StringToIntegerConverter implements AttributeConverter<String, Integer> {
+//    @Override
+//
+//}

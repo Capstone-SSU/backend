@@ -40,7 +40,6 @@ public class UserController {
         String encodedPwd=bCryptPasswordEncoder.encode(pwd);
         String imgUrl= signupDTO.getImageUrl();
         String role = signupDTO.getRole();
-        System.out.println("role = " + role);
         if(!userService.checkEmailValidate(signupDTO.getEmail()).equals("email valid")||!userService.checkNicknameValidate(signupDTO.getNickname()).equals("nickname valid")){
             return new ResponseEntity<>(new ResponseMessage(401,"이메일 또는 닉네임 중복체크를 진행해주세요."), HttpStatus.OK);
         }
@@ -50,7 +49,7 @@ public class UserController {
             user.updateProfileImage(imgUrl);
         }
 
-        if(role.equals("ADMIN")) {
+        if(role.equals(Role.ADMIN.name())) {
             user.updateUserRole();
         }
 
