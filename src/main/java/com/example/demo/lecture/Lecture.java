@@ -1,6 +1,6 @@
 package com.example.demo.lecture;
 
-import com.example.demo.lecture.dto.LectureDto;
+import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
 import com.example.demo.user.User;
 import com.example.demo.review.Review;
@@ -9,7 +9,6 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -31,15 +30,15 @@ public class Lecture {
     @JsonBackReference
     private User user;
 
-    @Column
+    @Column(length = 45)
     @NotNull
     private String lectureTitle;
 
-    @Column
+    @Column(length = 15)
     @NotNull
     private String lecturer;
 
-    @Column
+    @Column(length = 15)
     @NotNull
     private String siteName;
 
@@ -65,6 +64,11 @@ public class Lecture {
     @JsonManagedReference
     private List<Like> likes =new ArrayList<>();
 
+    // lecture : lecture_hashtag = 1:N
+    @OneToMany( mappedBy = "lecture", targetEntity = LectureHashtag.class)
+    @JsonManagedReference
+    private List<LectureHashtag> lectureHashtags =new ArrayList<>();
+
     @Builder
     public Lecture(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {
         this.lectureTitle = lectureTitle;
@@ -73,18 +77,4 @@ public class Lecture {
         this.lectureUrl = lectureUrl;
         this.thumbnailUrl = thumbnailUrl;
     }
-
-//    public static Lecture from(LectureDto lectureDto){
-//        return Lecture.builder()
-//                .lectureId()
-//                .lectureTitle(lectureDto.getLectureTitle())
-//                .lecturer(lectureDto.getLecturer())
-//                .lectureUrl(lectureDto.getLectureUrl())
-//                .siteName(lectureDto.getSiteName())
-//                .avgRate(0.0)
-//                .reviews(null)
-//                .likes(null)
-//                .thumbnailUrl(lectureDto.getThumbnailUrl())
-//                .build();
-//    }
 }

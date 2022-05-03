@@ -1,11 +1,16 @@
 package com.example.demo.review.dto;
 
+import com.example.demo.lecture.Lecture;
+import com.example.demo.lecture.dto.DetailLectureResponse;
+import com.example.demo.review.Review;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 public class DetailReviewResponse {
     private String nickname;
     private long reviewId;
@@ -13,6 +18,17 @@ public class DetailReviewResponse {
     private String commentTitle;
     private String comment;
     private LocalDateTime createdDate;
-    private int reportCount; // 이거 여기 왜있지 없어도도리 것 같은디
     private boolean writerStatus;
+
+    public static DetailReviewResponse from(Review review, Lecture lecture){
+        return DetailReviewResponse.builder()
+                .nickname(lecture.getUser().getUserNickname())
+                .reviewId(review.getReviewId())
+                .rate(review.getRate())
+                .commentTitle(review.getCommentTitle())
+                .comment(review.getComment())
+                .createdDate(review.getCreatedDate())
+                .writerStatus(false)
+                .build();
+    }
 }

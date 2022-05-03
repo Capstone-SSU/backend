@@ -22,7 +22,7 @@ public class Hashtag {
     @Column
     private long hashtagId;
 
-    @Column
+    @Column(length = 10)
     @NotNull
     private String hashtagName;
 

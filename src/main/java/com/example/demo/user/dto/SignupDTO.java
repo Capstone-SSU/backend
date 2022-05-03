@@ -11,4 +11,5 @@ public class SignupDTO {
     private String name;
     private String password;
     private String imageUrl; // imgUrl은 null로 오거나 (이미지가 없는 경우), url이 오거나 (이미지를 등록한 경우)
+    private String role;
 }
