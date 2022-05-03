@@ -43,23 +43,23 @@ public class Like {
     private Integer likeStatus=1; // 1이 default (최초 디비에 등록할 때는 좋아요가 눌린 상태로 저장되므로), 0은 좋아요가 취소된 것
 
     //하나의 글에 여러개의 관심글 -> 관심글이 M, 주인
-    @ManyToOne(fetch = FetchType.EAGER,targetEntity = StudyPost.class)
+    @ManyToOne(fetch = FetchType.LAZY,targetEntity = StudyPost.class)
     @JsonBackReference
     @JoinColumn(name = "studyPostId")
     private StudyPost studyPost;
 
-    @ManyToOne(fetch = FetchType.EAGER,targetEntity = Lecture.class)
+    @ManyToOne(fetch = FetchType.LAZY,targetEntity = Lecture.class)
     @JsonBackReference
     @JoinColumn(name = "lectureId")
     private Lecture lecture;
 
     //한 명의 사용자가 여러개의 관심글 등록 -> 관심글이 M, 주인
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
     @JsonBackReference
     @JoinColumn(name = "userId")
     private User user;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoadMapGroup.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = RoadMapGroup.class)
     @JsonBackReference
     @JoinColumn(name = "roadmapGroupId")
     private RoadMapGroup roadmapGroup;

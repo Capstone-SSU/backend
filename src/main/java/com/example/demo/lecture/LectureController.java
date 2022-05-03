@@ -8,6 +8,7 @@ import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
+import com.example.demo.userPreferenceHashtag.UserPreferenceHashtagService;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
+    private final UserPreferenceHashtagService preferenceHashtagService;
 
     // 추천 알고리즘 전송용 메소드
     @PostMapping("/admin")
@@ -252,16 +254,19 @@ public class LectureController {
             if(existedLike!=null) { // 좋아요가 존재하는 경우
                 if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
                     existedLike.changeLikeStatus(0);
+                    preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,-1);
                     return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
                 }
                 else {
                     existedLike.changeLikeStatus(1);
+                    preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
                     return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
                 }
             }
             else {// 좋아요 처음 누른 경우
                 Like like = new Like(lecture, user);
                 likeService.saveLike(like);
+                preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
                 return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
             }
         }
