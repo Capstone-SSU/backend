@@ -49,7 +49,7 @@ public class UserController {
             user.updateProfileImage(imgUrl);
         }
 
-        if(role.equals(Role.ADMIN.name())) {
+        if(role!=null&&role.equals(Role.ADMIN.name())) {
             user.updateUserRole();
         }
 
