@@ -4,6 +4,7 @@ import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.LectureDto;
 import com.example.demo.report.Report;
+import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.report.ReportService;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,7 @@ public class ReviewController {
             @ApiResponse(code = 500, message = "서버 에러")
     })
     @PostMapping("") // 리뷰 등록
-    public ResponseEntity<ResponseMessage> createReview(@RequestBody LectureDto lectureDto, Principal principal) {
+    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewDto reviewDto, Principal principal) {
         // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
@@ -49,7 +51,7 @@ public class ReviewController {
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
         // LectureDto 까지 필요할까라는 생각이 드는데, 일단 넘어감
-        String lectureUrl = lectureDto.getLectureUrl();
+        String lectureUrl = reviewDto.getLectureUrl();
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우 -> 링크 확인 버튼 눌렀을 때 없는 경우면 강의 등록 요청하도록
             return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없음"), HttpStatus.NOT_FOUND);
@@ -61,8 +63,11 @@ public class ReviewController {
             user.updateReviewStatus();
         if(review != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
             return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-        review.setLecture(existedLecture);
-        review.setUser(user);
+
+        ReviewPostDto reviewPostDto = new ReviewPostDto();
+        BeanUtils.copyProperties(reviewDto, reviewPostDto, lectureUrl);
+        review = new Review();
+        review.setLectureReview(reviewPostDto, user, existedLecture);
         reviewService.saveReview(review); // 리뷰 저장
         lectureService.setAvgRate(existedLecture, review.getRate()); // 특정 강의의 평점 업뎃
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다.", existedLecture), HttpStatus.CREATED);

@@ -74,7 +74,7 @@ public class Review {
 
     // rate, commentTitle, comment
     @Builder
-    public Review(int rate, LocalDateTime createdDate, String commentTitle, String comment) {
+    public Review(int rate, String commentTitle, String comment) {
         this.rate = rate;
         this.createdDate = LocalDateTime.now();
         this.commentTitle = commentTitle;
