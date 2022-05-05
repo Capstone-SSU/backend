@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class Lecture {
     @NotNull
     private String lectureUrl;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     @NotNull
     private String thumbnailUrl;
 

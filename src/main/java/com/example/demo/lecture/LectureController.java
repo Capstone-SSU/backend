@@ -6,6 +6,7 @@ import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
+import com.example.demo.user.Role;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
 import com.example.demo.userPreferenceHashtag.UserPreferenceHashtagService;
@@ -82,6 +83,42 @@ public class LectureController {
         return "send ok";
     }
 
+    // 관리자용 강의 등록
+    @PostMapping("")
+    public ResponseEntity<ResponseMessage> createLecture(Principal principal) throws IOException, InvalidFormatException {
+        // 현재 로그인한 사용자 아이디 가져오기
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+        System.out.println("user.getRole() = " + user.getRole());
+        if(!user.getRole().equals(Role.ADMIN)) // 관리자 유저가 아닌경우
+            return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
+
+        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Downloads\\캡스톤2 강의.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+        Sheet worksheet = workbook.getSheetAt(0);
+        System.out.println(worksheet.getPhysicalNumberOfRows());
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) { // 4
+            Row row = worksheet.getRow(i);
+            String lectureUrl = row.getCell(0).getStringCellValue();
+            String lectureTitle = row.getCell(1).getStringCellValue();
+            String lecturer = row.getCell(2).getStringCellValue();
+            String siteName = row.getCell(3).getStringCellValue();
+            String thumbnailUrl = row.getCell(4).getStringCellValue();
+
+            // 강의에 들어갈 내용
+            String hashtags = row.getCell(5).getStringCellValue();
+            List<String> processedHashtags = List.of(hashtags.split(", "));
+            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
+            lecture.setUser(user);
+            lectureService.saveLecture(lecture);
+            lectureService.manageHashtag(processedHashtags, lecture); // 강의를 생성할 때 해시태그를 넣어야 함
+        }
+        opcPackage.close();
+        return new ResponseEntity<>(new ResponseMessage(200, "강의가 등록되었습니다"), HttpStatus.OK);
+    }
+
     // 전체 강의 글 조회 + 필터링 된 강의 글 조회
     @ApiOperation(value = "전체 강의글 조회 + 검색 필터링별 강의 조회")
     @ApiResponses({
@@ -129,70 +166,6 @@ public class LectureController {
             return new ResponseEntity<>(ResponseMessage.withData(200, "강의를 조회했습니다", detailLectureResponse), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
-    }
-
-//    // 관리자용 강의 등록
-//    @PostMapping("")
-//    public ResponseEntity<ResponseMessage> createLecture(@RequestBody LectureDto lectureDto, Principal principal) {
-//        // 현재 로그인한 사용자 아이디 가져오기
-//        String email = principal.getName();
-//        User user = userDetailsService.findUserByEmail(email);
-//        if(user == null)
-//            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-//        if(!user.getRole().equals("ADMIN")) // 관리자 유저가 아닌경우
-//            return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
-//
-//        String lectureUrl = lectureDto.getLectureUrl();
-//        String lectureTitle = lectureDto.getLectureTitle();
-//        String lecturer = lectureDto.getLecturer();
-//        String siteName = lectureDto.getSiteName();
-//        String thumbnailUrl = lectureDto.getThumbnailUrl();
-//        List<String> hashtags = lectureDto.getHashtags();
-//
-//        Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
-//        if(existedLecture!=null) { // 강의가 이미 존재하는 경우
-//            return new ResponseEntity<>(new ResponseMessage(409,"이미 등록된 강의"), HttpStatus.CONFLICT);
-//        }
-//
-//        Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-//        lecture.setUser(user);
-//        lectureService.saveLecture(lecture);
-//        lectureService.manageHashtag(hashtags, lecture);
-//        return new ResponseEntity<>(new ResponseMessage(201, "강의가 등록되었습니다.", lecture), HttpStatus.CREATED);
-//    }
-
-    // 관리자용 강의 등록
-    @PostMapping("")
-    public ResponseEntity<ResponseMessage> createLecture(Principal principal) throws IOException, InvalidFormatException {
-        // 현재 로그인한 사용자 아이디 가져오기
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        if(user == null)
-            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        if(!user.getRole().equals("ADMIN")) // 관리자 유저가 아닌경우
-            return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
-
-        OPCPackage opcPackage = OPCPackage.open("C:\\Users\\Windows10\\Documents\\카카오톡 받은 파일\\강의_크롤링.xlsx");
-        XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-        Sheet worksheet = workbook.getSheetAt(0);
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows() - 20; i++) { // 4
-            Row row = worksheet.getRow(i);
-            String lectureUrl = row.getCell(0).getStringCellValue();
-            String lectureTitle = row.getCell(1).getStringCellValue();
-            String lecturer = row.getCell(2).getStringCellValue();
-            String siteName = row.getCell(3).getStringCellValue();
-            String thumbnailUrl = row.getCell(4).getStringCellValue();
-
-            // 강의에 들어갈 내용
-            String hashtags = row.getCell(5).getStringCellValue();
-            List<String> processedHashtags = List.of(hashtags.split(", "));
-            Lecture lecture = new Lecture(lectureTitle, lecturer, siteName, lectureUrl, thumbnailUrl);
-            lecture.setUser(user);
-            lectureService.manageHashtag(processedHashtags, lecture); // 강의를 생성할 때 해시태그를 넣어야 함
-            lectureService.saveLecture(lecture);
-        }
-        opcPackage.close();
-        return new ResponseEntity<>(new ResponseMessage(200, "강의가 등록되었습니다"), HttpStatus.OK);
     }
 
     // 강의 등록 요청
@@ -274,7 +247,7 @@ public class LectureController {
     }
 
     // 중복링크 찾기
-    @PostMapping("/urls")
+    @PostMapping("/url")
     public ResponseEntity<ResponseMessage> checkLectureUrl(@RequestBody HashMap<String, String> checkUrl){
         String lectureUrl = checkUrl.get("lectureUrl");
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lectureUrl);
