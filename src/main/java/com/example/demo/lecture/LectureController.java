@@ -176,7 +176,7 @@ public class LectureController {
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        String requestUrl = params.get("url");
+        String requestUrl = params.get("lectureUrl");
         // 이미 등록된 강의
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(requestUrl);
         if(lectureUrlResponse != null)
