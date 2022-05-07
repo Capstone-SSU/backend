@@ -176,7 +176,7 @@ public class LectureController {
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
-        String requestUrl = params.get("url");
+        String requestUrl = params.get("lectureUrl");
         // 이미 등록된 강의
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(requestUrl);
         if(lectureUrlResponse != null)
@@ -187,6 +187,21 @@ public class LectureController {
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록 요청된 강의입니다"), HttpStatus.CONFLICT);
         lectureService.saveRequestedLecture(requestUrl);
         return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다."), HttpStatus.CREATED);
+    }
+
+    // 리뷰 화면 들어간 경우
+    @GetMapping("/{lectureId}/reviews")
+    public ResponseEntity<ResponseMessage> createReviewWithLectureInfo(@PathVariable("lectureId") Long lectureId, Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        Lecture lecture = lectureService.findById(lectureId);
+        if(lecture==null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+        
+        String lectureUrl = lecture.getLectureUrl();
+        LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lectureUrl);
+
+        return new ResponseEntity<>(ResponseMessage.withData(200, "존재하는 강의", lectureUrlResponse), HttpStatus.OK);
     }
 
     // 강의에 들어가서 리뷰 다는 경우

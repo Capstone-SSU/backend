@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @Builder
 public class LectureUrlResponse {
+    private String lectureUrl;
     private String lectureTitle;
     private String lecturer;
     private String siteName;
@@ -18,6 +19,7 @@ public class LectureUrlResponse {
 
     public static LectureUrlResponse from(Lecture lecture){
         return LectureUrlResponse.builder()
+                .lectureUrl(lecture.getLectureUrl())
                 .lectureTitle(lecture.getLectureTitle())
                 .lecturer(lecture.getLecturer())
                 .siteName(lecture.getSiteName())
