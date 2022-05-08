@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -29,13 +30,20 @@ public class UserPreferenceHashtag {
     @Column(nullable = false)
     private Integer preference=1;
 
+    @Column(nullable = false)
+    private LocalDateTime lastLiked;
+
     @Builder
     public UserPreferenceHashtag(Hashtag hashtag, User user){
+        this.lastLiked=LocalDateTime.now();
         this.hashtag=hashtag;
         this.user=user;
     }
 
     public void updatePreference(int likeStatus){
+        if(likeStatus==1){
+            this.lastLiked=LocalDateTime.now();
+        }
         this.preference+=likeStatus;
     }
 }
