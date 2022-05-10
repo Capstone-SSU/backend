@@ -143,6 +143,7 @@ public class LectureService {
             DetailReviewResponse detailReviewResponse = DetailReviewResponse.from(reviews.get(i), lecture); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
             if(user.getUserId() == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
                 detailReviewResponse.setWriterStatus(true);
+            detailReviewResponses.add(detailReviewResponse);
         }
         detailLectureResponse.setReviews(detailReviewResponses);
         detailLectureResponse.setHashtags(this.getHashtags(lecture));

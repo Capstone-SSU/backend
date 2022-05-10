@@ -59,8 +59,6 @@ public class ReviewController {
 
         // 강의가 이미 존재하는 경우
         Review review = reviewService.findByUserAndLecture(user, existedLecture);
-        if(user.getReviewWriteStatus() == false) // 리뷰안썼다고 되어있으면 상태 변경
-            user.updateReviewStatus();
         if(review != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
             return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
 
@@ -69,6 +67,8 @@ public class ReviewController {
         review = new Review();
         review.setLectureReview(reviewPostDto, user, existedLecture);
         reviewService.saveReview(review); // 리뷰 저장
+        if(user.getReviewWriteStatus() == false) // 리뷰안썼다고 되어있으면 상태 변경
+            user.updateReviewStatus();
         lectureService.setAvgRate(existedLecture, review.getRate()); // 특정 강의의 평점 업뎃
         return new ResponseEntity<>(new ResponseMessage(201, "강의 리뷰가 등록되었습니다.", existedLecture), HttpStatus.CREATED);
     }
