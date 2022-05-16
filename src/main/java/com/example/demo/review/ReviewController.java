@@ -74,7 +74,7 @@ public class ReviewController {
     }
 
     @PatchMapping("/{reviewId}") // 리뷰 수정
-    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto, Principal principal) {
+    public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto) {
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
             reviewService.updateReview(reviewUpdateDto, reviewId);
