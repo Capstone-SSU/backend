@@ -118,34 +118,34 @@ public class LectureController {
     }
 
     // 관리자용 강의 수정
-    @PatchMapping("/{lectureId}")
-    public ResponseEntity<ResponseMessage> updateLecture(@PathVariable("lectureId") Long lectureId, @RequestBody LectureDto lectureDto, Principal principal) {
-        Lecture lecture = lectureService.findById(lectureId);
-        if(lecture != null) {
-//            lectureService.updateLecture(lectureDto, lectureId);
-            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
-    }
+//    @PatchMapping("/{lectureId}")
+//    public ResponseEntity<ResponseMessage> updateLecture(@PathVariable("lectureId") Long lectureId, @RequestBody LectureDto lectureDto, Principal principal) {
+//        Lecture lecture = lectureService.findById(lectureId);
+//        if(lecture != null) {
+////            lectureService.updateLecture(lectureDto, lectureId);
+//            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+//    }
 
     // 관리자용 강의 삭제
-    @DeleteMapping("/{lectureId}")
-    public ResponseEntity<ResponseMessage> deleteLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        Lecture lecture = lectureService.findById(lectureId);
-        if(lecture != null) {
-//            lectureService.deleteLecture(lectureId);
-            List<Review> reviews = reviewService.findAllReviewsByUser(user);
-            if(reviews.size() == 0) { // 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
-                user.updateReviewStatus();
-                user.setReadCount(0);
-            }
-            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
-    }
+//    @DeleteMapping("/{lectureId}")
+//    public ResponseEntity<ResponseMessage> deleteLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
+//        // 현재 로그인한 사용자 아이디 가져오기
+//        String email = principal.getName();
+//        User user = userDetailsService.findUserByEmail(email);
+//        Lecture lecture = lectureService.findById(lectureId);
+//        if(lecture != null) {
+////            lectureService.deleteLecture(lectureId);
+//            List<Review> reviews = reviewService.findAllReviewsByUser(user);
+//            if(reviews.size() == 0) { // 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
+//                user.updateReviewStatus();
+//                user.setReadCount(0);
+//            }
+//            return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
+//        }
+//        return new ResponseEntity<>(new ResponseMessage(200, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
+//    }
 
 
     // 전체 강의 글 조회 + 필터링 된 강의 글 조회

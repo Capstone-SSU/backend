@@ -11,12 +11,10 @@ import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
-import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -164,6 +162,7 @@ public class LectureService {
 //    public void updateLecture(LectureDto lectureDto, Long lectureId){
 //        lectureRepository.updateLecture(lectureDto, lectureId);
 //    }
+//
 //
 //    // 강의 삭제
 //    public void deleteLecture(Long lectureId){

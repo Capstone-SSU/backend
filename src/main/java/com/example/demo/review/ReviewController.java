@@ -77,7 +77,7 @@ public class ReviewController {
     public ResponseEntity<ResponseMessage> updateReview(@PathVariable("reviewId") Long reviewId, @RequestBody ReviewPostDto reviewUpdateDto) {
         Review review = reviewService.findByReviewId(reviewId);
         if(review != null) {
-            reviewService.updateReview(reviewUpdateDto, reviewId);
+            reviewService.updateReview(reviewUpdateDto, review);
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 수정 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의 리뷰"), HttpStatus.NOT_FOUND);
