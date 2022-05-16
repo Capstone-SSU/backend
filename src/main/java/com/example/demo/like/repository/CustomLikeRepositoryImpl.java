@@ -68,7 +68,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .select(like.roadmapGroup) // 로드맵 그룹만 뽑아가기
                 .from(like)
                 .where(like.user.eq(user), like.likeStatus.eq(1))
-                .where(like.roadmapGroup.isNotNull())
+                .where(like.roadmapGroup.isNotNull(),like.roadmapGroup.roadmapGroupStatus.eq(1))
                 .fetch();
     }
 
@@ -78,7 +78,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
                 .select(like.studyPost) // 강의만 뽑아가기
                 .from(like)
                 .where(like.user.eq(user), like.likeStatus.eq(1))
-                .where(like.studyPost.isNotNull())
+                .where(like.studyPost.isNotNull(),like.studyPost.studyStatus.eq(1))
                 .fetch();
     }
 
