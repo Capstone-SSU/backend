@@ -1,6 +1,7 @@
 package com.example.demo.lecture.repository;
 
 import com.example.demo.lecture.Lecture;
+import com.example.demo.lecture.dto.LectureDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,5 +20,7 @@ public interface LectureRepository extends JpaRepository<Lecture, Long>, JpaSpec
 //    Page<Lecture> findAll(Pageable pageable);
     // findAll()에 Pageable 인터페이스로 파라미터를 넘기면 페이징 사용 가능
 
+    void updateLecture(LectureDto lectureDto);
+    void deleteLecture(Long lectureId);
     Page<Lecture> findAll(@Nullable Specification<Lecture> spec, Pageable pageable);
 }

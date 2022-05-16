@@ -1,10 +1,7 @@
 package com.example.demo.lecture;
 
 import com.example.demo.hashtag.repository.HashtagRepository;
-import com.example.demo.lecture.dto.AllLecturesResponse;
-import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.lecture.dto.LectureUrlResponse;
-import com.example.demo.lecture.dto.RecLecturesResponse;
+import com.example.demo.lecture.dto.*;
 import com.example.demo.lecture.repository.LectureSpecification;
 import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.lectureHashtag.LectureHashtag;
@@ -14,6 +11,7 @@ import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.user.User;
@@ -161,6 +159,17 @@ public class LectureService {
         Lecture savedLecture = lectureRepository.save(lecture);
         return savedLecture.getLectureId();
     }
+
+    // 강의 수정
+//    public void updateLecture(LectureDto lectureDto, Long lectureId){
+//        lectureRepository.updateLecture(lectureDto, lectureId);
+//    }
+//
+//    // 강의 삭제
+//    public void deleteLecture(Long lectureId){
+//        lectureRepository.deleteLecture(lectureId);
+//    }
+
 
     // 강의 요청 url 등록
     public void saveRequestedLecture(String url){

@@ -19,5 +19,6 @@ public class LectureDto {
     private String lectureTitle;
     private String lecturer;
     private String siteName;
+    private String thumbnailUrl;
     private List<String> hashtags;
 }

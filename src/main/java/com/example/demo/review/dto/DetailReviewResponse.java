@@ -22,7 +22,7 @@ public class DetailReviewResponse {
 
     public static DetailReviewResponse from(Review review, Lecture lecture){
         return DetailReviewResponse.builder()
-                .nickname(lecture.getUser().getUserNickname())
+                .nickname(review.getUser().getUserNickname())
                 .reviewId(review.getReviewId())
                 .rate(review.getRate())
                 .commentTitle(review.getCommentTitle())
