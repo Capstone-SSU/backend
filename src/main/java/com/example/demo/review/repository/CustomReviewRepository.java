@@ -10,4 +10,5 @@ public interface CustomReviewRepository {
     void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId);
     void deleteReview(Long reviewId);
     List<Review> findByLecture(Lecture lecture);
+    void deleteReviews(Lecture lecture);
 }

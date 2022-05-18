@@ -37,6 +37,10 @@ public class ReviewService {
         return reviews;
     }
 
+    public void deleteReviews(Lecture lecture){
+        reviewRepository.deleteReviews(lecture);
+    }
+
     public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
         int originalRate = review.getRate();
         int newRate = reviewUpdateDto.getRate();

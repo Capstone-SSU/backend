@@ -44,9 +44,9 @@ public class LectureService {
             ’키워드(해시)’
         */
         List<RecLecturesResponse> recLectures = new ArrayList<>();
-        Page<AllLecturesResponse> lectures = this.getLectures(pageable); // 전체글에서 필터링해보기
-        for (int i = 0; i < lectures.getContent().size(); i++) {
-            Long lectureId = lectures.getContent().get(i).getLectureId();
+        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
+        for (int i = 0; i < lectures.size(); i++) {
+            Long lectureId = lectures.get(i).getLectureId();
             Lecture lecture = findById(lectureId);
             RecLecturesResponse recLecturesResponse = RecLecturesResponse.from(lecture);
             recLecturesResponse.setHashtags(this.getHashtags(lecture));
@@ -55,14 +55,25 @@ public class LectureService {
         return recLectures;
     }
 
-    // 전체 강의 조회
-    public Page<AllLecturesResponse> getLectures(Pageable pageable) {
+    // 전체 강의 조회 (페이지네이션)
+    public Page<AllLecturesResponse> getLecturesByPage(Pageable pageable) {
         return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
+    }
+
+    // 전체 강의 조회
+    public List<AllLecturesResponse> getLectures(){
+        return lectureRepository
+                .findAll()
+                .stream()
+                .map(AllLecturesResponse::from)
+                .collect(Collectors.toList());
     }
 
     // 검색어별 조회
     public List<AllLecturesResponse> getFilteredLectures(Pageable pageable, String keyword, String category) {
-        List<AllLecturesResponse> lectures = new ArrayList<>();
+        List<AllLecturesResponse> lectures = new ArrayList<>(); // 반환하는 값
+        List<Lecture> allLectures = lectureRepository.findAll(); // 전체 lecture list
+
         if (keyword != null) { // 검색어(키워드)만 있는 경우
             String[] keywords = keyword.split(" "); // 검색어(키워드)에 공백있는 경우
             for (int i = 0; i < keywords.length; i++) {
@@ -70,17 +81,18 @@ public class LectureService {
                 lectures.addAll(lectureRepository.findAll(LectureSpecification.titleLike(word), pageable).map(AllLecturesResponse::from).getContent());
             }
         }
+
         if(category!=null){ // 카테고리(해시태그)만 있는 경우
             List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
-            lectures.addAll(this.getLectures(pageable).getContent());
-            for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
-                Lecture lecture = this.findById(lectures.get(i).getLectureId());
-                List<String> hashtags = this.getHashtags(lecture);
+//            lectureRepository.findByHashtag(categories);
+            for(int i=0;i<allLectures.size();i++) { // 강의 전체를 돌면서
+                Lecture lecture = this.findById(allLectures.get(i).getLectureId());
+                List<String> hashtags = this.getHashtags(lecture); // 해당강의의 해시태그 가져오기
                 List<String> finalList = hashtags.stream()
                         .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
                         .collect(Collectors.toList());
-                if(finalList.isEmpty()) { // 포함되는게 없는 것은 빼기
-                    lectures.remove(i--); // remove 할 때 인덱스도 같이 줄여줌
+                if(!finalList.isEmpty()) { // 포함되는게 있는 것만 추가
+                    lectures.add(AllLecturesResponse.from(lecture));
                 }
             }
         }
@@ -159,15 +171,14 @@ public class LectureService {
     }
 
     // 강의 수정
-//    public void updateLecture(LectureDto lectureDto, Long lectureId){
-//        lectureRepository.updateLecture(lectureDto, lectureId);
-//    }
-//
-//
-//    // 강의 삭제
-//    public void deleteLecture(Long lectureId){
-//        lectureRepository.deleteLecture(lectureId);
-//    }
+    public void updateLecture(LectureDto lectureDto, Long lectureId){
+        lectureRepository.updateLecture(lectureDto, lectureId);
+    }
+
+    // 강의 삭제
+    public void deleteLecture(Long lectureId){
+        lectureRepository.deleteLecture(lectureId);
+    }
 
 
     // 강의 요청 url 등록

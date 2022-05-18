@@ -36,6 +36,15 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
     }
 
     @Override
+    public void deleteReviews(Lecture lecture) {
+        jpaQueryFactory
+                .update(review)
+                .set(review.reviewStatus, 0)
+                .where(review.lecture.eq(lecture))
+                .execute();
+    }
+
+    @Override
     public List<Review> findByLecture(Lecture lecture) {
         return jpaQueryFactory
                 .selectFrom(review)
