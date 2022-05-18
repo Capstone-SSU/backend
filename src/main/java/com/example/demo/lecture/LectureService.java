@@ -1,10 +1,7 @@
 package com.example.demo.lecture;
 
 import com.example.demo.hashtag.repository.HashtagRepository;
-import com.example.demo.lecture.dto.AllLecturesResponse;
-import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.lecture.dto.LectureUrlResponse;
-import com.example.demo.lecture.dto.RecLecturesResponse;
+import com.example.demo.lecture.dto.*;
 import com.example.demo.lecture.repository.LectureSpecification;
 import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.lectureHashtag.LectureHashtag;
@@ -18,7 +15,6 @@ import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -67,9 +63,8 @@ public class LectureService {
     // 검색어별 조회
     public List<AllLecturesResponse> getFilteredLectures(Pageable pageable, String keyword, String category) {
         List<AllLecturesResponse> lectures = new ArrayList<>();
-
-        if (keyword != null) { // 키워드만 있는 경우
-            String[] keywords = keyword.split(" ");
+        if (keyword != null) { // 검색어(키워드)만 있는 경우
+            String[] keywords = keyword.split(" "); // 검색어(키워드)에 공백있는 경우
             for (int i = 0; i < keywords.length; i++) {
                 String word = keywords[i];
                 lectures.addAll(lectureRepository.findAll(LectureSpecification.titleLike(word), pageable).map(AllLecturesResponse::from).getContent());
@@ -77,7 +72,7 @@ public class LectureService {
         }
         if(category!=null){ // 카테고리(해시태그)만 있는 경우
             List<String> categories = Arrays.asList(category.split(",")); // 카테고리 받아온거
-            lectures = this.getLectures(pageable).getContent();
+            lectures.addAll(this.getLectures(pageable).getContent());
             for(int i=0;i<lectures.size();i++) { // 강의 전체를 돌면서
                 Lecture lecture = this.findById(lectures.get(i).getLectureId());
                 List<String> hashtags = this.getHashtags(lecture);
@@ -162,6 +157,18 @@ public class LectureService {
         Lecture savedLecture = lectureRepository.save(lecture);
         return savedLecture.getLectureId();
     }
+
+    // 강의 수정
+//    public void updateLecture(LectureDto lectureDto, Long lectureId){
+//        lectureRepository.updateLecture(lectureDto, lectureId);
+//    }
+//
+//
+//    // 강의 삭제
+//    public void deleteLecture(Long lectureId){
+//        lectureRepository.deleteLecture(lectureId);
+//    }
+
 
     // 강의 요청 url 등록
     public void saveRequestedLecture(String url){

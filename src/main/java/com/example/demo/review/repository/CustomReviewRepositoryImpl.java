@@ -21,6 +21,7 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
                 .update(review)
                 .set(review.commentTitle, reviewUpdateDto.getCommentTitle())
                 .set(review.comment, reviewUpdateDto.getComment())
+                .set(review.rate, reviewUpdateDto.getRate())
                 .where(review.reviewId.eq(reviewId))
                 .execute();
     }

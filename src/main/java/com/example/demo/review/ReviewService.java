@@ -32,8 +32,19 @@ public class ReviewService {
         return review.orElse(null);
     }
 
-    public void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId){
-        reviewRepository.updateReview(reviewUpdateDto, reviewId);
+    public List<Review> findByLecture(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        return reviews;
+    }
+
+    public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
+        int originalRate = review.getRate();
+        int newRate = reviewUpdateDto.getRate();
+        reviewRepository.updateReview(reviewUpdateDto, review.getReviewId());
+        Lecture lecture = review.getLecture();
+        List<Review> reviews = findByLecture(lecture);
+        double newAvgRate = lecture.getAvgRate() - Math.round((double)(originalRate-newRate)/reviews.size()*10)/10.0;
+        lecture.setAvgRate(newAvgRate);
     }
 
     public void deleteReview(Long reviewId){
