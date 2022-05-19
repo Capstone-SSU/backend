@@ -127,6 +127,25 @@ public class RoadmapGroupService {
         return roadmapsResponses;
     }
 
+    public List<AllRoadmapsResponse> getAllResponseWithoutPage(){
+        List<RoadMapGroup> groups = roadmapGroupRepository.findAll(RoadmapSpecification.getExistingRoadmap()); //findAll 에 specification 포함시키기
+        List<AllRoadmapsResponse> roadmapsResponses=new ArrayList<>();
+        for(RoadMapGroup group:groups){
+            roadmapsResponses.add(getAllRoadmapsResponse(group));
+        }
+        return roadmapsResponses;
+    }
+
+    public List<AllRoadmapsResponse> getAllResponseWithFilterWithoutPage(String keyword){
+        String[] keywords=keyword.split(" ");
+        List<RoadMapGroup> roadMapGroups = roadmapGroupRepository.findAll(RoadmapSpecification.getRoadmapByFilter(keywords));
+        List<AllRoadmapsResponse> responseGroups=new ArrayList<>();
+        for(RoadMapGroup group:roadMapGroups){
+            responseGroups.add(getAllRoadmapsResponse(group));
+        }
+        return responseGroups;
+    }
+
 
 
 }
