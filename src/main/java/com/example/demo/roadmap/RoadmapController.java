@@ -35,7 +35,7 @@ public class RoadmapController {
     private final ReviewService reviewService;
     private final LikeService likeService;
 
-    @GetMapping("/roadmaps")
+    @GetMapping("/roadmaps/paging")
     public ResponseEntity<ResponseMessage> getAllRoadmaps(@RequestParam(required = false) String keyword,
                                                           @PageableDefault(size = 3,sort = "roadmapGroupId", direction = Sort.Direction.DESC) Pageable pageable){
         List<RoadMapGroup> allRoadmaps=roadmapGroupService.getAllRoadmapGroups();
@@ -47,6 +47,23 @@ public class RoadmapController {
         }
 
         List<AllRoadmapsResponse> filteredRoadmaps=roadmapGroupService.getAllRoadmapGroupsWithFilter(keyword,pageable);
+        if(filteredRoadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 로드맵이 없습니다."),HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ResponseMessage.withData(200,"조건에 맞는 로드맵 조회 성공",filteredRoadmaps),HttpStatus.OK);
+    }
+
+    @GetMapping("/roadmaps")
+    public ResponseEntity<ResponseMessage> getAllRoadmapsNoPage(@RequestParam(required = false) String keyword){
+        List<RoadMapGroup> allRoadmaps=roadmapGroupService.getAllRoadmapGroups();
+        if(allRoadmaps.isEmpty()){
+            return new ResponseEntity<>(new ResponseMessage(200,"등록된 로드맵이 없습니다."),HttpStatus.OK);
+        }
+        if(keyword==null){
+            return new ResponseEntity<>(ResponseMessage.withData(200,"전체 로드맵 조회 성공",roadmapGroupService.getAllResponseWithoutPage()), HttpStatus.OK);
+        }
+
+        List<AllRoadmapsResponse> filteredRoadmaps=roadmapGroupService.getAllResponseWithFilterWithoutPage(keyword);
         if(filteredRoadmaps.isEmpty()){
             return new ResponseEntity<>(new ResponseMessage(200,"조건에 맞는 로드맵이 없습니다."),HttpStatus.OK);
         }
