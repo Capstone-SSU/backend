@@ -182,7 +182,7 @@ public class LectureController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String category) {
         if (keyword == null && category == null) { // 모든 강의 조회
-            Page<AllLecturesResponse> lectures = lectureService.getLecturesByPage(pageable);
+            List<AllLecturesResponse> lectures = lectureService.getLectures();
             return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures), HttpStatus.OK);
 
 //            return new ResponseEntity<>(ResponseMessage.withData(200, "모든 강의를 조회했습니다", lectures.getContent()), HttpStatus.OK);

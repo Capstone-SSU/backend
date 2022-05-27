@@ -4,9 +4,11 @@ import com.example.demo.review.Review;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import com.example.demo.user.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.demo.review.QReview.review;
 
@@ -51,5 +53,15 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
                 .where(review.reviewStatus.eq(1))
                 .where(review.lecture.eq(lecture))
                 .fetch();
+    }
+
+    @Override
+    public Optional<Review> findByUserAndLecture(User user, Lecture lecture) {
+        return jpaQueryFactory
+                .selectFrom(review)
+                .where(review.reviewStatus.eq(1))
+                .where(review.lecture.eq(lecture))
+                .where(review.user.eq(user))
+                .stream().findFirst();
     }
 }

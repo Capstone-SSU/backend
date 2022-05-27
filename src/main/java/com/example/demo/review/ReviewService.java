@@ -27,7 +27,7 @@ public class ReviewService {
         return review.orElse(null);
     }
 
-    public Review findByUserAndLecture(User user, Lecture lecture){ // fk 로 접근할 때 객체로 넘기자
+    public Optional<Review> findByUserAndLecture(User user, Lecture lecture){ // fk 로 접근할 때 객체로 넘기자
         Optional<Review> review = reviewRepository.findByUserAndLecture(user, lecture);
         return review.orElse(null);
     }
@@ -56,7 +56,7 @@ public class ReviewService {
     }
 
     public List<Review> findAllReviewsByUser(User user){
-        List<Review> reviews=reviewRepository.findByUser(user);
+        List<Review> reviews = reviewRepository.findByUser(user);
         reviews.removeIf(review -> review.getReviewStatus() == 0);
         return reviews;
     }
