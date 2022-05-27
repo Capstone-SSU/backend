@@ -42,11 +42,7 @@ public class MyPageService {
 
     // 회원정보 수정 페이지 조회
     public InfoResponse getProfile(User user){
-        String email = user.getUserEmail();
-        String nickname = user.getUserNickname();
-        String profileImage = user.getUserProfileImg();
-        String githubName = user.getGithubUrlName();
-        InfoResponse myInfoResponse = new InfoResponse(email, nickname, profileImage, githubName);
+        InfoResponse myInfoResponse = InfoResponse.from(user);
         return myInfoResponse;
     }
 

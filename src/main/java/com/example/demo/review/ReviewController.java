@@ -58,7 +58,7 @@ public class ReviewController {
         }
 
         // 강의가 이미 존재하는 경우
-        Optional<Review> existedReview = reviewService.findByUserAndLecture(user, existedLecture);
+        Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
         if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
             return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
 

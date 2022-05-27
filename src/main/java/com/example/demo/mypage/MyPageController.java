@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -76,8 +77,9 @@ public class MyPageController {
                 return new ResponseEntity<>(new ResponseMessage(401,"입력한 비번이 맞지 않음"),HttpStatus.UNAUTHORIZED);
         }
 
+        MultipartFile imageUrl = myInfoEditDto.getUserProfileImg();
         String url="";
-        if(myInfoEditDto.getUserProfileImg()!=null) // 프로필 사진 수정한 경우
+        if(imageUrl != null) // 프로필 사진 수정한 경우
             url = imageService.uploadFile(myInfoEditDto.getUserProfileImg());
         url = (url=="") ? user.getUserProfileImg() : url; // 새로운 이미지가 아니면 원래 프로필 이미지 넣기
         myPageService.editProfile(myInfoEditDto, user, url);

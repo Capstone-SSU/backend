@@ -55,17 +55,17 @@ public class Lecture {
     private Double avgRate=0.0;
 
     // lecture : review = 1:N
-    @OneToMany(mappedBy = "lecture", targetEntity = Review.class)
+    @OneToMany(mappedBy = "lecture", targetEntity = Review.class, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Review> reviews =new ArrayList<>();
 
     // lecture : like = 1:N
-    @OneToMany( mappedBy = "lecture", targetEntity = Like.class)
+    @OneToMany( mappedBy = "lecture", targetEntity = Like.class, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Like> likes =new ArrayList<>();
 
     // lecture : lecture_hashtag = 1:N
-    @OneToMany( mappedBy = "lecture", targetEntity = LectureHashtag.class)
+    @OneToMany( mappedBy = "lecture", targetEntity = LectureHashtag.class, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<LectureHashtag> lectureHashtags =new ArrayList<>();
 
