@@ -167,12 +167,12 @@ public class UserController {
     public ResponseEntity<ResponseMessage> checkCompanyEmailCertificate(@PathVariable Long userId, @RequestBody CompanyCertificateDto companyCertificateDto){
         CompanyNameKey nameAndKey = companyKey.get(userId);
         if(nameAndKey==null){
-            return new ResponseEntity<>(new ResponseMessage(400,"인증메일을 재전송 해주세요."),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(404,"인증메일을 다시 요청해주세요"),HttpStatus.OK);
         }
         Integer userInput=companyCertificateDto.getCertificateNumber();
         String success=userService.certificateCompanyNumber(userId,userInput,nameAndKey);
         if(success.equals("fail")){
-            return new ResponseEntity<>(new ResponseMessage(400,"잘못된 인증번호를 입력하셨습니다."),HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(200,"잘못된 인증번호를 입력하셨습니다."),HttpStatus.OK);
         }
         companyKey.remove(userId); //인증번호 매칭이 성공했을 경우에는 저장된 로컬에 저장된 정보 삭제
         return new ResponseEntity<>(new ResponseMessage(201," 사용자 소속 등록 성공, "+success),HttpStatus.OK);
