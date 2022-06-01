@@ -1,6 +1,5 @@
 package com.example.demo.roadmap.service;
 
-import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
 import com.example.demo.review.Review;
@@ -10,12 +9,11 @@ import com.example.demo.roadmap.dto.AllRoadmapsResponse;
 import com.example.demo.roadmap.dto.DetailRoadmapResponse;
 import com.example.demo.roadmap.repository.RoadmapGroupRepository;
 import com.example.demo.roadmap.repository.RoadmapSpecification;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

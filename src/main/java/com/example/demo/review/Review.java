@@ -1,10 +1,9 @@
 package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
-import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.report.Report;
 import com.example.demo.review.dto.ReviewPostDto;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

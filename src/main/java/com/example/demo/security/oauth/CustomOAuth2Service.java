@@ -1,6 +1,6 @@
 package com.example.demo.security.oauth;
 
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.UserDetailsServiceImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

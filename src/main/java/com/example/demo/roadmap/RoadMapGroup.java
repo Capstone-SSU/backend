@@ -1,7 +1,7 @@
 package com.example.demo.roadmap;
 
 import com.example.demo.like.Like;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;

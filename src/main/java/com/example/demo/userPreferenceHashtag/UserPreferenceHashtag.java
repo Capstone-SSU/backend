@@ -1,7 +1,7 @@
 package com.example.demo.userPreferenceHashtag;
 
 import com.example.demo.hashtag.Hashtag;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

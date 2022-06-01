@@ -1,7 +1,10 @@
 package com.example.demo.user;
 
 import com.example.demo.security.CustomUserDetails;
+import com.example.demo.user.domain.Company;
+import com.example.demo.user.domain.User;
 import com.example.demo.user.dto.CompanyNameKey;
+import com.example.demo.user.repository.UserCompanyRepository;
 import com.example.demo.user.repository.UserRepository;
 import com.example.demo.security.jwt.JwtTokenProvider;
 import com.example.demo.user.dto.SimpleUserDto;
@@ -22,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 

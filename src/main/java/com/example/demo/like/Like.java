@@ -3,7 +3,7 @@ package com.example.demo.like;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;

@@ -2,10 +2,9 @@ package com.example.demo.like.repository;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.like.Like;
-import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 
 import java.util.List;
 

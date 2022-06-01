@@ -1,7 +1,6 @@
 package com.example.demo.security.jwt;
 
-import com.example.demo.user.Role;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
@@ -23,12 +22,12 @@ import java.util.UUID;
 @Component
 public class JwtTokenProvider {
 
-//    private String secretKey = "bea86c63ded6f54bb30b78ba21556739dadabcfa96b706187af38668c5ab65b7b0343e7a6b151a4146e4fe089fe3387151ac79e93300dd4064c8cd5ea99e971e";
     @Value("${auth.jwtSecret}")
     private  String secretKey;
 
 
-    private long tokenValidTime = 1000L * 60 * 60*10; // 위와 마찬가지
+    private long accessTokenValidTime = 1000L * 60 * 60; // accessToken 유효시간: 1시간
+    private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // refreshToken 유효시간: 7일
 
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -59,7 +58,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + tokenValidTime)) // set Expire Time
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
                 .signWith(Keys.hmacShaKeyFor(signKey), SignatureAlgorithm.HS512)
                 .setId(UUID.randomUUID().toString())
                 .setIssuer("PickIT")
