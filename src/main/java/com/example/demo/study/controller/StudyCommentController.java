@@ -3,7 +3,7 @@ package com.example.demo.study.controller;
 import com.example.demo.report.Report;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.study.dto.StudyCommentDto;
 import com.example.demo.user.UserDetailsServiceImpl;

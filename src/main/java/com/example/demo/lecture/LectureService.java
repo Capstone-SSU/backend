@@ -13,7 +13,7 @@ import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

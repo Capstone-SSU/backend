@@ -3,7 +3,7 @@ package com.example.demo.report;
 import com.example.demo.review.Review;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
 import lombok.Data;

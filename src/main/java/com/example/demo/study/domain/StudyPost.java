@@ -3,7 +3,7 @@ package com.example.demo.study.domain;
 
 import com.example.demo.like.Like;
 import com.example.demo.report.Report;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.study.dto.StudyPostDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

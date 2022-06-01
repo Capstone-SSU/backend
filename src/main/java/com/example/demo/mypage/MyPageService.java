@@ -1,7 +1,6 @@
 package com.example.demo.mypage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
-import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
@@ -13,7 +12,7 @@ import com.example.demo.roadmap.repository.RoadmapGroupRepository;
 import com.example.demo.roadmap.repository.RoadmapRepository;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.repository.StudyPostRepository;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -21,11 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.demo.lecture.QLecture.lecture;
 
 @Service
 @RequiredArgsConstructor
