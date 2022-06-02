@@ -1,8 +1,6 @@
 package com.example.demo.lecture.dto;
 
-import com.example.demo.lecture.Lecture;
 import io.swagger.annotations.ApiModel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

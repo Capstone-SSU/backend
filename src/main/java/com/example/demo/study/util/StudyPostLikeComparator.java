@@ -1,7 +1,5 @@
 package com.example.demo.study.util;
 
-import com.example.demo.study.util.StudyPostLikeCalc;
-
 import java.util.Comparator;
 import java.util.Objects;
 

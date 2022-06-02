@@ -1,10 +1,7 @@
 package com.example.demo.lecture.repository;
-import com.example.demo.hashtag.Hashtag;
-import com.example.demo.lecture.Lecture;
-import com.example.demo.lectureHashtag.LectureHashtag;
-import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import com.example.demo.lecture.Lecture;
+import org.springframework.data.jpa.domain.Specification;
 
 
 // Criteria 를 이용해서 검색 조건을 지정하는 코드가 메소드로 추상화된다.

@@ -1,12 +1,13 @@
 package com.example.demo.review;
+
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.report.Report;
+import com.example.demo.report.ReportService;
 import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.UserDetailsServiceImpl;
-import com.example.demo.report.ReportService;
 import com.example.demo.user.domain.User;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 @Api(tags = {"Review"})
 @RestController

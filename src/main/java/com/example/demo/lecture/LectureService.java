@@ -1,20 +1,19 @@
 package com.example.demo.lecture;
 
+import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.repository.HashtagRepository;
 import com.example.demo.lecture.dto.*;
+import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.lecture.repository.LectureSpecification;
 import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.lectureHashtag.LectureHashtag;
+import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
-import com.example.demo.mypage.dto.LikedLecturesResponse;
-import com.example.demo.review.dto.DetailReviewResponse;
-import com.example.demo.hashtag.Hashtag;
-import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.review.Review;
+import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.repository.ReviewRepository;
-import com.example.demo.lectureHashtag.LectureHashtagRepository;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +27,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
