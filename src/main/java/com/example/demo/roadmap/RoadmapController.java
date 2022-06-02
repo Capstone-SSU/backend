@@ -10,7 +10,7 @@ import com.example.demo.review.ReviewService;
 import com.example.demo.roadmap.dto.*;
 import com.example.demo.roadmap.service.RoadmapGroupService;
 import com.example.demo.roadmap.service.RoadmapService;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;

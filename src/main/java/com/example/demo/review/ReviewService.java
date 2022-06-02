@@ -2,13 +2,12 @@ package com.example.demo.review;
 
 import com.example.demo.lecture.Lecture;
 import com.example.demo.review.dto.ReviewPostDto;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 

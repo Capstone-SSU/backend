@@ -2,7 +2,7 @@ package com.example.demo.lecture;
 
 import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.review.Review;
 import com.fasterxml.jackson.annotation.*;
 import com.sun.istack.NotNull;

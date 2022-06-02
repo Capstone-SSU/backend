@@ -8,7 +8,7 @@ import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.roadmap.dto.DetailRoadmapLectureResponse;
 import com.example.demo.roadmap.repository.RoadmapRepository;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

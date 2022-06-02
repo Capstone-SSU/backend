@@ -1,17 +1,14 @@
 package com.example.demo.like;
 
 import com.example.demo.lecture.Lecture;
-import com.example.demo.like.Like;
-import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.like.repository.LikeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 

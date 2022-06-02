@@ -1,8 +1,7 @@
 package com.example.demo.roadmap.repository;
 
-import com.example.demo.roadmap.RoadMap;
 import com.example.demo.roadmap.RoadMapGroup;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.example.demo.roadmap.QRoadMap.roadMap;
 import static com.example.demo.roadmap.QRoadMapGroup.roadMapGroup;
 
 @Repository

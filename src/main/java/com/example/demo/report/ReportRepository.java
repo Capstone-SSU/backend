@@ -1,10 +1,9 @@
 package com.example.demo.report;
 
-import com.example.demo.report.Report;
 import com.example.demo.review.Review;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

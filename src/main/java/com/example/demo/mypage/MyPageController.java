@@ -3,7 +3,7 @@ import com.example.demo.dto.ResponseMessage;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.service.StudyPostService;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.example.demo.user.UserDetailsServiceImpl;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;

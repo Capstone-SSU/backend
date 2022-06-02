@@ -2,7 +2,7 @@ package com.example.demo.study.repository;
 
 import com.example.demo.mypage.dto.MyStudiesResponse;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;

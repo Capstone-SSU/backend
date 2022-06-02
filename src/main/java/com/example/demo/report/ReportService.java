@@ -1,11 +1,9 @@
 package com.example.demo.report;
 
-import com.example.demo.report.Report;
-import com.example.demo.report.ReportRepository;
 import com.example.demo.review.Review;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
