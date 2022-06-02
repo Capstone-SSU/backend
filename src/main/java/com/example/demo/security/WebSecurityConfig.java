@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 
+import com.example.demo.security.jwt.JwtAuthenticationEntryPoint;
 import com.example.demo.security.jwt.JwtAuthenticationFilter;
 import com.example.demo.security.jwt.JwtTokenProvider;
 import com.example.demo.security.oauth.CustomOAuth2Service;
@@ -25,12 +26,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtEntryPoint;
 
-    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, CustomSuccessHandler customSuccessHandler, JwtTokenProvider jwtTokenProvider) {
+    public WebSecurityConfig(@Lazy CustomOAuth2Service customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, CustomSuccessHandler customSuccessHandler, JwtTokenProvider jwtTokenProvider, JwtAuthenticationEntryPoint jwtEntryPoint) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customSuccessHandler = customSuccessHandler;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtEntryPoint = jwtEntryPoint;
     }
 
     //비밀번호 암호화를 위해 Spring Security에서 제공하는 모듈듈
@@ -69,6 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
             "/swagger-ui/**",
             "/lectures/admin", // 알고리즘 테스트용
             "/lectures/data", // 알고리즘 입력용
+            "/reissue" //이거 추가 왜 해야하는걸까,,,,의문
     };
 
     @Override
@@ -96,6 +100,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
 //                .defaultSuccessUrl("/nickname",true) // GetMapping의 /nickname으로 가서 깃허브 유저네임 중복 체크!
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtEntryPoint)
+                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 
