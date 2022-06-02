@@ -1,6 +1,9 @@
 package com.example.demo.user;
 
+import com.example.demo.security.AuthResponse;
 import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.RefreshTokenRepository;
+import com.example.demo.security.domain.RefreshToken;
 import com.example.demo.user.domain.Company;
 import com.example.demo.user.domain.User;
 import com.example.demo.user.dto.CompanyNameKey;
@@ -8,6 +11,7 @@ import com.example.demo.user.repository.UserCompanyRepository;
 import com.example.demo.user.repository.UserRepository;
 import com.example.demo.security.jwt.JwtTokenProvider;
 import com.example.demo.user.dto.SimpleUserDto;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.MailException;
@@ -24,7 +28,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -40,14 +46,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserCompanyRepository companyRepository;
     private final JavaMailSender javaMailSender;
     public static HashMap<Long, CompanyNameKey> companyKey=new HashMap<>();
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider, UserCompanyRepository companyRepository, JavaMailSender javaMailSender) {
+    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider, UserCompanyRepository companyRepository, JavaMailSender javaMailSender, RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.companyRepository = companyRepository;
         this.javaMailSender = javaMailSender;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public User findUserByEmail(String email){
@@ -83,25 +91,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.save(user).getUserId();
     }
 
-    public String authenticateLogin(String email, String pwd){
+    public AuthResponse authenticateLogin(String email, String pwd){
         User user=userRepository.findByUserEmail(email);
         if(user==null){
-            System.out.println("email match fail");
             return null;
         }
         if(user.getLoginProvider()==null&&!bCryptPasswordEncoder.matches(pwd,user.getUserPassword())){
-            System.out.println("pwd match fail");
-            //전달 파라미터가 암호화 되지 않은 비밀번호
             return null;
         }
 
         //Authentication Token 생성 (username, password) 사용
-        //여기서 username: 중복되지 않는 고유값 -> email로 대체하여 사용
+        //여기서 username: 중복되지 않는 고유값 -> email 로 대체하여 사용
         UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
         Authentication auth=authManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(auth);
-
-        return jwtTokenProvider.generateJwtToken(auth);
+        String refreshToken = jwtTokenProvider.createAndSaveRefreshToken(user);
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        return new AuthResponse(accessToken,user.getUserId(),refreshToken);
 
     }
 
@@ -172,5 +178,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new CustomUserDetails(user);
         //CustomUserDetails는 Authentication type으로 생각하는게 이해하기 쉬움
         //User Entity 정보와 authority 등 부가 정보 함께 가짐
+    }
+
+    public AuthResponse reissue(String refreshToken){
+        Claims claims = jwtTokenProvider.parseToken(refreshToken);
+        String email = (String) claims.get("email");
+        RefreshToken foundToken = refreshTokenRepository.findById(email).orElseThrow(NoSuchElementException::new);
+        if(refreshToken.equals(foundToken.getRefreshToken())) {
+            User user=this.findUserByEmail(email);
+            String newAccessToken=jwtTokenProvider.createAccessToken(user);
+            String newRefreshToken=reissueRefreshToken(refreshToken,user);
+            return new AuthResponse(newAccessToken,user.getUserId(),newRefreshToken);
+        }
+        throw new IllegalArgumentException("리프레시 토큰이 일치하지 않습니다.");
+    }
+
+    private String reissueRefreshToken(String refreshToken, User user) {
+        String newRefreshToken = null;
+        if(jwtTokenProvider.remainingTimeInToken(refreshToken)<1000L * 60 * 60 * 24 * 3){
+            newRefreshToken = jwtTokenProvider.createAndSaveRefreshToken(user);
+        }
+        return newRefreshToken;
+
     }
 }
