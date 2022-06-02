@@ -35,7 +35,7 @@ echo "> 배포 파일 경로 : $JAR_PATH"
 #     $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
 
 nohup java -jar $JAR_NAME \
-  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties > $REPOSITORY/nohup.out 2>&1 &
+  --spring.config.location=/home/ubuntu/app/src/main/resources/application.properties,  > $REPOSITORY/nohup.out 2>&1 &
   
 # nohup java -jar \
 #   -Dspring.config.location=/home/ubuntu/app/src/main/resources/application.properties \

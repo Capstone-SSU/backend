@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Api(tags = {"Review"})
 @RestController
@@ -49,7 +50,6 @@ public class ReviewController {
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
-        // LectureDto 까지 필요할까라는 생각이 드는데, 일단 넘어감
         String lectureUrl = reviewDto.getLectureUrl();
         Lecture existedLecture = lectureService.findByUrl(lectureUrl); // url 이 있는 경우
         if(existedLecture == null) { // 강의가 없어서 새로 등록하는 경우 -> 링크 확인 버튼 눌렀을 때 없는 경우면 강의 등록 요청하도록
@@ -57,13 +57,13 @@ public class ReviewController {
         }
 
         // 강의가 이미 존재하는 경우
-        Review review = reviewService.findByUserAndLecture(user, existedLecture);
-        if(review != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
+        Review existedReview = reviewService.findByUserAndLecture(user, existedLecture);
+        if(existedReview != null)   // 해당 유저가 이미 쓴 리뷰가 있다면
             return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
 
         ReviewPostDto reviewPostDto = new ReviewPostDto();
         BeanUtils.copyProperties(reviewDto, reviewPostDto, lectureUrl);
-        review = new Review();
+        Review review = new Review();
         review.setLectureReview(reviewPostDto, user, existedLecture);
         reviewService.saveReview(review); // 리뷰 저장
         if(user.getReviewWriteStatus() == false) // 리뷰안썼다고 되어있으면 상태 변경
@@ -84,7 +84,6 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}") // 리뷰 삭제
     public ResponseEntity<ResponseMessage> deleteReview(@PathVariable("reviewId") Long reviewId, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         Review review = reviewService.findByReviewId(reviewId);
@@ -93,7 +92,6 @@ public class ReviewController {
             List<Review> reviews = reviewService.findAllReviewsByUser(user);
             if(reviews.size() == 0) { // 삭제하고 나서 리뷰가 더이상 없는 경우 writeStatus 바꿔주기
                 user.updateReviewStatus();
-                user.setReadCount(0);
             }
             return new ResponseEntity<>(new ResponseMessage(200, "강의 리뷰 삭제 성공"), HttpStatus.OK);
         }
