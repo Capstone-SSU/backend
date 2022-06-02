@@ -1,13 +1,12 @@
 package com.example.demo.user.domain;
 
-import com.example.demo.like.Like;
 import com.example.demo.lecture.Lecture;
+import com.example.demo.like.Like;
 import com.example.demo.report.Report;
 import com.example.demo.review.Review;
 import com.example.demo.roadmap.RoadMapGroup;
 import com.example.demo.study.domain.StudyComment;
 import com.example.demo.study.domain.StudyPost;
-import com.example.demo.user.domain.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;

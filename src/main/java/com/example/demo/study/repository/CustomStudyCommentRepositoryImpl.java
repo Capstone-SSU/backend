@@ -1,8 +1,6 @@
 package com.example.demo.study.repository;
 
 import com.example.demo.study.domain.StudyComment;
-import com.example.demo.study.domain.StudyPost;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;

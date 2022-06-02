@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import static com.example.demo.lecture.QLecture.lecture;
-import static com.example.demo.review.QReview.review;
 
 @Repository
 @RequiredArgsConstructor

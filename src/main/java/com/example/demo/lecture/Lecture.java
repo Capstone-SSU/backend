@@ -2,9 +2,11 @@ package com.example.demo.lecture;
 
 import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
-import com.example.demo.user.domain.User;
 import com.example.demo.review.Review;
-import com.fasterxml.jackson.annotation.*;
+import com.example.demo.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Data;

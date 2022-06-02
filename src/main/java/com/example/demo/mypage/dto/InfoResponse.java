@@ -1,9 +1,6 @@
 package com.example.demo.mypage.dto;
 
-import com.example.demo.lecture.Lecture;
-import com.example.demo.review.Review;
-import com.example.demo.review.dto.DetailReviewResponse;
-import com.example.demo.user.User;
+import com.example.demo.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

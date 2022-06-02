@@ -1,11 +1,11 @@
 package com.example.demo.review.dto;
 
 import com.example.demo.lecture.Lecture;
-import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.review.Review;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Getter

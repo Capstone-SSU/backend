@@ -1,18 +1,17 @@
 package com.example.demo.lecture;
-import com.example.demo.dto.*;
+
+import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
-import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.review.Review;
-import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
-import com.example.demo.user.domain.Role;
+import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.user.UserDetailsServiceImpl;
+import com.example.demo.user.domain.Role;
 import com.example.demo.user.domain.User;
 import com.example.demo.userPreferenceHashtag.UserPreferenceHashtagService;
 import io.swagger.annotations.*;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -27,7 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
