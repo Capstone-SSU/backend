@@ -7,6 +7,7 @@ import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.lectureHashtag.LectureHashtag;
 import com.example.demo.like.Like;
 import com.example.demo.like.repository.LikeRepository;
+import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.lecture.repository.LectureRepository;
@@ -14,12 +15,19 @@ import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.lectureHashtag.LectureHashtagRepository;
 import com.example.demo.user.User;
+import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +43,7 @@ public class LectureService {
     private final LikeRepository likeRepository;
 
     // 추천용 강의 데이터 가공 함수
-    public List<RecLecturesResponse> manageRecommendData(Pageable pageable) {
+    public List<AllLecturesForRecommendResponse> manageAllData() {
         /*
             ’강의 번호’,
             ’강의 제목’,
@@ -43,17 +51,68 @@ public class LectureService {
             ’리뷰를 한 사용자의 수’,
             ’키워드(해시)’
         */
-        List<RecLecturesResponse> recLectures = new ArrayList<>();
-        List<AllLecturesResponse> lectures = this.getLectures(); // 전체글에서 필터링해보기
-        for (int i = 0; i < lectures.size(); i++) {
-            Long lectureId = lectures.get(i).getLectureId();
-            Lecture lecture = findById(lectureId);
-            RecLecturesResponse recLecturesResponse = RecLecturesResponse.from(lecture);
-            recLecturesResponse.setHashtags(this.getHashtags(lecture));
-            recLectures.add(recLecturesResponse);
-        }
-        return recLectures;
+        List<Lecture> lectures = lectureRepository.findAll();
+        return lectures
+                .stream()
+                .map(lecture -> AllLecturesForRecommendResponse.builder()
+                        .lectureId(lecture.getLectureId())
+                        .lectureTitle(lecture.getLectureTitle())
+                        .avgRate(lecture.getAvgRate())
+                        .reviewCnt(lecture.getReviews().size())
+                        .hashtags(this.getHashtags(lecture.getLectureId()))
+                        .build())
+                .collect(Collectors.toList());
     }
+
+    // 사용자가 좋아요한 강의 데이터 데이터 가공 함수
+    public List<LikedLecturesForRecommendResponse> manageLikedData(User user) {
+        /*
+            ’강의 번호’,
+            ’강의에 해당하는 해시태그'
+        */
+
+        List<Lecture> likedLectures = likeRepository.findLectureLikeByUser(user);
+        return likedLectures
+                .stream()
+                .map(lecture -> LikedLecturesForRecommendResponse.builder()
+                                .lectureId(lecture.getLectureId())
+                                .hashtags(this.getHashtags(lecture.getLectureId()))
+                                .build())
+                .collect(Collectors.toList());
+    }
+
+    public String sendData(List<AllLecturesForRecommendResponse> lecturesForRecommend) {
+        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
+        StringBuffer stringBuffer = new StringBuffer();
+        String sb = "";
+        try {
+            JSONObject reqParams = new JSONObject();
+            reqParams.put("data", lecturesForRecommend);
+            // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
+
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            //데이터 전송
+            OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
+            os.write(reqParams.toString());
+
+            os.flush();
+            // 전송된 결과를 읽어옴
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb = sb + line + "\n";
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "send ok";
+    }
+
 
     // 전체 강의 조회 (페이지네이션)
     public Page<AllLecturesResponse> getLecturesByPage(Pageable pageable) {
@@ -87,7 +146,7 @@ public class LectureService {
 //            lectureRepository.findByHashtag(categories);
             for(int i=0;i<allLectures.size();i++) { // 강의 전체를 돌면서
                 Lecture lecture = this.findById(allLectures.get(i).getLectureId());
-                List<String> hashtags = this.getHashtags(lecture); // 해당강의의 해시태그 가져오기
+                List<String> hashtags = this.getHashtags(lecture.getLectureId()); // 해당강의의 해시태그 가져오기
                 List<String> finalList = hashtags.stream()
                         .filter(element -> listContains(categories, element)) // 사용자가 원하는 카테고리에 해당 강의의 hashtag 중 하나라도 포함되어 있는 경우
                         .collect(Collectors.toList());
@@ -153,7 +212,7 @@ public class LectureService {
             detailReviewResponses.add(detailReviewResponse);
         }
         detailLectureResponse.setReviews(detailReviewResponses);
-        detailLectureResponse.setHashtags(this.getHashtags(lecture));
+        detailLectureResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
 
         // 좋아요 누른 여부
         Optional<Like> like = likeRepository.findLikeByLectureAndUser(lecture, user);
@@ -254,8 +313,8 @@ public class LectureService {
     }
 
     // 강의 해시태그 가져오기
-    public List<String> getHashtags(Lecture hashtagLecture){
-        Optional<Lecture> lecture = lectureRepository.findById(hashtagLecture.getLectureId());
+    public List<String> getHashtags(Long lectureId){
+        Optional<Lecture> lecture = lectureRepository.findById(lectureId);
         List<String> hashtags = new ArrayList<>(); // hashtag 담을 list 생성
         List<LectureHashtag> lectureHashtags = lectureHashtagRepository.findByLecture(lecture.get());
         for(int i=0;i<lectureHashtags.size();i++)
@@ -274,7 +333,7 @@ public class LectureService {
         Optional<Lecture> lecture = Optional.ofNullable(this.findByUrl(lectureUrl));
         if(lecture.isPresent()) {
             LectureUrlResponse lectureUrlResponse = LectureUrlResponse.from(lecture.get());
-            lectureUrlResponse.setHashtags(this.getHashtags(lecture.get()));
+            lectureUrlResponse.setHashtags(this.getHashtags(lecture.get().getLectureId()));
             return lectureUrlResponse;
         }
         else return null;

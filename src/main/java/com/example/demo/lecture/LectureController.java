@@ -3,6 +3,7 @@ import com.example.demo.dto.*;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
+import com.example.demo.mypage.dto.LikedLecturesResponse;
 import com.example.demo.review.Review;
 import com.example.demo.review.dto.ReviewPostDto;
 import com.example.demo.review.ReviewService;
@@ -10,15 +11,14 @@ import com.example.demo.user.Role;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.User;
 import com.example.demo.userPreferenceHashtag.UserPreferenceHashtagService;
-import com.nimbusds.jose.shaded.json.JSONObject;
 import io.swagger.annotations.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -28,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -46,39 +44,20 @@ public class LectureController {
     private final LikeService likeService;
     private final UserPreferenceHashtagService preferenceHashtagService;
 
-    // 추천 알고리즘 전송용 메소드
-    @PostMapping("/admin")
-    public String endDataForRecommend(Pageable pageable) {
-        List<RecLecturesResponse> recLectures = lectureService.manageRecommendData(pageable);
-        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
-        StringBuffer stringBuffer = new StringBuffer();
-        String sb = "";
-        try {
-            JSONObject reqParams = new JSONObject();
-            reqParams.put("data", recLectures);
-            // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
+    // 추천 알고리즘 전송용 메소드 - 전체 강의 데이터에 대해서
+    @GetMapping("/recommend/all")
+    public ResponseEntity<ResponseMessage> sendDataForRecommendation() {
+        List<AllLecturesForRecommendResponse> recLectures = lectureService.manageAllData();
+        return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 모든 강의 데이터 전송 완료", recLectures), HttpStatus.OK);
+    }
 
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
-            //데이터 전송
-            OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
-            os.write(reqParams.toString());
-
-            os.flush();
-            // 전송된 결과를 읽어옴
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                sb = sb + line + "\n";
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "send ok";
+    // 추천 알고리즘 전송용 메소드 - 사용자가 좋아요한 강의 데이터에 대해서
+    @GetMapping("/recommend/liked")
+    public ResponseEntity<ResponseMessage> sendLikedData(Principal principal) {
+        String email = principal.getName();
+        User user = userDetailsService.findUserByEmail(email);
+        List<LikedLecturesForRecommendResponse> recLikedLectures = lectureService.manageLikedData(user);
+        return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 좋아요한 강의 데이터 강의 전송 완료", recLikedLectures), HttpStatus.OK);
     }
 
     // 관리자용 강의 등록
