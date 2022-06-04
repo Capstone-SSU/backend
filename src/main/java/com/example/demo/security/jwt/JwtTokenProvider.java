@@ -28,7 +28,7 @@ public class JwtTokenProvider {
     private  String secretKey;
 
 
-    private long accessTokenValidTime = 1000L * 60 * 3; // accessToken 유효시간: 1시간 (테스트용: 3분)
+    private long accessTokenValidTime = 1000L * 60 * 30; // accessToken 유효시간: 30분
     private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // refreshToken 유효시간: 7일
 
     private final UserDetailsServiceImpl userDetailsService;
