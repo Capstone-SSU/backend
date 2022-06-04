@@ -53,17 +53,16 @@ public class LectureService {
             ’리뷰를 한 사용자의 수’,
             ’키워드(해시)’
         */
-        List<Lecture> lectures = lectureRepository.findAll();
-        return lectures
+        List<AllLecturesForRecommendResponse> lectures = lectureRepository
+                .findAll()
                 .stream()
-                .map(lecture -> AllLecturesForRecommendResponse.builder()
-                        .lectureId(lecture.getLectureId())
-                        .lectureTitle(lecture.getLectureTitle())
-                        .avgRate(lecture.getAvgRate())
-                        .reviewCnt(lecture.getReviews().size())
-                        .hashtags(this.getHashtags(lecture.getLectureId()))
-                        .build())
+                .map(AllLecturesForRecommendResponse::from)
                 .collect(Collectors.toList());
+
+        lectures.forEach(lecture ->
+                lecture.setHashtags(this.getHashtags(lecture.getLectureId()))
+        );
+        return lectures;
     }
 
     // 사용자가 좋아요한 강의 데이터 데이터 가공 함수
@@ -73,14 +72,16 @@ public class LectureService {
             ’강의에 해당하는 해시태그'
         */
 
-        List<Lecture> likedLectures = likeRepository.findLectureLikeByUser(user);
-        return likedLectures
+        List<LikedLecturesForRecommendResponse> likedLectures = likeRepository
+                .findLectureLikeByUser(user)
                 .stream()
-                .map(lecture -> LikedLecturesForRecommendResponse.builder()
-                                .lectureId(lecture.getLectureId())
-                                .hashtags(this.getHashtags(lecture.getLectureId()))
-                                .build())
+                .map(LikedLecturesForRecommendResponse::from)
                 .collect(Collectors.toList());
+
+        likedLectures.forEach(lecture ->
+                lecture.setHashtags(this.getHashtags(lecture.getLectureId()))
+        );
+        return likedLectures;
     }
 
     public String sendData(List<AllLecturesForRecommendResponse> lecturesForRecommend) {
