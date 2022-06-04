@@ -2,7 +2,9 @@ package com.example.demo.user;
 
 import com.example.demo.security.AuthResponse;
 import com.example.demo.security.CustomUserDetails;
+import com.example.demo.security.LogoutTokenRepository;
 import com.example.demo.security.RefreshTokenRepository;
+import com.example.demo.security.domain.LogoutToken;
 import com.example.demo.security.domain.RefreshToken;
 import com.example.demo.user.domain.Company;
 import com.example.demo.user.domain.User;
@@ -28,7 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -47,8 +49,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final JavaMailSender javaMailSender;
     public static HashMap<Long, CompanyNameKey> companyKey=new HashMap<>();
     private final RefreshTokenRepository refreshTokenRepository;
+    private final LogoutTokenRepository logoutTokenRepository;
 
-    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider, UserCompanyRepository companyRepository, JavaMailSender javaMailSender, RefreshTokenRepository refreshTokenRepository) {
+    public UserDetailsServiceImpl(UserRepository userRepository, @Lazy AuthenticationManager authManager, @Lazy BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider, UserCompanyRepository companyRepository, JavaMailSender javaMailSender, RefreshTokenRepository refreshTokenRepository, LogoutTokenRepository logoutTokenRepository) {
         this.userRepository = userRepository;
         this.authManager=authManager;
         this.bCryptPasswordEncoder=bCryptPasswordEncoder;
@@ -56,6 +59,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.companyRepository = companyRepository;
         this.javaMailSender = javaMailSender;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.logoutTokenRepository = logoutTokenRepository;
     }
 
     public User findUserByEmail(String email){
@@ -102,9 +106,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         //Authentication Token 생성 (username, password) 사용
         //여기서 username: 중복되지 않는 고유값 -> email 로 대체하여 사용
-        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
-        Authentication auth=authManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+//        UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(email,pwd);
+//        Authentication auth=authManager.authenticate(authToken);
+//        SecurityContextHolder.getContext().setAuthentication(auth);
         String refreshToken = jwtTokenProvider.createAndSaveRefreshToken(user);
         String accessToken = jwtTokenProvider.createAccessToken(user);
         return new AuthResponse(accessToken,user.getUserId(),refreshToken);
@@ -183,14 +187,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public AuthResponse reissue(String refreshToken){
         Claims claims = jwtTokenProvider.parseToken(refreshToken);
         String email = (String) claims.get("email");
-        RefreshToken foundToken = refreshTokenRepository.findById(email).orElseThrow(NoSuchElementException::new);
+        RefreshToken foundToken = refreshTokenRepository.findById(email).orElse(null);
+        if(foundToken==null)
+            return null;
+
         if(refreshToken.equals(foundToken.getRefreshToken())) {
             User user=this.findUserByEmail(email);
             String newAccessToken=jwtTokenProvider.createAccessToken(user);
             String newRefreshToken=reissueRefreshToken(refreshToken,user);
             return new AuthResponse(newAccessToken,user.getUserId(),newRefreshToken);
         }
-        throw new IllegalArgumentException("리프레시 토큰이 일치하지 않습니다.");
+        return null;
     }
 
     private String reissueRefreshToken(String refreshToken, User user) {
@@ -199,6 +206,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             newRefreshToken = jwtTokenProvider.createAndSaveRefreshToken(user);
         }
         return newRefreshToken;
+
+    }
+
+    public void logout(String email, HttpServletRequest request){
+        String accessToken = jwtTokenProvider.getJwtTokenFromRequestHeader(request);
+        refreshTokenRepository.deleteById(email);
+        Long remainingTimeInToken = jwtTokenProvider.remainingTimeInToken(accessToken);
+        logoutTokenRepository.save(LogoutToken.of(accessToken,email,remainingTimeInToken));
 
     }
 }

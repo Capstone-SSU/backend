@@ -1,5 +1,6 @@
 package com.example.demo.security.jwt;
 
+import com.example.demo.security.LogoutTokenRepository;
 import com.example.demo.user.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -23,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtTokenProvider tokenProvider;
+    private final LogoutTokenRepository logoutTokenRepository;
 
 
     @Override
@@ -30,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token=tokenProvider.getJwtTokenFromRequestHeader(request);
         Jws<Claims> jws;
         if(token!=null){
+            checkLogout(token);
             jws= tokenProvider.validateToken(token);
             if(jws!=null){
                 String email=(String)jws.getBody().get("email");
@@ -40,5 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request,response);
+    }
+
+    private void checkLogout(String accessToken){
+        if(logoutTokenRepository.existsById(accessToken))
+            throw new IllegalArgumentException("로그아웃된 회원"); //401
     }
 }

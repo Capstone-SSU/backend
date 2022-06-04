@@ -103,6 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtEntryPoint)
                 .and()
+                .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 

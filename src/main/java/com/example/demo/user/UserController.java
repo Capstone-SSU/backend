@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.NoSuchElementException;
@@ -178,7 +179,20 @@ public class UserController {
 
     @PostMapping("/reissue")
     public ResponseEntity<AuthResponse> regenerateAccessToken(@RequestBody ReissueDto reissueDto){
-        return new ResponseEntity<>(userService.reissue(reissueDto.getRefreshToken()),HttpStatus.OK);
+        AuthResponse authResponse = userService.reissue(reissueDto.getRefreshToken());
+        if(authResponse==null){
+//            "사용 불가능한 리프레시 토큰에 대한 재발급 요청"
+            return new ResponseEntity<>(null,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(authResponse,HttpStatus.OK);
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(Principal principal, HttpServletRequest request){
+        String email = principal.getName();
+        userService.logout(email,request);
+        return new ResponseEntity<>("로그아웃 성공",HttpStatus.OK);
+
     }
 
 
