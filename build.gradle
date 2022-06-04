@@ -62,6 +62,10 @@ dependencies {
 	//smtp 사용 이메일 인증
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+	//redis 용 dependency
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("redis.clients:jedis:3.3.0")
+
 }
 
 tasks.named('test') {

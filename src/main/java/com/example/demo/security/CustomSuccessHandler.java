@@ -50,9 +50,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .build().expand(savedUserId).toUriString();
             //깃허브 닉네임 충돌 시: pick-it/nickname/userId -> userId 로 사용자 닉네임 수정해서 다시 요청해야함
         }else{
-            String token = tokenProvider.generateJwtToken(authentication);
-            String res=UriComponentsBuilder.fromUriString(targetUrl).path("github-login/{userId}/{token}")
-                    .buildAndExpand(savedUserId,token).toUriString();
+            String token = tokenProvider.createAccessToken(user);
+            String refreshToken = tokenProvider.createAndSaveRefreshToken(user);
+            String res=UriComponentsBuilder.fromUriString(targetUrl).path("github-login/{userId}/{token}/{refreshToken}")
+                    .buildAndExpand(savedUserId,token,refreshToken).toUriString();
             System.out.println(res);
             //로그인 성공시: github-login/userId/토큰
 //            res=targetUrl+"github-login/"+savedUserId;
