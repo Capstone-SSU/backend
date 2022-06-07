@@ -2,7 +2,10 @@ package com.example.demo.lecture;
 
 import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.repository.HashtagRepository;
-import com.example.demo.lecture.dto.*;
+import com.example.demo.lecture.dto.AllLecturesResponse;
+import com.example.demo.lecture.dto.DetailLectureResponse;
+import com.example.demo.lecture.dto.LectureDto;
+import com.example.demo.lecture.dto.LectureUrlResponse;
 import com.example.demo.lecture.repository.LectureRepository;
 import com.example.demo.lecture.repository.LectureSpecification;
 import com.example.demo.lecture.repository.RequestedLectureRepository;
@@ -14,19 +17,12 @@ import com.example.demo.review.Review;
 import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.user.domain.User;
-import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,79 +39,6 @@ public class LectureService {
     private final LectureHashtagRepository lectureHashtagRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
-
-    // 추천용 강의 데이터 가공 함수
-    public List<AllLecturesForRecommendResponse> manageAllData() {
-        /*
-            ’강의 번호’,
-            ’강의 제목’,
-            ’평점’,
-            ’리뷰를 한 사용자의 수’,
-            ’키워드(해시)’
-        */
-        List<AllLecturesForRecommendResponse> lectures = lectureRepository
-                .findAll()
-                .stream()
-                .map(AllLecturesForRecommendResponse::from)
-                .collect(Collectors.toList());
-
-        lectures.forEach(lecture ->
-                lecture.setHashtags(this.getHashtags(lecture.getLectureId()))
-        );
-        return lectures;
-    }
-
-    // 사용자가 좋아요한 강의 데이터 데이터 가공 함수
-    public List<LikedLecturesForRecommendResponse> manageLikedData(User user) {
-        /*
-            ’강의 번호’,
-            ’강의에 해당하는 해시태그'
-        */
-
-        List<LikedLecturesForRecommendResponse> likedLectures = likeRepository
-                .findLectureLikeByUser(user)
-                .stream()
-                .map(LikedLecturesForRecommendResponse::from)
-                .collect(Collectors.toList());
-
-        likedLectures.forEach(lecture ->
-                lecture.setHashtags(this.getHashtags(lecture.getLectureId()))
-        );
-        return likedLectures;
-    }
-
-    public String sendData(List<AllLecturesForRecommendResponse> lecturesForRecommend) {
-        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
-        StringBuffer stringBuffer = new StringBuffer();
-        String sb = "";
-        try {
-            JSONObject reqParams = new JSONObject();
-            reqParams.put("data", lecturesForRecommend);
-            // Java 에서 지원하는 HTTP 관련 기능을 지원하는 URLConnection
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setDoOutput(true); //Post인 경우 데이터를 OutputStream으로 넘겨 주겠다는 설정
-
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
-            //데이터 전송
-            OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
-            os.write(reqParams.toString());
-
-            os.flush();
-            // 전송된 결과를 읽어옴
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                sb = sb + line + "\n";
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "send ok";
-    }
-
 
     // 전체 강의 조회 (페이지네이션)
     public Page<AllLecturesResponse> getLecturesByPage(Pageable pageable) {

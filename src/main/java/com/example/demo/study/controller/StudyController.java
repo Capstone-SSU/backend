@@ -2,6 +2,7 @@ package com.example.demo.study.controller;
 
 import com.example.demo.dto.*;
 import com.example.demo.like.Like;
+import com.example.demo.like.RecommendService;
 import com.example.demo.report.Report;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.like.LikeService;
@@ -40,6 +41,8 @@ public class StudyController {
     private final ReportService reportService;
     private final LikeService likeService;
     private final StudyCommentService studyCommentService;
+    private final RecommendService recommendService;
+
     @PersistenceContext
     private final EntityManager em;
 
@@ -162,16 +165,18 @@ public class StudyController {
 
     @PostMapping("/studies/{studyId}/likes")
     public ResponseEntity<ResponseMessage> likeStudy(@PathVariable Long studyId,Principal principal){
-        StudyPost post=studyPostService.findStudyPostById(studyId);
         String userEmail=principal.getName();
         User user=userDetailsService.findUserByEmail(userEmail);
+
+        StudyPost post=studyPostService.findStudyPostById(studyId);
+        if(post == null) // 스터디가 없는 경우
+            return new ResponseEntity<>(new ResponseMessage(404, "해당하는 스터디가 없습니다"), HttpStatus.NOT_FOUND);
 
         Like like = likeService.findLikeByStudyPostandUser(post,user);
         if(like ==null){
             //최초 좋아요 등록
             like =new Like(user,post);
             likeService.saveLike(like);
-
             return new ResponseEntity<>(new ResponseMessage(201,studyId+"번 스터디글 좋아요 등록 성공"),HttpStatus.CREATED); // 아놕 왜 좋아요 누른 post 정보가 같이 안보내질까,,, 안보내줘도 되나??
         }else if(like.getLikeStatus()==0){
             //좋아요 누른 데이터가 있는데 좋아요가 취소된 상태라면 다시 좋아요 설정

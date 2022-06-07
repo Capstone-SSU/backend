@@ -4,6 +4,7 @@ import com.example.demo.dto.ResponseMessage;
 import com.example.demo.lecture.dto.*;
 import com.example.demo.like.Like;
 import com.example.demo.like.LikeService;
+import com.example.demo.like.RecommendService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
 import com.example.demo.review.dto.ReviewPostDto;
@@ -42,20 +43,20 @@ public class LectureController {
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
     private final UserPreferenceHashtagService preferenceHashtagService;
+    private final RecommendService recommendService;
 
     // 추천 알고리즘 전송용 메소드 - 전체 강의 데이터에 대해서
     @GetMapping("/recommend/all")
     public ResponseEntity<ResponseMessage> sendDataForRecommendation() {
-        List<AllLecturesForRecommendResponse> recLectures = lectureService.manageAllData();
+        List<AllLecturesForRecommendResponse> recLectures = recommendService.manageAllData();
         return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 모든 강의 데이터 전송 완료", recLectures), HttpStatus.OK);
     }
 
     // 추천 알고리즘 전송용 메소드 - 사용자가 좋아요한 강의 데이터에 대해서
-    @GetMapping("/recommend/liked")
-    public ResponseEntity<ResponseMessage> sendLikedData(Principal principal) {
-        String email = principal.getName();
-        User user = userDetailsService.findUserByEmail(email);
-        List<LikedLecturesForRecommendResponse> recLikedLectures = lectureService.manageLikedData(user);
+    @GetMapping("/recommend/liked/{userId}")
+    public ResponseEntity<ResponseMessage> sendLikedData(@PathVariable("userId") Long userId) {
+        User user = userDetailsService.findUserById(userId);
+        List<LikedLecturesForRecommendResponse> recLikedLectures = recommendService.manageLikedData(user);
         return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 좋아요한 강의 데이터 강의 전송 완료", recLikedLectures), HttpStatus.OK);
     }
 
@@ -270,11 +271,13 @@ public class LectureController {
                 if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
                     existedLike.changeLikeStatus(0);
                     preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,-1);
+                    recommendService.sendUserInfoAboutLike(user);
                     return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
                 }
                 else {
                     existedLike.changeLikeStatus(1);
                     preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
+                    recommendService.sendUserInfoAboutLike(user);
                     return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
                 }
             }
@@ -282,6 +285,7 @@ public class LectureController {
                 Like like = new Like(lecture, user);
                 likeService.saveLike(like);
                 preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
+                recommendService.sendUserInfoAboutLike(user);
                 return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
             }
         }
