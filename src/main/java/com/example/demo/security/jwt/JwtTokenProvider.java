@@ -1,5 +1,7 @@
 package com.example.demo.security.jwt;
 
+import com.example.demo.security.RefreshTokenRepository;
+import com.example.demo.security.domain.RefreshToken;
 import com.example.demo.user.domain.User;
 import com.example.demo.security.CustomUserDetails;
 import com.example.demo.user.UserDetailsServiceImpl;
@@ -26,22 +28,22 @@ public class JwtTokenProvider {
     private  String secretKey;
 
 
-    private long accessTokenValidTime = 1000L * 60 * 60; // accessToken 유효시간: 1시간
+    private long accessTokenValidTime = 1000L * 60 * 30; // accessToken 유효시간: 30분
     private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // refreshToken 유효시간: 7일
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtTokenProvider(@Lazy UserDetailsServiceImpl userDetailsService) {
+    public JwtTokenProvider(@Lazy UserDetailsServiceImpl userDetailsService, RefreshTokenRepository refreshTokenRepository) {
         this.userDetailsService = userDetailsService;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     // JWT 토큰 생성
-    public String generateJwtToken(Authentication auth) {
+    public String generateJwtToken(User user,String tokenType) {
+        //"ACCESS" or "REFRESH"
 //        System.out.println("token secret key: "+secretKey);
 
-        //authencitaion에서 로그인한 user의 정보 가져오기
-        CustomUserDetails customUserDetails=(CustomUserDetails) auth.getPrincipal();
-        User user=customUserDetails.getUser();
         Long userId=user.getUserId();
         String userEmail=user.getUserEmail();
         String userRole =user.getRole().name();
@@ -58,7 +60,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
+                .setExpiration(new Date(now.getTime() + (tokenType.equals("ACCESS")?accessTokenValidTime:refreshTokenValidTime))) // set Expire Time
                 .signWith(Keys.hmacShaKeyFor(signKey), SignatureAlgorithm.HS512)
                 .setId(UUID.randomUUID().toString())
                 .setIssuer("PickIT")
@@ -67,6 +69,16 @@ public class JwtTokenProvider {
                 .claim("userId",userId)
                 .claim("role",userRole)
                 .compact();
+    }
+
+    public String createAccessToken(User user){
+        return generateJwtToken(user,"ACCESS");
+    }
+
+    public String createAndSaveRefreshToken(User user){
+        String refreshToken=generateJwtToken(user,"REFRESH");
+        refreshTokenRepository.save(RefreshToken.generateRefreshToken(user.getUserEmail(),refreshToken,refreshTokenValidTime));
+        return refreshToken;
     }
 
     // 프론트에서 로그인 후 jwtToken받은 후, ['Authorization']="Bearer "+jwtToken 으로 axios header가 설정된 상태로 서버에 데이터 요청
@@ -96,6 +108,22 @@ public class JwtTokenProvider {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public Long remainingTimeInToken(String token){
+        Claims claims = this.parseToken(token);
+        Date now=new Date();
+        return claims.getExpiration().getTime()-now.getTime();
+
+    }
+
+    public Claims parseToken(String token){
+        byte[] signKey=secretKey.getBytes(StandardCharsets.UTF_8);
+        return Jwts.parserBuilder()
+                .setSigningKey(signKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
 }

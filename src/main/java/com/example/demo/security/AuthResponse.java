@@ -4,11 +4,13 @@ import lombok.Data;
 
 @Data
 public class AuthResponse {
-    private String jwtToken;
+    private String accessToken;
+    private String refreshToken;
     Long userId;
 
-    public AuthResponse(String jwtToken, Long id){
-        this.jwtToken=jwtToken;
+    public AuthResponse(String accessToken, Long id, String refreshToken){
+        this.accessToken=accessToken;
+        this.refreshToken=refreshToken;
         this.userId=id;
     }
 }
