@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -75,6 +77,7 @@ public class RecommendService {
     }
 
     public String sendData(String url, UserIdDto userIdDto) {
+        String sb = "";
         try {
             JSONObject reqParams = new JSONObject();
             reqParams.put("data", userIdDto);
@@ -89,8 +92,14 @@ public class RecommendService {
             //데이터 전송
             OutputStreamWriter os = new OutputStreamWriter(conn.getOutputStream());
             os.write(reqParams.toString());
-
             os.flush();
+
+            BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+            String line = null;
+
+            while ((line = br.readLine()) != null) {
+                sb = sb + line;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

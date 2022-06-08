@@ -135,9 +135,6 @@ public class LectureController {
         if(lecture != null) {
             lectureService.deleteLecture(lectureId);
             reviewService.deleteReviews(lecture); // 리뷰 다 삭제
-            List<Review> reviews = reviewService.findAllReviewsByUser(user);
-            if(reviews.size() == 0) // 리뷰작성여부도 false로 바꿈
-                user.setReviewWriteStatus(false);
             return new ResponseEntity<>(new ResponseMessage(200, "강의 삭제 성공"), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
