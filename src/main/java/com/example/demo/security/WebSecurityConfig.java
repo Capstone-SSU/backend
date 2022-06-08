@@ -72,7 +72,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
             "/swagger-ui/**",
             "/lectures/admin", // 알고리즘 테스트용
             "/lectures/data", // 알고리즘 입력용
-            "/reissue" //이거 추가 왜 해야하는걸까,,,,의문
+            "/reissue", //이거 추가 왜 해야하는걸까,,,,의문
+            "/hashtags/test"
     };
 
     @Override
