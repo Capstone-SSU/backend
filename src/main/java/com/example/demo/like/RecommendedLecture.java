@@ -22,7 +22,7 @@ public class RecommendedLecture {
 
     @Column
     @NotNull
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Lecture.class)
     @JoinColumn(name="lecture_id")
