@@ -7,7 +7,7 @@ import com.example.demo.like.LikeService;
 import com.example.demo.like.RecommendService;
 import com.example.demo.review.Review;
 import com.example.demo.review.ReviewService;
-import com.example.demo.review.dto.ReviewPostDto;
+import com.example.demo.review.dto.ReviewDto;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.domain.Role;
 import com.example.demo.user.domain.User;
@@ -222,38 +222,35 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> createReviewWithLectureInfo(@PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture==null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
         
-        String lectureUrl = lecture.getLectureUrl();
-        LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lectureUrl);
-
+        LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(lecture.getLectureUrl());
         return new ResponseEntity<>(ResponseMessage.withData(200, "존재하는 강의", lectureUrlResponse), HttpStatus.OK);
     }
 
     // 강의에 들어가서 리뷰 다는 경우
     @PostMapping("/{lectureId}/reviews")
-    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewPostDto reviewPostDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
+    public ResponseEntity<ResponseMessage> createReview(@RequestBody ReviewDto reviewDto, @PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
+        if(user == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+
         Lecture lecture = lectureService.findById(lectureId);
-        if(lecture!=null){ // 강의가 있는 경우
-            Review review = reviewService.findByUserAndLecture(user, lecture);
-            if(review == null) { // 리뷰 등록한 적 없는 경우
-                review = new Review();
-                review.setLectureReview(reviewPostDto, user, lecture); // 바꾸고싶음
-                reviewService.saveReview(review);
-                lectureService.setAvgRate(lecture, review.getRate()); // 특정 강의의 평점 업뎃
-                if(user.getReviewWriteStatus() == false) // 리뷰 등록했으면 status = true 로 변경
-                    user.updateReviewStatus();
-                return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
-            }
-            else
-                return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
-        }
-        else
+        if(lecture == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+
+        Review review = reviewService.findByUserAndLecture(user, lecture);
+        if(review != null)
+            return new ResponseEntity<>(new ResponseMessage(409, "리뷰 여러 번 업로드 불가"), HttpStatus.CONFLICT);
+
+        reviewService.saveReview(reviewDto, user, lecture);
+        return new ResponseEntity<>(new ResponseMessage(201, "강의 탭에서 리뷰 등록 성공"), HttpStatus.CREATED);
     }
 
     // 강의글 좋아요

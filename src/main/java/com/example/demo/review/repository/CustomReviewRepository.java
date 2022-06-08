@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomReviewRepository {
+    List<Review> findByUser(User user);
     void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId);
     void deleteReview(Long reviewId);
     List<Review> findByLecture(Lecture lecture);

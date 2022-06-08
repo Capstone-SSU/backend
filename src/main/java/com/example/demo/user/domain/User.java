@@ -117,7 +117,7 @@ public class User {
         this.userProfileImg=url;
     }
 
-    public void updateReviewStatus(){
+    public void updateReviewWriteStatus(){
         if(this.reviewWriteStatus == true)
             this.reviewWriteStatus = false;
         else

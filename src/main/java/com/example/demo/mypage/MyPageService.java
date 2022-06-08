@@ -1,9 +1,10 @@
 package com.example.demo.mypage;
+
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
+import com.example.demo.mypage.dto.*;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.roadmap.RoadMap;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -144,20 +146,11 @@ public class MyPageService {
     // 작성한 강의리뷰 조회
     public List<MyReviewsResponse> getMyReviews(User user){
         List<Review> reviews = reviewRepository.findByUser(user);
-        List<MyReviewsResponse> myReviews = new ArrayList<>();
-        for(int i=0;i<reviews.size();i++){
-            Review review = reviews.get(i);
-            Lecture lecture = review.getLecture();
-            long lectureId = lecture.getLectureId();
-            String thumbnailUrl = lecture.getThumbnailUrl();
-            String lectureTitle = lecture.getLectureTitle();
-            String commentTitle = review.getCommentTitle();
-            String comment = review.getComment();
-            double avgRate = lecture.getAvgRate();
-            MyReviewsResponse myReviewsResponse = new MyReviewsResponse(lectureId, thumbnailUrl, lectureTitle, avgRate, commentTitle, comment);
-            myReviews.add(myReviewsResponse);
-        }
-        return myReviews;
+
+        return reviews
+                .stream()
+                .map(review -> MyReviewsResponse.from(review, review.getLecture()))
+                .collect(Collectors.toList());
     }
 
     // 작성한 스터디 조회
