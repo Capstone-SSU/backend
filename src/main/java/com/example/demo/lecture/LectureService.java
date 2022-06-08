@@ -165,20 +165,6 @@ public class LectureService {
         lectureRepository.deleteLecture(lectureId);
     }
 
-
-    // 강의 요청 url 등록
-    public void saveRequestedLecture(String url){
-        RequestedLecture requestedLecture = new RequestedLecture();
-        requestedLecture.setLectureUrl(url);
-        requestedLectureRepository.save(requestedLecture);
-    }
-
-    // 강의 요청된 url 확인
-    public RequestedLecture findRequestedLecture(String url){
-        Optional<RequestedLecture> requestedLecture = requestedLectureRepository.findByLectureUrl(url);
-        return requestedLecture.orElse(null);
-    }
-
     // 해시태그 저장
     public void manageHashtag(List<String> hashtags, Lecture lecture){
         for (int i = 0; i < hashtags.size(); i++) {
@@ -256,12 +242,25 @@ public class LectureService {
 
     // url 중복 조회 후 있으면 리턴
     public LectureUrlResponse getLectureUrl(String lectureUrl){
-        Optional<Lecture> lecture = Optional.ofNullable(this.findByUrl(lectureUrl));
-        if(lecture.isPresent()) {
-            LectureUrlResponse lectureUrlResponse = LectureUrlResponse.from(lecture.get());
-            lectureUrlResponse.setHashtags(this.getHashtags(lecture.get().getLectureId()));
+        Lecture lecture = this.findByUrl(lectureUrl);
+        if(lecture != null) {
+            LectureUrlResponse lectureUrlResponse = LectureUrlResponse.from(lecture);
+            lectureUrlResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
             return lectureUrlResponse;
         }
         else return null;
+    }
+
+    // 강의 요청된 url 확인
+    public RequestedLecture findByRequestedLecture(String url){
+        Optional<RequestedLecture> requestedLecture = requestedLectureRepository.findByLectureUrl(url);
+        return requestedLecture.orElse(null);
+    }
+
+    // 강의 요청 url 등록
+    public void saveRequestedLecture(String url){
+        RequestedLecture requestedLecture = new RequestedLecture();
+        requestedLecture.setLectureUrl(url);
+        requestedLectureRepository.save(requestedLecture);
     }
 }

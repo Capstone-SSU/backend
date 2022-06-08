@@ -63,7 +63,6 @@ public class LectureController {
     // 관리자용 강의 등록
     @PostMapping("")
     public ResponseEntity<ResponseMessage> createLecture(Principal principal) throws IOException, InvalidFormatException {
-        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
@@ -98,7 +97,6 @@ public class LectureController {
     // 관리자용 강의 수정
     @PatchMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> updateLecture(@PathVariable("lectureId") Long lectureId, @RequestBody LectureDto lectureDto, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
@@ -119,7 +117,6 @@ public class LectureController {
     // 관리자용 강의 삭제
     @DeleteMapping("/{lectureId}")
     public ResponseEntity<ResponseMessage> deleteLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         System.out.println("user.getUserId() = " + user.getUserId());
@@ -196,19 +193,18 @@ public class LectureController {
     // 강의 등록 요청
     @PostMapping("/request")
     public ResponseEntity<ResponseMessage> requestLecture(@RequestBody HashMap<String, String> params, Principal principal) {
-        // 현재 로그인한 사용자 아이디 가져오기
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
+
         String requestUrl = params.get("lectureUrl");
-        // 이미 등록된 강의
         LectureUrlResponse lectureUrlResponse = lectureService.getLectureUrl(requestUrl);
         if(lectureUrlResponse != null)
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록된 강의입니다.", lectureUrlResponse), HttpStatus.CONFLICT);
-        // 이미 등록 요청된 강의
-        RequestedLecture rqLecture = lectureService.findRequestedLecture(requestUrl);
-        if(rqLecture != null)
+
+        RequestedLecture requestedLecture = lectureService.findByRequestedLecture(requestUrl);
+        if(requestedLecture != null)
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록 요청된 강의입니다"), HttpStatus.CONFLICT);
         lectureService.saveRequestedLecture(requestUrl);
         return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다."), HttpStatus.CREATED);
