@@ -2,6 +2,7 @@ package com.example.demo.hashtag;
 
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.hashtag.service.HashtagService;
+import com.example.demo.util.Crawler;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/hashtags")
 public class HashtagController {
     private final HashtagService hashtagService;
+    private final Crawler crawler;
 
     @PostMapping("/admin") // 해시태그 등록_관리자용
     public ResponseEntity<ResponseMessage> createHashtagAdmin(@RequestBody HashtagDto hashTagDto){
@@ -49,5 +51,14 @@ public class HashtagController {
             return new ResponseEntity<>(new ResponseMessage(200, "직접 해시태그를 입력해주세요"), HttpStatus.OK);
 
         return new ResponseEntity<>(ResponseMessage.withData(200, "'"+keyword+"'키워드가 포함된 해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    public void test(){
+        String url="https://nomadcoders.co/javascript-for-beginners";
+//        String url="https://youtu.be/kWiCuklohdY";
+        crawler.nomadcoders(url);
+//        crawler.youtube(url);
+
     }
 }
