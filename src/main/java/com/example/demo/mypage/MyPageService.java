@@ -14,12 +14,13 @@ import com.example.demo.roadmap.repository.RoadmapRepository;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.repository.StudyPostRepository;
 import com.example.demo.user.domain.User;
-import com.example.demo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MyPageService {
     private final StudyPostRepository studyPostRepository;
     private final RoadmapRepository roadmapRepository;
     private final RoadmapGroupRepository roadmapGroupRepository;
-    private final UserRepository userRepository;
+    private final ImageService imageService;
 
     // 회원정보 수정 페이지 조회
     public InfoResponse getProfile(User user){
@@ -63,27 +64,54 @@ public class MyPageService {
         return false;
     }
 
-    // 회원정보 수정
-    public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
-        String nickname = myInfoEditDto.getUserNickname();
-        String githubUrlName = myInfoEditDto.getGithubUrlName();
-        user.updateProfile(nickname, url, githubUrlName);
+    // 비밀번호 존재여부 확인
+    public boolean checkPasswordInput(MyInfoEditDto myInfoEditDto){
+        String password = myInfoEditDto.getPassword();
+        String newPassword = myInfoEditDto.getNewPassword();
+        String confirmPassword = myInfoEditDto.getConfirmPassword();
+        if(password!=null && newPassword!=null && confirmPassword!=null)
+            return true;
+        return false;
     }
 
-    public String checkPassword(User user, String password, String newPassword, String confirmPassword) {
+    // 비밀번호 재설정 확인
+    public String checkPassword(MyInfoEditDto myInfoEditDto, User user) {
+        String password = myInfoEditDto.getPassword();
+        String newPassword = myInfoEditDto.getNewPassword();
+        String confirmPassword = myInfoEditDto.getConfirmPassword();
+
         // 현재 디비에 있는 비밀번호와 비교한 후
-        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())){
-            if(newPassword.equals(confirmPassword)) { // 비밀번호 확인 과정 거친 후 비번 업뎃
+        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())) {
+            if (newPassword.equals(confirmPassword)) { // 비밀번호 확인 과정 거친 후 비번 업뎃
                 String hashPassword = bCryptPasswordEncoder.encode(confirmPassword);
                 user.updatePassword(hashPassword);
-                user.setUserPassword(hashPassword);
                 return "success";
-            }
-            else return "not equals";
+            } else return "not equals";
         }
         return "not match";
     }
 
+    // 회원정보 수정
+    public void updateProfile(MyInfoEditDto myInfoEditDto, User user) throws FileUploadException {
+        String nickname = (myInfoEditDto.getUserNickname() == null) ?
+                user.getUserNickname() :
+                myInfoEditDto.getUserNickname();
+
+        String githubUrlName = myInfoEditDto.getGithubUrlName() == null ?
+                user.getGithubUrlName() :
+                myInfoEditDto.getGithubUrlName();
+
+        user.updateProfileName(nickname, githubUrlName);
+        this.updateProfileImage(myInfoEditDto, user);
+    }
+
+    public void updateProfileImage(MyInfoEditDto myInfoEditDto, User user) throws FileUploadException {
+        MultipartFile imageUrl = myInfoEditDto.getUserProfileImg();
+        String url = (imageUrl == null) ?
+                user.getUserProfileImg() :
+                imageService.uploadFile(imageUrl);
+        user.updateProfileImage(url);
+    }
 
     // 좋아요한 강의
     public List<LikedLecturesResponse> getLikedLectures(User user){
@@ -101,8 +129,6 @@ public class MyPageService {
 
     // 좋아요한 스터디
     public List<LikedStudiesResponse> getLikedStudies(User user){
-//        return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
-//        return likeRepository.findAll().map(LikedStudiesResponse::from);
         List<LikedStudiesResponse> likedStudies = new ArrayList<>();
         List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
         for(int i=0;i<studies.size();i++){
@@ -110,22 +136,6 @@ public class MyPageService {
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
-
-        //        List<LikedStudiesResponse> likedStudies = new ArrayList<>();
-//        for(int i=0;i<studies.size();i++){
-//            StudyPost studyPost = studies.get(i);
-//            long studyPostId = studyPost.getStudyPostId();
-//            String studyTitle = studyPost.getStudyTitle();
-//            LocalDateTime studyCreatedDate = studyPost.getStudyCreatedDate();
-//            String studyLocation = studyPost.getStudyLocation();
-//            String studyRecruitState = (studyPost.getStudyRecruitStatus()==1) ? "모집중" : "모집완료";
-//            String studyCategoryName = studyPost.getStudyCategoryName();
-//            String nickname = user.getUserNickname();
-//            String profileImage = user.getUserProfileImg();
-//            LikedStudiesResponse likedStudiesResponse = new LikedStudiesResponse(studyPostId, studyTitle, studyCreatedDate, studyLocation, studyRecruitState, studyCategoryName, nickname, profileImage);
-//            likedStudies.add(likedStudiesResponse);
-//        }
-//        return likedStudies;
     }
 
     // 좋아요한 로드맵 조회
