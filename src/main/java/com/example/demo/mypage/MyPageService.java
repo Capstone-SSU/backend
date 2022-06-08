@@ -1,8 +1,6 @@
 package com.example.demo.mypage;
 
-import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
-import com.example.demo.lecture.dto.DetailLectureResponse;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.review.Review;
@@ -16,7 +14,6 @@ import com.example.demo.study.repository.StudyPostRepository;
 import com.example.demo.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,16 +111,16 @@ public class MyPageService {
     }
 
     // 좋아요한 강의
-    public List<LikedLecturesResponse> getLikedLectures(User user){
-        List<Lecture> lectures = likeRepository.findLectureLikeByUser(user);
-        List<LikedLecturesResponse> likedLectures = new ArrayList<>();
-        for(int i=0;i<lectures.size();i++){
-            Lecture lecture = lectures.get(i);
-            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture, user);
-            LikedLecturesResponse likedLecturesResponse = new LikedLecturesResponse();
-            BeanUtils.copyProperties(detailLectureResponse, likedLecturesResponse,"reviewCnt", "likeCnt", "reviews"); // 원본 객체, 복사 대상 객체
-            likedLectures.add(likedLecturesResponse);
-        }
+    public List<LikedLecturesResponse> getLikedLectures(User user) {
+        List<LikedLecturesResponse> likedLectures = likeRepository
+                .findLectureLikeByUser(user)
+                .stream()
+                .map(LikedLecturesResponse::from)
+                .collect(Collectors.toList());
+
+        likedLectures.forEach(lecture ->
+                lecture.setHashtags(lectureService.getHashtags(lecture.getLectureId()))
+        );
         return likedLectures;
     }
 
