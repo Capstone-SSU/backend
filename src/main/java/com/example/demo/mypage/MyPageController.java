@@ -30,20 +30,20 @@ public class MyPageController {
 
     @GetMapping("/{userId}") // 마이페이지 정보 수정 페이지 조회
     public ResponseEntity<ResponseMessage> getProfile(@PathVariable Long userId, Principal principal) {
-        User user = userService.findUserById(userId);
-        if(user==null)
+        User requestedUser = userService.findUserById(userId);
+        if(requestedUser==null)
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
+
         String email = principal.getName();
-        user = userService.findUserByEmail(email); // 로그인한 사용자 정보 받기
-        if (user.getUserId() == userId) {// 자신의 마이페이지를 요청한 경우
-            InfoResponse myInfo = myPageService.getProfile(user);
+        User loginUser = userService.findUserByEmail(email); // 로그인한 사용자 정보 받기
+        if(myPageService.checkLoginUser(loginUser, requestedUser)){
+            InfoResponse myInfo = myPageService.getProfile(loginUser);
             return new ResponseEntity<>(ResponseMessage.withData(200, "나의 회원정보 조회 성공", myInfo), HttpStatus.OK);
         }
         else { // 다른 사람의 마이페이지 요청한 경우
-            user = userService.findUserById(userId);
-            if(user.getPublicProfileStatus() == false)
+            if(requestedUser.getPublicProfileStatus() == false)
                 return new ResponseEntity<>(new ResponseMessage(403, "비공개 프로필"), HttpStatus.FORBIDDEN);
-            MyPageResponse myPageResponse = myPageService.getMyPage(user);
+            MyPageResponse myPageResponse = myPageService.getMyPage(requestedUser);
             return new ResponseEntity<>(ResponseMessage.withData(200, "다른 유저의 회원정보 조회 성공", myPageResponse), HttpStatus.OK);
         }
     }

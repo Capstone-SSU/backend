@@ -56,6 +56,13 @@ public class MyPageService {
         return myPageResponse;
     }
 
+    // 마이페이지 요청한 유저가 자신인지, 다른 사람인지
+    public boolean checkLoginUser(User loginUser, User requestedUser){
+        if (loginUser == requestedUser) // 자신의 마이페이지를 요청한 경우
+            return true;
+        return false;
+    }
+
     // 회원정보 수정
     public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
         String nickname = myInfoEditDto.getUserNickname();
