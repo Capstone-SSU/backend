@@ -1,11 +1,14 @@
 package com.example.demo.mypage.dto;
 
+import com.example.demo.lecture.Lecture;
+import com.example.demo.review.Review;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class MyReviewsResponse {
     private long lectureId;
     private String thumbnailUrl;
@@ -14,13 +17,14 @@ public class MyReviewsResponse {
     private String commentTitle;
     private String comment;
 
-    @Builder
-    public MyReviewsResponse(long lectureId, String thumbnailUrl, String lectureTitle, double avgRate, String commentTitle, String comment) {
-        this.lectureId = lectureId;
-        this.thumbnailUrl = thumbnailUrl;
-        this.lectureTitle = lectureTitle;
-        this.avgRate = avgRate;
-        this.commentTitle = commentTitle;
-        this.comment = comment;
+    public static MyReviewsResponse from(Review review, Lecture lecture) {
+        return MyReviewsResponse.builder()
+                .lectureId(lecture.getLectureId())
+                .thumbnailUrl(lecture.getThumbnailUrl())
+                .lectureTitle(lecture.getLectureTitle())
+                .avgRate(lecture.getAvgRate())
+                .commentTitle(review.getCommentTitle())
+                .comment(review.getComment())
+                .build();
     }
 }

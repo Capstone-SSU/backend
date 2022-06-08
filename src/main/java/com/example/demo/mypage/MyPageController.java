@@ -1,10 +1,11 @@
 package com.example.demo.mypage;
+
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.service.StudyPostService;
-import com.example.demo.user.domain.User;
 import com.example.demo.user.UserDetailsServiceImpl;
+import com.example.demo.user.domain.User;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
@@ -12,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -30,20 +30,20 @@ public class MyPageController {
 
     @GetMapping("/{userId}") // 마이페이지 정보 수정 페이지 조회
     public ResponseEntity<ResponseMessage> getProfile(@PathVariable Long userId, Principal principal) {
-        User user = userService.findUserById(userId);
-        if(user==null)
+        User requestedUser = userService.findUserById(userId);
+        if(requestedUser==null)
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
+
         String email = principal.getName();
-        user = userService.findUserByEmail(email); // 로그인한 사용자 정보 받기
-        if (user.getUserId() == userId) {// 자신의 마이페이지를 요청한 경우
-            InfoResponse myInfo = myPageService.getProfile(user);
+        User loginUser = userService.findUserByEmail(email); // 로그인한 사용자 정보 받기
+        if(myPageService.checkLoginUser(loginUser, requestedUser)){
+            InfoResponse myInfo = myPageService.getProfile(loginUser);
             return new ResponseEntity<>(ResponseMessage.withData(200, "나의 회원정보 조회 성공", myInfo), HttpStatus.OK);
         }
         else { // 다른 사람의 마이페이지 요청한 경우
-            user = userService.findUserById(userId);
-            if(user.getPublicProfileStatus() == false)
+            if(requestedUser.getPublicProfileStatus() == false)
                 return new ResponseEntity<>(new ResponseMessage(403, "비공개 프로필"), HttpStatus.FORBIDDEN);
-            MyPageResponse myPageResponse = myPageService.getMyPage(user);
+            MyPageResponse myPageResponse = myPageService.getMyPage(requestedUser);
             return new ResponseEntity<>(ResponseMessage.withData(200, "다른 유저의 회원정보 조회 성공", myPageResponse), HttpStatus.OK);
         }
     }
@@ -60,29 +60,28 @@ public class MyPageController {
     @PatchMapping("/{userId}") // 회원정보수정
     public ResponseEntity<ResponseMessage> editProfile(
             @ModelAttribute MyInfoEditDto myInfoEditDto,
-            @PathVariable Long userId) throws FileUploadException {
-        User user = userService.findUserById(userId);
-        if(user==null)
+            @PathVariable Long userId,
+            Principal principal) throws FileUploadException {
+
+        User requestedUser = userService.findUserById(userId);
+        if(requestedUser==null)
             return new ResponseEntity<>(new ResponseMessage(404,"존재하지 않는 유저"),HttpStatus.NOT_FOUND);
 
-//        myPageService.updateProfile(myInfoEditDto);
-        String password = myInfoEditDto.getPassword();
-        String newPassword = myInfoEditDto.getNewPassword();
-        String confirmPassword = myInfoEditDto.getConfirmPassword();
-        if(newPassword!=null && confirmPassword!=null){ // 이게 들어온 경우
-            String message = myPageService.checkPassword(user, password, newPassword, confirmPassword); // 입력한 비밀번호가 맞는지
+        String email = principal.getName();
+        User loginUser = userService.findUserByEmail(email);
+        if(loginUser != requestedUser)
+            return new ResponseEntity<>(new ResponseMessage(401, "회원정보 수정 권한 없음_로그인유저와 요청받은 유저번호 불일치"), HttpStatus.UNAUTHORIZED);
+
+        boolean inputOrNot = myPageService.checkPasswordInput(myInfoEditDto);
+        if(inputOrNot == true){
+            String message = myPageService.checkPassword(myInfoEditDto, loginUser);
             if(message.equals("not equals"))
                 return new ResponseEntity<>(new ResponseMessage(401,"비밀번호 확인 오류"),HttpStatus.UNAUTHORIZED);
             else if(message.equals("not match"))
                 return new ResponseEntity<>(new ResponseMessage(401,"입력한 비번이 맞지 않음"),HttpStatus.UNAUTHORIZED);
         }
 
-        MultipartFile imageUrl = myInfoEditDto.getUserProfileImg();
-        String url="";
-        if(imageUrl != null) // 프로필 사진 수정한 경우
-            url = imageService.uploadFile(myInfoEditDto.getUserProfileImg());
-        url = (url=="") ? user.getUserProfileImg() : url; // 새로운 이미지가 아니면 원래 프로필 이미지 넣기
-        myPageService.editProfile(myInfoEditDto, user, url);
+        myPageService.updateProfile(myInfoEditDto, loginUser);
         return new ResponseEntity<>(new ResponseMessage(200,"회원정보 수정 성공"),HttpStatus.OK);
     }
 

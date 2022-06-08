@@ -1,9 +1,8 @@
 package com.example.demo.mypage;
-import com.example.demo.lecture.Lecture;
+
 import com.example.demo.lecture.LectureService;
-import com.example.demo.lecture.dto.DetailLectureResponse;
-import com.example.demo.mypage.dto.*;
 import com.example.demo.like.repository.LikeRepository;
+import com.example.demo.mypage.dto.*;
 import com.example.demo.review.Review;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.roadmap.RoadMap;
@@ -13,15 +12,16 @@ import com.example.demo.roadmap.repository.RoadmapRepository;
 import com.example.demo.study.domain.StudyPost;
 import com.example.demo.study.repository.StudyPostRepository;
 import com.example.demo.user.domain.User;
-import com.example.demo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class MyPageService {
     private final StudyPostRepository studyPostRepository;
     private final RoadmapRepository roadmapRepository;
     private final RoadmapGroupRepository roadmapGroupRepository;
-    private final UserRepository userRepository;
+    private final ImageService imageService;
 
     // 회원정보 수정 페이지 조회
     public InfoResponse getProfile(User user){
@@ -54,46 +54,78 @@ public class MyPageService {
         return myPageResponse;
     }
 
-    // 회원정보 수정
-    public void editProfile(MyInfoEditDto myInfoEditDto, User user, String url){
-        String nickname = myInfoEditDto.getUserNickname();
-        String githubUrlName = myInfoEditDto.getGithubUrlName();
-        user.updateProfile(nickname, url, githubUrlName);
+    // 마이페이지 요청한 유저가 자신인지, 다른 사람인지
+    public boolean checkLoginUser(User loginUser, User requestedUser){
+        if (loginUser == requestedUser) // 자신의 마이페이지를 요청한 경우
+            return true;
+        return false;
     }
 
-    public String checkPassword(User user, String password, String newPassword, String confirmPassword) {
+    // 비밀번호 존재여부 확인
+    public boolean checkPasswordInput(MyInfoEditDto myInfoEditDto){
+        String password = myInfoEditDto.getPassword();
+        String newPassword = myInfoEditDto.getNewPassword();
+        String confirmPassword = myInfoEditDto.getConfirmPassword();
+        if(password!=null && newPassword!=null && confirmPassword!=null)
+            return true;
+        return false;
+    }
+
+    // 비밀번호 재설정 확인
+    public String checkPassword(MyInfoEditDto myInfoEditDto, User user) {
+        String password = myInfoEditDto.getPassword();
+        String newPassword = myInfoEditDto.getNewPassword();
+        String confirmPassword = myInfoEditDto.getConfirmPassword();
+
         // 현재 디비에 있는 비밀번호와 비교한 후
-        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())){
-            if(newPassword.equals(confirmPassword)) { // 비밀번호 확인 과정 거친 후 비번 업뎃
+        if(bCryptPasswordEncoder.matches(password, user.getUserPassword())) {
+            if (newPassword.equals(confirmPassword)) { // 비밀번호 확인 과정 거친 후 비번 업뎃
                 String hashPassword = bCryptPasswordEncoder.encode(confirmPassword);
                 user.updatePassword(hashPassword);
-                user.setUserPassword(hashPassword);
                 return "success";
-            }
-            else return "not equals";
+            } else return "not equals";
         }
         return "not match";
     }
 
+    // 회원정보 수정
+    public void updateProfile(MyInfoEditDto myInfoEditDto, User user) throws FileUploadException {
+        String nickname = (myInfoEditDto.getUserNickname() == null) ?
+                user.getUserNickname() :
+                myInfoEditDto.getUserNickname();
+
+        String githubUrlName = myInfoEditDto.getGithubUrlName() == null ?
+                user.getGithubUrlName() :
+                myInfoEditDto.getGithubUrlName();
+
+        user.updateProfileName(nickname, githubUrlName);
+        this.updateProfileImage(myInfoEditDto, user);
+    }
+
+    public void updateProfileImage(MyInfoEditDto myInfoEditDto, User user) throws FileUploadException {
+        MultipartFile imageUrl = myInfoEditDto.getUserProfileImg();
+        String url = (imageUrl == null) ?
+                user.getUserProfileImg() :
+                imageService.uploadFile(imageUrl);
+        user.updateProfileImage(url);
+    }
 
     // 좋아요한 강의
-    public List<LikedLecturesResponse> getLikedLectures(User user){
-        List<Lecture> lectures = likeRepository.findLectureLikeByUser(user);
-        List<LikedLecturesResponse> likedLectures = new ArrayList<>();
-        for(int i=0;i<lectures.size();i++){
-            Lecture lecture = lectures.get(i);
-            DetailLectureResponse detailLectureResponse = lectureService.getLecture(lecture, user);
-            LikedLecturesResponse likedLecturesResponse = new LikedLecturesResponse();
-            BeanUtils.copyProperties(detailLectureResponse, likedLecturesResponse,"reviewCnt", "likeCnt", "reviews"); // 원본 객체, 복사 대상 객체
-            likedLectures.add(likedLecturesResponse);
-        }
+    public List<LikedLecturesResponse> getLikedLectures(User user) {
+        List<LikedLecturesResponse> likedLectures = likeRepository
+                .findLectureLikeByUser(user)
+                .stream()
+                .map(LikedLecturesResponse::from)
+                .collect(Collectors.toList());
+
+        likedLectures.forEach(lecture ->
+                lecture.setHashtags(lectureService.getHashtags(lecture.getLectureId()))
+        );
         return likedLectures;
     }
 
     // 좋아요한 스터디
     public List<LikedStudiesResponse> getLikedStudies(User user){
-//        return lectureRepository.findAll(pageable).map(AllLecturesResponse::from);
-//        return likeRepository.findAll().map(LikedStudiesResponse::from);
         List<LikedStudiesResponse> likedStudies = new ArrayList<>();
         List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
         for(int i=0;i<studies.size();i++){
@@ -101,22 +133,6 @@ public class MyPageService {
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
-
-        //        List<LikedStudiesResponse> likedStudies = new ArrayList<>();
-//        for(int i=0;i<studies.size();i++){
-//            StudyPost studyPost = studies.get(i);
-//            long studyPostId = studyPost.getStudyPostId();
-//            String studyTitle = studyPost.getStudyTitle();
-//            LocalDateTime studyCreatedDate = studyPost.getStudyCreatedDate();
-//            String studyLocation = studyPost.getStudyLocation();
-//            String studyRecruitState = (studyPost.getStudyRecruitStatus()==1) ? "모집중" : "모집완료";
-//            String studyCategoryName = studyPost.getStudyCategoryName();
-//            String nickname = user.getUserNickname();
-//            String profileImage = user.getUserProfileImg();
-//            LikedStudiesResponse likedStudiesResponse = new LikedStudiesResponse(studyPostId, studyTitle, studyCreatedDate, studyLocation, studyRecruitState, studyCategoryName, nickname, profileImage);
-//            likedStudies.add(likedStudiesResponse);
-//        }
-//        return likedStudies;
     }
 
     // 좋아요한 로드맵 조회
@@ -144,20 +160,11 @@ public class MyPageService {
     // 작성한 강의리뷰 조회
     public List<MyReviewsResponse> getMyReviews(User user){
         List<Review> reviews = reviewRepository.findByUser(user);
-        List<MyReviewsResponse> myReviews = new ArrayList<>();
-        for(int i=0;i<reviews.size();i++){
-            Review review = reviews.get(i);
-            Lecture lecture = review.getLecture();
-            long lectureId = lecture.getLectureId();
-            String thumbnailUrl = lecture.getThumbnailUrl();
-            String lectureTitle = lecture.getLectureTitle();
-            String commentTitle = review.getCommentTitle();
-            String comment = review.getComment();
-            double avgRate = lecture.getAvgRate();
-            MyReviewsResponse myReviewsResponse = new MyReviewsResponse(lectureId, thumbnailUrl, lectureTitle, avgRate, commentTitle, comment);
-            myReviews.add(myReviewsResponse);
-        }
-        return myReviews;
+
+        return reviews
+                .stream()
+                .map(review -> MyReviewsResponse.from(review, review.getLecture()))
+                .collect(Collectors.toList());
     }
 
     // 작성한 스터디 조회

@@ -117,7 +117,7 @@ public class User {
         this.userProfileImg=url;
     }
 
-    public void updateReviewStatus(){
+    public void updateReviewWriteStatus(){
         if(this.reviewWriteStatus == true)
             this.reviewWriteStatus = false;
         else
@@ -143,9 +143,8 @@ public class User {
         this.userPassword = password;
     }
 
-    public void updateProfile(String nickname, String url, String githubUrlName){
+    public void updateProfileName(String nickname, String githubUrlName){
         this.userNickname = nickname;
-        this.userProfileImg = url;
         this.githubUrlName = githubUrlName;
     }
 

@@ -17,6 +17,15 @@ public class CustomReviewRepositoryImpl implements CustomReviewRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
+    public List<Review> findByUser(User user) {
+        return jpaQueryFactory
+                .selectFrom(review)
+                .where(review.reviewStatus.eq(1))
+                .where(review.user.eq(user))
+                .fetch();
+    }
+
+    @Override
     public void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId){
         jpaQueryFactory
                 .update(review)
