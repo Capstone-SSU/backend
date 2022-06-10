@@ -58,17 +58,20 @@ public class HashtagController {
         String url = "";
         // 노마드코더
 //        url="https://nomadcoders.co/javascript-for-beginners";
-
         // 프로젝트 라이언
 //        url="https://projectlion.io/courses/technology/uxd";
-
         // 유데미
-        url = "https://www.udemy.com/course/clean-code-js";
+//        url = "https://www.udemy.com/course/clean-code-js";
         // 유튜브
 //        String url="https://youtu.be/kWiCuklohdY";
+        // 패스트 캠퍼스
+        url="https://fastcampus.co.kr/dev_academy_kmt3";
+
+
 //        crawler.nomadcoders(url);
 //        crawler.youtube(url);
 //        crawler.projectlion(url);
-        crawler.udemy(url);
+//        crawler.udemy(url);
+        crawler.fastcampus(url);
     }
 }

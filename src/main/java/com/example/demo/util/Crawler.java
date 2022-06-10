@@ -212,8 +212,13 @@ public class Crawler {
         System.out.println("image = " + image);
         String lecturer = "프로젝트 라이언";
         String siteName = "프로젝트 라이언";
-        
-        // UX/ UI 입문자를 위한 UX Discovery 인 경우에 R / ux / ui 가 나옴
+
+        /**
+         * 이거 갑자기 입문 왜안나오는지 확인 필요
+            - UX/ UI 입문자를 위한 UX Discovery 인 경우에 R / ux / ui 가 나옴
+            - 순서대로 나와서 자르다보니까 '입문' 이 나머지 3개보다 뒷번호라서 안나옴
+            -> 그 강의를 잘 설명하는 해시태그가 안나올 수 있다는 한계점 아주..아주..
+         */
         List<String> hashtags = findHashtagsInTitle(title, 3);
         for(String h : hashtags){
             System.out.println("h = " + h);
@@ -305,11 +310,13 @@ public class Crawler {
             return;
             //잘못된 url 연결 error throw
         }
-//<h2 class="font-bold mb-4 CourseHero_HeroTitle__33qT5 break-words"> UX/ UI 입문자를 위한 UX Discovery</h2>
-//        List<String> hashtags=new ArrayList<>();
-        String title = document.selectFirst("h2.font-bold.mb-4.CourseHero_HeroTitle__33qT5.break-words").text();
-        System.out.println("title = " + title);
-        String image = document.head().selectFirst("meta[property=og:image]").attr("content");
+
+        String title = document.head().selectFirst("meta[property=og:title]").attr("content");
+        int index = title.indexOf("|");
+        String finalTitle = title.substring(1, index-1);
+        System.out.println("finalTitle = " + finalTitle);
+
+        String image = document.selectFirst("p.container__text-content.fc-h1-text").selectFirst("img").attr("src");
         System.out.println("image = " + image);
         String lecturer = "패스트 캠퍼스";
 
@@ -320,7 +327,22 @@ public class Crawler {
         for(String h : hashtagsInTitle){
             System.out.println("h = " + h);
         }
+
+        /**
+         *  제목에 3개가 없으면 카테고리에서 추출하는데 카테고리가 없어요..
+         */
+
+//        Lecture lecture = Lecture.builder()
+//                .lecturer(lecturer)
+//                .lectureUrl(url)
+//                .lectureTitle(title)
+//                .thumbnailUrl(img)
+//                .siteName(siteName)
+//                .build();
+
+//        saveRequiredLecture(lecture,hashtags);
     }
+
     private List<String> findHashtagsInTitle(String title, int needCount){
         Pattern pattern = Pattern.compile("");
         //                    title.toLowerCase().contains(hashtag.getHashtagName().toLowerCase()
