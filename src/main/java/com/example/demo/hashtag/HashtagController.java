@@ -55,10 +55,20 @@ public class HashtagController {
 
     @GetMapping("/test")
     public void test(){
-        String url="https://nomadcoders.co/javascript-for-beginners";
-//        String url="https://youtu.be/kWiCuklohdY";
-        crawler.nomadcoders(url);
-//        crawler.youtube(url);
+        String url = "";
+        // 노마드코더
+//        url="https://nomadcoders.co/javascript-for-beginners";
 
+        // 프로젝트 라이언
+//        url="https://projectlion.io/courses/technology/uxd";
+
+        // 유데미
+        url = "https://www.udemy.com/course/clean-code-js";
+        // 유튜브
+//        String url="https://youtu.be/kWiCuklohdY";
+//        crawler.nomadcoders(url);
+//        crawler.youtube(url);
+//        crawler.projectlion(url);
+        crawler.udemy(url);
     }
 }
