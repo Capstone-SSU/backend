@@ -57,7 +57,7 @@ public class HashtagController {
     public void test(){
         String url = "";
         // 노마드코더
-//        url="https://nomadcoders.co/javascript-for-beginners";
+        url="https://nomadcoders.co/javascript-for-beginners";
         // 프로젝트 라이언
 //        url="https://projectlion.io/courses/technology/uxd";
         // 유데미
@@ -65,13 +65,18 @@ public class HashtagController {
         // 유튜브
 //        String url="https://youtu.be/kWiCuklohdY";
         // 패스트 캠퍼스
-        url="https://fastcampus.co.kr/dev_academy_kmt3";
+//        url="https://fastcampus.co.kr/dev_academy_kmt3";
+        //스파르타코딩클럽
+//        url="https://spartacodingclub.kr/online/spring";
 
 
-//        crawler.nomadcoders(url);
+
+
+        crawler.nomadcoders(url);
 //        crawler.youtube(url);
 //        crawler.projectlion(url);
 //        crawler.udemy(url);
-        crawler.fastcampus(url);
+//        crawler.fastcampus(url);
+//        crawler.spartaCoding(url);
     }
 }
