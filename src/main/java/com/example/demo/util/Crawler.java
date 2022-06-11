@@ -92,6 +92,8 @@ public class Crawler {
         List<String> tags=new ArrayList<>();
         Element body = document.body();
         String title = body.selectFirst("div#watch7-content meta[itemprop=name]").attr("content");
+        String content = document.head().selectFirst("meta[property=og:description]").attr("content");
+        System.out.println("content = " + content);
         System.out.println("title = " + title);
         if(title.contains("#")){
             String[] split = title.split("#");
@@ -105,8 +107,19 @@ public class Crawler {
         }
 
         if(tags.size()<3){
-            List<String> hashtagsInTitle = findHashtagsInTitle(title, 3 - tags.size());
-            tags.addAll(hashtagsInTitle);
+            List<String> hashtagsInTitle = findHashtagsInTitle(title, 5);
+            tags.addAll(hashtagsInTitle.stream()
+                    .filter(h->!tags.contains(h))
+                    .limit(3-tags.size())
+                    .collect(Collectors.toList()));
+        }
+
+        if(tags.size()<3){
+            List<String> hashtagsInTitle = findHashtagsInTitle(content, 5);
+            tags.addAll(hashtagsInTitle.stream()
+                    .filter(h->!tags.contains(h))
+                    .limit(3-tags.size())
+                    .collect(Collectors.toList()));
         }
 
         String lecturer = body.select("div#watch7-content link[itemprop=name]").attr("content");
@@ -213,24 +226,21 @@ public class Crawler {
         String siteName="스파르타코딩클럽";
         String lecturer="스파르타코딩클럽";
         String keywords = document.head().selectFirst("meta[name=keywords]").attr("content");
+        //keywords 가 null 이라면? description 가져오기
+        if(keywords==null||keywords.length()<1){
+            keywords=document.head().selectFirst("meta[property=og:description]").attr("content");
+        }
         System.out.println("keywords = " + keywords);
         List<String> hashtags = findHashtagsInTitle(keywords, 3);
         for(String h:hashtags){
             System.out.println("h = " + h);
         }
 
-//        Elements select = document.body().select("h1.css-17lcj98");
-        Elements select = document.body().select("section.css-8x5od0");
-        for(Element e:select){
-            System.out.println("e = " + e);
-        }
         String title = document.head().selectFirst("title").text();
         String[] split = title.split("\\|");
         String rTitle = split[1].replaceFirst(" ", "");
         System.out.println("title = " + rTitle);
-//        System.out.println("title = " + title);
-//        String lecturer = document.selectFirst("h3.css-1juja8j").text();
-//        System.out.println("lecturer = " + lecturer);
+
 
         String imageUrl = document.head().selectFirst("meta[property=og:image]").attr("content");
         String img="https://spartacodingclub.kr"+imageUrl;
@@ -394,7 +404,7 @@ public class Crawler {
 
         return hashtagService.getAllHashtags()
                 .stream()
-//                .filter(pattern.asPredicate()) //
+//                .filter(pattern.asPredicate())
 //                .filter(hashtag ->
 //                    title.toUpperCase().contains(hashtag.getHashtagName().toUpperCase())
 //                )
