@@ -169,9 +169,15 @@ public class Crawler {
                     .limit(3)
                     .forEach(t->tags.add(t.replace(" ","")));
         }else{
-            tags.addAll(findHashtagsInTitle(rTitle,3));
-            if(tags.size()<3)
-                tags.addAll(findHashtagsInTitle(content,3- tags.size()));
+            tags.addAll(findHashtagsInTitle(rTitle,3));  //제목에서도 찾고
+            if(tags.size()<3){
+                tags.addAll(findHashtagsInTitle(content,10)
+                        .stream()
+                        .filter(h-> !tags.contains(h))
+                        .limit(3-tags.size())
+                        .collect(Collectors.toList()));
+            }
+
         }
 
         String[] split1 = url.split("/");
@@ -191,6 +197,44 @@ public class Crawler {
         for(String t:tags){
             System.out.print("t = " + t+" ");
         }
+
+    }
+
+    public void spartaCoding(String url){
+        Document document;
+
+        try {
+            document = Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+            //잘못된 url 연결 error throw
+        }
+        String siteName="스파르타코딩클럽";
+        String lecturer="스파르타코딩클럽";
+        String keywords = document.head().selectFirst("meta[name=keywords]").attr("content");
+        System.out.println("keywords = " + keywords);
+        List<String> hashtags = findHashtagsInTitle(keywords, 3);
+        for(String h:hashtags){
+            System.out.println("h = " + h);
+        }
+
+//        Elements select = document.body().select("h1.css-17lcj98");
+        Elements select = document.body().select("section.css-8x5od0");
+        for(Element e:select){
+            System.out.println("e = " + e);
+        }
+        String title = document.head().selectFirst("title").text();
+        String[] split = title.split("\\|");
+        String rTitle = split[1].replaceFirst(" ", "");
+        System.out.println("title = " + rTitle);
+//        System.out.println("title = " + title);
+//        String lecturer = document.selectFirst("h3.css-1juja8j").text();
+//        System.out.println("lecturer = " + lecturer);
+
+        String imageUrl = document.head().selectFirst("meta[property=og:image]").attr("content");
+        String img="https://spartacodingclub.kr"+imageUrl;
+        System.out.println("img = " + img);
 
     }
 
@@ -351,8 +395,11 @@ public class Crawler {
         return hashtagService.getAllHashtags()
                 .stream()
 //                .filter(pattern.asPredicate()) //
+//                .filter(hashtag ->
+//                    title.toUpperCase().contains(hashtag.getHashtagName().toUpperCase())
+//                )
                 .filter(hashtag ->
-                    title.contains(hashtag.getHashtagName())
+                        title.contains(hashtag.getHashtagName())
                 )
                 .limit(needCount)
                 .map(Hashtag::getHashtagName) // ContainingClass::methodName
