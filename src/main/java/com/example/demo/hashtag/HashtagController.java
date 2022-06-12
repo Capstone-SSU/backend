@@ -65,13 +65,17 @@ public class HashtagController {
         // 유튜브
 //        String url="https://youtu.be/kWiCuklohdY";
         // 패스트 캠퍼스
-        url="https://fastcampus.co.kr/dev_academy_kmt3";
+//        url="https://fastcampus.co.kr/dev_academy_kmt3";
+
+        // 생활코딩
+        url = "https://opentutorials.org/course/3086/18311";
 
 
 //        crawler.nomadcoders(url);
 //        crawler.youtube(url);
 //        crawler.projectlion(url);
 //        crawler.udemy(url);
-        crawler.fastcampus(url);
+//        crawler.fastcampus(url);
+        crawler.codingEverybody(url);
     }
 }
