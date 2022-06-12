@@ -3,6 +3,7 @@ package com.example.demo.hashtag;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.hashtag.service.HashtagService;
 import com.example.demo.util.Crawler;
+import com.sun.mail.iap.Response;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,9 +54,19 @@ public class HashtagController {
         return new ResponseEntity<>(ResponseMessage.withData(200, "'"+keyword+"'키워드가 포함된 해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param request_url
+     * @return
+     *
+     * 중복 검사 X , 크롤링 결과 데이터베이스에 저장 X
+     * url 요청 ~ 크롤링 까지의 시간만! (여러개의 탭을 띄워둔 상황 -> 여러 사용자가 한 개 씩 요청을 동시에 보낸다 가정)
+     */
+
     @GetMapping("/test")
-    public void test(){
-        String url = "";
+    public int test(@RequestParam String request_url){
+        String url = request_url;
+//        String siteName;
         // 노마드코더
 //        url="https://nomadcoders.co/javascript-for-beginners";
         // 프로젝트 라이언
@@ -68,14 +79,44 @@ public class HashtagController {
 //        url="https://fastcampus.co.kr/dev_academy_kmt3";
 
         // 생활코딩
-        url = "https://opentutorials.org/course/3086/18311";
+//         url = "https://opentutorials.org/course/3086/18311";
+//        // 프로젝트 라이언
+////        url="https://projectlion.io/courses/technology/uxd";
+//        // 유데미
+////        url = "https://www.udemy.com/course/clean-code-js";
+//        // 유튜브
+////        String url="https://youtu.be/kWiCuklohdY";
+//        // 패스트 캠퍼스
+////        url="https://fastcampus.co.kr/dev_academy_kmt3";
+//        //스파르타코딩클럽
+////        url="https://spartacodingclub.kr/online/spring";
 
+        if(url.contains("nomadcoders")){
+            crawler.nomadcoders(url);
+        }else if(url.contains("projectlion")){
+            crawler.projectlion(url);
+        }else if(url.contains("udemy")){
+            crawler.udemy(url);
+        }else if(url.contains("youtu")){
+            crawler.youtube(url);
+        }else if(url.contains("fastcampus")){
+            crawler.fastcampus(url);
+        }else if(url.contains("inflearn")){
+            crawler.inflearn(url);
+        }else if(url.contains("spartacoding")){
+            crawler.spartaCoding(url);
+        }else if(url.contains("opentutorials")){
+            crawler.codingEverybody(url);
+        }else{
+            return Response.BAD;
+        }
 
 //        crawler.nomadcoders(url);
 //        crawler.youtube(url);
 //        crawler.projectlion(url);
 //        crawler.udemy(url);
 //        crawler.fastcampus(url);
-        crawler.codingEverybody(url);
+//         crawler.codingEverybody(url);
+        return Response.OK;
     }
 }
