@@ -353,9 +353,18 @@ public class Crawler {
         // 총 해시태그 담는 곳
         List<String> hashtags = findHashtagsInTitle(title, 3);
 
-        /**
-         *  제목에 3개가 없으면 카테고리에서 추출하는데 카테고리가 없어요..
-         */
+        // 토픽목록에서 추출
+        Elements elements = document.select("div.label");
+
+        for(Element e:elements){
+            String keyword = e.selectFirst("a").selectFirst("span").text();
+            if(keyword!=""){
+                if(hashtags.size()<3){
+                    List<String> hashtagsInDetail = findHashtagsInTitle(keyword, 3 - hashtags.size());
+                    hashtags.addAll(hashtagsInDetail);
+                }
+            }
+        }
 
 //        Lecture lecture = Lecture.builder()
 //                .lecturer(lecturer)
