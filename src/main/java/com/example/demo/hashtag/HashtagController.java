@@ -69,6 +69,17 @@ public class HashtagController {
 //        String siteName;
         // 노마드코더
 //        url="https://nomadcoders.co/javascript-for-beginners";
+        // 프로젝트 라이언
+//        url="https://projectlion.io/courses/technology/uxd";
+        // 유데미
+//        url = "https://www.udemy.com/course/clean-code-js";
+        // 유튜브
+//        String url="https://youtu.be/kWiCuklohdY";
+        // 패스트 캠퍼스
+//        url="https://fastcampus.co.kr/dev_academy_kmt3";
+
+        // 생활코딩
+//         url = "https://opentutorials.org/course/3086/18311";
 //        // 프로젝트 라이언
 ////        url="https://projectlion.io/courses/technology/uxd";
 //        // 유데미
@@ -95,11 +106,17 @@ public class HashtagController {
         }else if(url.contains("spartacoding")){
             crawler.spartaCoding(url);
         }else if(url.contains("opentutorials")){
-
+            crawler.codingEverybody(url);
         }else{
             return Response.BAD;
         }
 
+//        crawler.nomadcoders(url);
+//        crawler.youtube(url);
+//        crawler.projectlion(url);
+//        crawler.udemy(url);
+//        crawler.fastcampus(url);
+//         crawler.codingEverybody(url);
         return Response.OK;
     }
 }

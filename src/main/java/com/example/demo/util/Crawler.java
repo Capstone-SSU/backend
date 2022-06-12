@@ -261,9 +261,10 @@ public class Crawler {
         String title = document.head().selectFirst("meta[property=og:title]").attr("content");
         int index = title.indexOf(":");
         String finalTitle = title.substring(1, index-1);
-        System.out.println("finalTitle = " + finalTitle);
         String image = document.head().selectFirst("meta[property=og:image]").attr("content");
-        System.out.println("image = " + image);
+
+        String desc = document.head().selectFirst("meta[property=og:description]").attr("content");
+
         String lecturer = "프로젝트 라이언";
         String siteName = "프로젝트 라이언";
 
@@ -273,12 +274,14 @@ public class Crawler {
             - 순서대로 나와서 자르다보니까 '입문' 이 나머지 3개보다 뒷번호라서 안나옴
             -> 그 강의를 잘 설명하는 해시태그가 안나올 수 있다는 한계점 아주..아주..
          */
+        // 제목에서 해시태그 추출
         List<String> hashtags = findHashtagsInTitle(title, 3);
-        for(String h : hashtags){
-            System.out.println("h = " + h);
-        }
 
-        // 제목에 3개가 없으면 카테고리에서 추출하는데 카테고리가 없어요..
+        // 제목추출 이후 description 에서 채움
+        if(hashtags.size()<3){
+            List<String> hashtagsInDesc = findHashtagsInTitle(desc, 3 - hashtags.size());
+            hashtags.addAll(hashtagsInDesc);
+        }
 
 //        Lecture lecture = Lecture.builder()
 //                .lecturer(lecturer)
@@ -303,23 +306,15 @@ public class Crawler {
         }
 
         String title = document.head().selectFirst("meta[name=title]").attr("content");
-        System.out.println("title = " + title);
         String image = document.head().selectFirst("meta[property=og:image]").attr("content");
-        System.out.println("image = " + image);
         String lecturer = document
                 .selectFirst("a.udlite-btn.udlite-btn-large.udlite-btn-link.udlite-heading-md.udlite-text-sm.udlite-instructor-links span")
                 .text();
-        System.out.println("lecturer = " + lecturer);
         String siteName = "udemy";
 
         // 총 해시태그 담는 곳
-        List<String> hashtags = new ArrayList<>();
-
         // 제목에서 해시태그 추출
-        List<String> hashtagsInTitle = findHashtagsInTitle(title, 3);
-        for(String h : hashtagsInTitle){
-            hashtags.add(h);
-        }
+        List<String> hashtags = findHashtagsInTitle(title, 3);
 
         //클린코드 자바스크립트인 경우 -> 자바, 자바 스크립트 출력
         
@@ -340,8 +335,6 @@ public class Crawler {
                     hashtags.add(tag);
             }
         }
-        for(String h : hashtags)
-            System.out.println("h = " + h);
 
 //        Lecture lecture = Lecture.builder()
 //                .lecturer(lecturer)
@@ -368,23 +361,19 @@ public class Crawler {
         String title = document.head().selectFirst("meta[property=og:title]").attr("content");
         int index = title.indexOf("|");
         String finalTitle = title.substring(1, index-1);
-        System.out.println("finalTitle = " + finalTitle);
-
         String image = document.selectFirst("p.container__text-content.fc-h1-text").selectFirst("img").attr("src");
-        System.out.println("image = " + image);
         String lecturer = "패스트 캠퍼스";
 
-        // 총 해시태그 담는 곳
-        List<String> hashtags = new ArrayList<>();
+        String desc = document.head().selectFirst("meta[name=description]").attr("content");
 
-        List<String> hashtagsInTitle = findHashtagsInTitle(title, 3);
-        for(String h : hashtagsInTitle){
-            System.out.println("h = " + h);
+        // 제목 추출
+        List<String> hashtags = findHashtagsInTitle(title, 3);
+
+        // 제목추출 이후 description 에서 채움
+        if(hashtags.size()<3){
+            List<String> hashtagsInDesc = findHashtagsInTitle(desc, 3 - hashtags.size());
+            hashtags.addAll(hashtagsInDesc);
         }
-
-        /**
-         *  제목에 3개가 없으면 카테고리에서 추출하는데 카테고리가 없어요..
-         */
 
 //        Lecture lecture = Lecture.builder()
 //                .lecturer(lecturer)
@@ -397,19 +386,55 @@ public class Crawler {
 //        saveRequiredLecture(lecture,hashtags);
     }
 
-    private List<String> findHashtagsInTitle(String title, int needCount){
-        Pattern pattern = Pattern.compile("");
-        //                    title.toLowerCase().contains(hashtag.getHashtagName().toLowerCase()
-//                    title.matches(".*${hashtag}*.")
+    public void codingEverybody(String url){
+        Document document;
 
+        int lastSlash = url.lastIndexOf("/");
+        String mainUrl = url.substring(0, lastSlash);
+        try {
+            document = Jsoup.connect(mainUrl).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+            //잘못된 url 연결 error throw
+        }
+
+        String title = document.head().selectFirst("meta[property=og:title]").attr("content");
+        String finalTitle = title.substring(0, title.length()-7);
+        String lecturer = "egoing";
+        String img = "";
+
+        // 총 해시태그 담는 곳
+        List<String> hashtags = findHashtagsInTitle(title, 3);
+
+        // 토픽목록에서 추출
+        Elements elements = document.select("div.label");
+
+        for(Element e:elements){
+            String keyword = e.selectFirst("a").selectFirst("span").text();
+            if(keyword!=""){
+                if(hashtags.size()<3){
+                    List<String> hashtagsInDetail = findHashtagsInTitle(keyword, 3 - hashtags.size());
+                    hashtags.addAll(hashtagsInDetail);
+                }
+            }
+        }
+
+//        Lecture lecture = Lecture.builder()
+//                .lecturer(lecturer)
+//                .lectureUrl(url)
+//                .lectureTitle(title)
+//                .thumbnailUrl(img)
+//                .siteName(siteName)
+//                .build();
+
+//        saveRequiredLecture(lecture,hashtags);
+    }
+    private List<String> findHashtagsInTitle(String title, int needCount){
         return hashtagService.getAllHashtags()
                 .stream()
-//                .filter(pattern.asPredicate())
-//                .filter(hashtag ->
-//                    title.toUpperCase().contains(hashtag.getHashtagName().toUpperCase())
-//                )
                 .filter(hashtag ->
-                        title.contains(hashtag.getHashtagName())
+                    title.toLowerCase().contains(hashtag.getHashtagName().toLowerCase())
                 )
                 .limit(needCount)
                 .map(Hashtag::getHashtagName) // ContainingClass::methodName
