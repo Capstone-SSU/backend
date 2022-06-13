@@ -1,4 +1,4 @@
-package com.example.demo.like;
+package com.example.demo.lecture;
 
 import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.AllLecturesForRecommendResponse;
