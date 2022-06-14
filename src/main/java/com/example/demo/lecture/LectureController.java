@@ -45,7 +45,7 @@ public class LectureController {
     private final RecommendService recommendService;
 
     // 추천 알고리즘 전송용 메소드 - 전체 강의 데이터에 대해서
-    @GetMapping("/recommendation/all")
+    @GetMapping("/recommend/all")
     public ResponseEntity<ResponseMessage> sendDataForRecommendation() {
         List<AllLecturesForRecommendResponse> recLectures = recommendService.manageAllData();
         return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 모든 강의 데이터 전송 완료", recLectures), HttpStatus.OK);
@@ -57,11 +57,6 @@ public class LectureController {
         User user = userDetailsService.findUserById(userId);
         List<LikedLecturesForRecommendResponse> recLikedLectures = recommendService.manageLikedData(user);
         return new ResponseEntity<>(ResponseMessage.withData(200, "추천 알고리즘용 좋아요한 강의 데이터 강의 전송 완료", recLikedLectures), HttpStatus.OK);
-    }
-
-    // 추천데이터 받아오기
-    @GetMapping("/recommend"){
-
     }
 
     // 관리자용 강의 등록

@@ -1,18 +1,19 @@
 package com.example.demo.lecture;
 
-import com.example.demo.lecture.Lecture;
 import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="recommended_lectures")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
 public class RecommendedLecture {
@@ -21,8 +22,6 @@ public class RecommendedLecture {
     @Column
     private long recommendedLectureId;
 
-    @Column
-    @NotNull
     @CreatedDate
     private LocalDateTime createdDate = LocalDateTime.now();
 
