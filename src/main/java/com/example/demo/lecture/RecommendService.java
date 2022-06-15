@@ -10,6 +10,7 @@ import com.example.demo.user.domain.User;
 import com.example.demo.user.dto.UserIdDto;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +84,7 @@ public class RecommendService {
                 .collect(Collectors.toList());
     }
 
+    @Async
     // 사용자에게 현재 좋아요 관련 작업을 한 유저 정보 보내기
     public void sendUserInfoAboutLike(User user){
         String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
@@ -90,6 +92,7 @@ public class RecommendService {
         sendData(url, userIdDto);
     }
 
+    @Async
     public String sendData(String url, UserIdDto userIdDto) {
         String sb = "";
         try {

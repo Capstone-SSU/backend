@@ -254,31 +254,16 @@ public class LectureController {
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
         Lecture lecture = lectureService.findById(lectureId);
-        if(lecture!=null) { // 강의정보가 있는 경우
-            Like existedLike = likeService.findLikeByLectureAndUser(lecture, user);
-            if(existedLike!=null) { // 좋아요가 존재하는 경우
-                if(existedLike.getLikeStatus()==1) { // 이미 눌려있는 경우
-                    existedLike.changeLikeStatus(0);
-                    preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,-1);
-                    recommendService.sendUserInfoAboutLike(user);
-                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
-                }
-                else {
-                    existedLike.changeLikeStatus(1);
-                    preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
-                    recommendService.sendUserInfoAboutLike(user);
-                    return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
-                }
-            }
-            else {// 좋아요 처음 누른 경우
-                Like like = new Like(lecture, user);
-                likeService.saveLike(like);
-                preferenceHashtagService.updateUserPreferenceHashtag(user,lecture,1);
-                recommendService.sendUserInfoAboutLike(user);
-                return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
-            }
-        }
-        return new ResponseEntity<>(new ResponseMessage(404, "해당하는 강의가 없습니다"), HttpStatus.NOT_FOUND);
+        if(lecture == null)
+            return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 강의"), HttpStatus.NOT_FOUND);
+
+        String likeStatus = likeService.changeLikeStatus(lecture, user);
+        if(likeStatus.equals("like cancel"))
+            return new ResponseEntity<>(new ResponseMessage(200, "좋아요 취소 성공"), HttpStatus.OK);
+        else if(likeStatus.equals("like success again"))
+            return new ResponseEntity<>(new ResponseMessage(200, "좋아요 재등록 성공"), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(new ResponseMessage(201, "좋아요 등록 성공"), HttpStatus.CREATED);
     }
 
     // 중복링크 찾기
