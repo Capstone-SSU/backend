@@ -4,6 +4,8 @@ import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.service.HashtagService;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
+import com.example.demo.lecture.RequestedLecture;
+import com.example.demo.lecture.repository.RequestedLectureRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 public class Crawler {
     private final HashtagService hashtagService;
     private final LectureService lectureService;
+    private final RequestedLectureRepository requestedLectureRepository;
 
     public static void main(String[] args) {
 //        udemy("https://www.udemy.com/course/clean-code-js");
@@ -39,7 +43,7 @@ public class Crawler {
         //3. 크롤링 요청 내부에서 saveLecture, manageHashtags 수행 (saveRequiredLecture 메소드 해당 파일 하단에 있음)
     }
     @Async
-    public void inflearn(String url){
+    public void inflearn(String url, Long lectureId){
         long start = System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -67,22 +71,26 @@ public class Crawler {
             hashtags.add(tag);
         }
 
-//        Lecture lecture = Lecture.builder()
-//                .lecturer(lecturer)
-//                .lectureUrl(url)
-//                .lectureTitle(title)
-//                .thumbnailUrl(img)
-//                .siteName("인프런")
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,hashtags);
+        Lecture lecture = Lecture.builder()
+                .lecturer(lecturer)
+                .lectureUrl(url)
+                .lectureTitle(title)
+                .thumbnailUrl(img)
+                .siteName("인프런")
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
         long end = System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff inflearn - "+(end-start)+" - "+Thread.currentThread().getName());
     }
 
     @Async
-    public void youtube(String url){
+    public void youtube(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -140,15 +148,19 @@ public class Crawler {
 //        log.info("after img - "+(System.currentTimeMillis()-start));
 
 
-//        Lecture lecture = Lecture.builder()
-//                .lectureTitle(title)
-//                .siteName("유튜브")
-//                .thumbnailUrl(img)
-//                .lectureUrl(url)
-//                .lecturer(lecturer)
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,tags);
+        Lecture lecture = Lecture.builder()
+                .lectureTitle(title)
+                .siteName("유튜브")
+                .thumbnailUrl(img)
+                .lectureUrl(url)
+                .lecturer(lecturer)
+                .build();
+
+        saveRequiredLecture(lecture,tags);
 
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
@@ -157,7 +169,7 @@ public class Crawler {
     }
 
     @Async
-    public void nomadcoders(String url){
+    public void nomadcoders(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         String baseUrl="https://nomadcoders.co/courses";
@@ -182,7 +194,7 @@ public class Crawler {
 
         String lecturer="니꼴라스";
         String siteName="노마드코더";
-        String imgUrl;
+        String imgUrl=null;
         List<String> tags=new ArrayList<>();
 
 
@@ -220,6 +232,20 @@ public class Crawler {
 
         }
 
+        if(lectureId==null){
+            return;
+        }
+
+        Lecture lecture = Lecture.builder()
+                .lectureTitle(title)
+                .siteName(siteName)
+                .thumbnailUrl(imgUrl)
+                .lectureUrl(url)
+                .lecturer(lecturer)
+                .build();
+
+        saveRequiredLecture(lecture,tags);
+
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff nomad - "+(end-start)+" - "+Thread.currentThread().getName());
@@ -227,7 +253,7 @@ public class Crawler {
     }
 
     @Async
-    public void spartaCoding(String url){
+    public void spartaCoding(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -258,6 +284,21 @@ public class Crawler {
         String imageUrl = document.head().selectFirst("meta[property=og:image]").attr("content");
         String img="https://spartacodingclub.kr"+imageUrl;
 
+
+        if(lectureId==null){
+            return;
+        }
+
+        Lecture lecture = Lecture.builder()
+                .lectureTitle(title)
+                .siteName(siteName)
+                .thumbnailUrl(img)
+                .lectureUrl(url)
+                .lecturer(lecturer)
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
+
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff sparta - "+(end-start)+" - "+Thread.currentThread().getName());
@@ -265,7 +306,7 @@ public class Crawler {
     }
 
     @Async
-    public void projectlion(String url){
+    public void projectlion(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -285,7 +326,7 @@ public class Crawler {
         String desc = document.head().selectFirst("meta[property=og:description]").attr("content");
 
         String lecturer = "프로젝트 라이언";
-        String siteName = "프로젝트 라이언";
+        String siteName = "Project lion";
 
         /**
          * 이거 갑자기 입문 왜안나오는지 확인 필요
@@ -302,15 +343,19 @@ public class Crawler {
             hashtags.addAll(hashtagsInDesc);
         }
 
-//        Lecture lecture = Lecture.builder()
-//                .lecturer(lecturer)
-//                .lectureUrl(url)
-//                .lectureTitle(title)
-//                .thumbnailUrl(img)
-//                .siteName(siteName)
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,hashtags);
+        Lecture lecture = Lecture.builder()
+                .lecturer(lecturer)
+                .lectureUrl(url)
+                .lectureTitle(title)
+                .thumbnailUrl(image)
+                .siteName(siteName)
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff projectLion - "+(end-start)+" - "+Thread.currentThread().getName());
@@ -318,7 +363,7 @@ public class Crawler {
     }
 
     @Async
-    public void udemy(String url){
+    public void udemy(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -363,15 +408,19 @@ public class Crawler {
             }
         }
 
-//        Lecture lecture = Lecture.builder()
-//                .lecturer(lecturer)
-//                .lectureUrl(url)
-//                .lectureTitle(title)
-//                .thumbnailUrl(img)
-//                .siteName(siteName)
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,hashtags);
+        Lecture lecture = Lecture.builder()
+                .lecturer(lecturer)
+                .lectureUrl(url)
+                .lectureTitle(title)
+                .thumbnailUrl(image)
+                .siteName(siteName)
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff udemy - "+(end-start)+" - "+Thread.currentThread().getName());
@@ -379,7 +428,7 @@ public class Crawler {
     }
 
     @Async
-    public void fastcampus(String url){
+    public void fastcampus(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -397,6 +446,7 @@ public class Crawler {
         String finalTitle = title.substring(1, index-1);
         String image = document.selectFirst("p.container__text-content.fc-h1-text").selectFirst("img").attr("src");
         String lecturer = "패스트 캠퍼스";
+        String siteName="패스트캠퍼스";
 
         String desc = document.head().selectFirst("meta[name=description]").attr("content");
 
@@ -409,15 +459,20 @@ public class Crawler {
             hashtags.addAll(hashtagsInDesc);
         }
 
-//        Lecture lecture = Lecture.builder()
-//                .lecturer(lecturer)
-//                .lectureUrl(url)
-//                .lectureTitle(title)
-//                .thumbnailUrl(img)
-//                .siteName(siteName)
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,hashtags);
+        Lecture lecture = Lecture.builder()
+                .lecturer(lecturer)
+                .lectureUrl(url)
+                .lectureTitle(title)
+                .thumbnailUrl(image)
+                .siteName(siteName)
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
+
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff fast campus - "+(end-start)+" - "+Thread.currentThread().getName());
@@ -425,7 +480,7 @@ public class Crawler {
     }
 
     @Async
-    public void codingEverybody(String url){
+    public void codingEverybody(String url, Long lectureId){
         long start=System.currentTimeMillis();
         log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
@@ -444,6 +499,7 @@ public class Crawler {
         String finalTitle = title.substring(0, title.length()-7);
         String lecturer = "egoing";
         String img = "";
+        String siteName="생활코딩";
 
         // 총 해시태그 담는 곳
         List<String> hashtags = findHashtagsInTitle(title, 3);
@@ -464,15 +520,19 @@ public class Crawler {
         }
 
 
-//        Lecture lecture = Lecture.builder()
-//                .lecturer(lecturer)
-//                .lectureUrl(url)
-//                .lectureTitle(title)
-//                .thumbnailUrl(img)
-//                .siteName(siteName)
-//                .build();
+        if(lectureId==null){
+            return;
+        }
 
-//        saveRequiredLecture(lecture,hashtags);
+        Lecture lecture = Lecture.builder()
+                .lecturer(lecturer)
+                .lectureUrl(url)
+                .lectureTitle(title)
+                .thumbnailUrl(img)
+                .siteName(siteName)
+                .build();
+
+        saveRequiredLecture(lecture,hashtags);
         long end=System.currentTimeMillis();
         log.info("end - "+end+" - "+Thread.currentThread().getName());
         log.info("diff open tutorials- "+(end-start)+" - "+Thread.currentThread().getName());
@@ -492,4 +552,17 @@ public class Crawler {
         lectureService.saveLecture(lecture);
         lectureService.manageHashtag(hashtags, lecture);
     }
+
+    //크롤링 성공하고 나면 requestedLecture 에 managedStatus 1로 변경 -> 등록 완료로 표시!
+    private void changeRequestedLectureStatus(Long requestedLectureId, String status){
+        Optional<RequestedLecture> requestedLecture = requestedLectureRepository.findById(requestedLectureId);
+        if(requestedLecture.isPresent()){
+            RequestedLecture foundLecture=requestedLecture.get();
+            foundLecture.modifyManagedStatus(status.equals("success")?1:-1); //성공이면 1, error 면 -1
+            requestedLectureRepository.save(foundLecture);
+        }
+    }
+
+
+
 }
