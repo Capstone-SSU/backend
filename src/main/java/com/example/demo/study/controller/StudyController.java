@@ -2,7 +2,7 @@ package com.example.demo.study.controller;
 
 import com.example.demo.dto.*;
 import com.example.demo.like.Like;
-import com.example.demo.like.RecommendService;
+import com.example.demo.lecture.RecommendService;
 import com.example.demo.report.Report;
 import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.like.LikeService;

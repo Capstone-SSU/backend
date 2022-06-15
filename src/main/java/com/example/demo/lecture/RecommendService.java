@@ -1,14 +1,16 @@
-package com.example.demo.like;
+package com.example.demo.lecture;
 
-import com.example.demo.lecture.LectureService;
 import com.example.demo.lecture.dto.AllLecturesForRecommendResponse;
+import com.example.demo.lecture.dto.AllLecturesResponse;
 import com.example.demo.lecture.dto.LikedLecturesForRecommendResponse;
 import com.example.demo.lecture.repository.LectureRepository;
+import com.example.demo.lecture.repository.RecommendedLectureRepository;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.user.domain.User;
 import com.example.demo.user.dto.UserIdDto;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendService {
     private final LectureRepository lectureRepository;
+    private final RecommendedLectureRepository recommendedLectureRepository;
     private final LikeRepository likeRepository;
     private final LectureService lectureService;
 
@@ -69,13 +72,27 @@ public class RecommendService {
         return likedLectures;
     }
 
+    // 추천된 강의 받아오기
+    public List<AllLecturesResponse> getRecommendedData(User user) {
+        List<RecommendedLecture> rec = recommendedLectureRepository.findByUser(user);
+        
+        // 추천할 거 없는 경우 추가해야 함
+        return rec
+                .stream()
+                .skip(rec.size()-10)
+                .map(rc -> AllLecturesResponse.from(rc.getLecture()))
+                .collect(Collectors.toList());
+    }
+
+    @Async
     // 사용자에게 현재 좋아요 관련 작업을 한 유저 정보 보내기
     public void sendUserInfoAboutLike(User user){
-        String url = "http://127.0.0.1:5000/getInfo"; // flask로 보낼 url
+        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
         UserIdDto userIdDto = new UserIdDto(user.getUserId());
         sendData(url, userIdDto);
     }
 
+    @Async
     public String sendData(String url, UserIdDto userIdDto) {
         String sb = "";
         try {
