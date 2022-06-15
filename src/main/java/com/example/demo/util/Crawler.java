@@ -4,23 +4,23 @@ import com.example.demo.hashtag.Hashtag;
 import com.example.demo.hashtag.service.HashtagService;
 import com.example.demo.lecture.Lecture;
 import com.example.demo.lecture.LectureService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Crawler {
@@ -38,7 +38,10 @@ public class Crawler {
         //2. url 에 들어있는 사이트 이름 식별 -> 크롤링 요청
         //3. 크롤링 요청 내부에서 saveLecture, manageHashtags 수행 (saveRequiredLecture 메소드 해당 파일 하단에 있음)
     }
+    @Async
     public void inflearn(String url){
+        long start = System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -53,31 +56,35 @@ public class Crawler {
         List<String> hashtags=new ArrayList<>();
 
         String img = document.selectFirst("div.cd-header__thumbnail img").attr("src");
-        System.out.println("img = " + img);
+
         String title = document.selectFirst("div.cd-header__title").text();
-        System.out.println("title = " + title);
+
         String lecturer = document.selectFirst("a.cd-header__instructors--main").text();
-        System.out.println("lecturer = " + lecturer);
+
         Elements elements = document.select("a.cd-header__tag");
         for(Element e:elements){
             String tag=e.text();
-            System.out.println("tag = " + tag);
             hashtags.add(tag);
         }
 
-        Lecture lecture = Lecture.builder()
-                .lecturer(lecturer)
-                .lectureUrl(url)
-                .lectureTitle(title)
-                .thumbnailUrl(img)
-                .siteName("인프런")
-                .build();
+//        Lecture lecture = Lecture.builder()
+//                .lecturer(lecturer)
+//                .lectureUrl(url)
+//                .lectureTitle(title)
+//                .thumbnailUrl(img)
+//                .siteName("인프런")
+//                .build();
 
 //        saveRequiredLecture(lecture,hashtags);
+        long end = System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff inflearn - "+(end-start)+" - "+Thread.currentThread().getName());
     }
 
+    @Async
     public void youtube(String url){
-
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -89,12 +96,13 @@ public class Crawler {
             //잘못된 url 연결 error throw
         }
 
+//        log.info("after document - "+(System.currentTimeMillis()-start));
         List<String> tags=new ArrayList<>();
         Element body = document.body();
-        String title = body.selectFirst("div#watch7-content meta[itemprop=name]").attr("content");
+//        String title = body.selectFirst("div#watch7-content meta[itemprop=name]").attr("content");
+        String title=document.head().selectFirst("meta[property=og:title]").attr("content");
         String content = document.head().selectFirst("meta[property=og:description]").attr("content");
-        System.out.println("content = " + content);
-        System.out.println("title = " + title);
+//        log.info("after content - "+(System.currentTimeMillis()-start));
         if(title.contains("#")){
             String[] split = title.split("#");
             //0번 idx 이후부터는 전부 다 해시태그임
@@ -106,6 +114,7 @@ public class Crawler {
             }
         }
 
+//        log.info("after # tag - "+(System.currentTimeMillis()-start));
         if(tags.size()<3){
             List<String> hashtagsInTitle = findHashtagsInTitle(title, 5);
             tags.addAll(hashtagsInTitle.stream()
@@ -114,6 +123,8 @@ public class Crawler {
                     .collect(Collectors.toList()));
         }
 
+//        log.info("after title tag - "+(System.currentTimeMillis()-start));
+
         if(tags.size()<3){
             List<String> hashtagsInTitle = findHashtagsInTitle(content, 5);
             tags.addAll(hashtagsInTitle.stream()
@@ -121,30 +132,34 @@ public class Crawler {
                     .limit(3-tags.size())
                     .collect(Collectors.toList()));
         }
+//        log.info("after content tag - "+(System.currentTimeMillis()-start));
 
-        String lecturer = body.select("div#watch7-content link[itemprop=name]").attr("content");
-        System.out.println("lecturer = " + lecturer);
-        String img = body.select("div#watch7-content link[itemprop=thumbnailUrl]").attr("href");
-        System.out.println("img = " + img);
-
-        for(String t:tags){
-            System.out.println("t = " + t);
-        }
+        String lecturer = body.selectFirst("div#watch7-content link[itemprop=name]").attr("content");
+//        log.info("after lecturer - "+(System.currentTimeMillis()-start));
+        String img = document.head().selectFirst("meta[property=og:image]").attr("content");
+//        log.info("after img - "+(System.currentTimeMillis()-start));
 
 
-        Lecture lecture = Lecture.builder()
-                .lectureTitle(title)
-                .siteName("유튜브")
-                .thumbnailUrl(img)
-                .lectureUrl(url)
-                .lecturer(lecturer)
-                .build();
+//        Lecture lecture = Lecture.builder()
+//                .lectureTitle(title)
+//                .siteName("유튜브")
+//                .thumbnailUrl(img)
+//                .lectureUrl(url)
+//                .lecturer(lecturer)
+//                .build();
 
 //        saveRequiredLecture(lecture,tags);
 
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff youtube - "+(end-start)+" - "+Thread.currentThread().getName());
+
     }
 
+    @Async
     public void nomadcoders(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         String baseUrl="https://nomadcoders.co/courses";
 
         Document document;
@@ -163,9 +178,7 @@ public class Crawler {
         String title = document.head().selectFirst("meta[property=og:title]").attr("content");
         String[] split = title.split("노마드 코더");
         String rTitle=split[0].substring(0,split[0].length()-3);
-        System.out.println("title = " + rTitle);
         String content = document.head().selectFirst("meta[property=og:description]").attr("content");
-        System.out.println("content = " + content);
 
         String lecturer="니꼴라스";
         String siteName="노마드코더";
@@ -201,19 +214,22 @@ public class Crawler {
             if(e.selectFirst("a").attr("href").contains(last)){
                 Elements img = e.getElementsByTag("img");
                 imgUrl="https://nomadcoders.co"+img.get(1).attr("src");
-                System.out.println("imgUrl = " + imgUrl);
+//                System.out.println("imgUrl = " + imgUrl);
                 break;
             }
 
         }
 
-        for(String t:tags){
-            System.out.print("t = " + t+" ");
-        }
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff nomad - "+(end-start)+" - "+Thread.currentThread().getName());
 
     }
 
+    @Async
     public void spartaCoding(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -225,30 +241,33 @@ public class Crawler {
         }
         String siteName="스파르타코딩클럽";
         String lecturer="스파르타코딩클럽";
+        log.info("after sparta document - "+(System.currentTimeMillis()-start));
         String keywords = document.head().selectFirst("meta[name=keywords]").attr("content");
         //keywords 가 null 이라면? description 가져오기
-        if(keywords==null||keywords.length()<1){
+        if(keywords==null||keywords!=null&&keywords.length()<1){
             keywords=document.head().selectFirst("meta[property=og:description]").attr("content");
         }
-        System.out.println("keywords = " + keywords);
+
         List<String> hashtags = findHashtagsInTitle(keywords, 3);
-        for(String h:hashtags){
-            System.out.println("h = " + h);
-        }
 
         String title = document.head().selectFirst("title").text();
         String[] split = title.split("\\|");
         String rTitle = split[1].replaceFirst(" ", "");
-        System.out.println("title = " + rTitle);
 
 
         String imageUrl = document.head().selectFirst("meta[property=og:image]").attr("content");
         String img="https://spartacodingclub.kr"+imageUrl;
-        System.out.println("img = " + img);
+
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff sparta - "+(end-start)+" - "+Thread.currentThread().getName());
 
     }
 
+    @Async
     public void projectlion(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -292,9 +311,16 @@ public class Crawler {
 //                .build();
 
 //        saveRequiredLecture(lecture,hashtags);
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff projectLion - "+(end-start)+" - "+Thread.currentThread().getName());
+
     }
 
+    @Async
     public void udemy(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -304,6 +330,7 @@ public class Crawler {
             return;
             //잘못된 url 연결 error throw
         }
+        log.info("after udemy document - "+(System.currentTimeMillis()-start));
 
         String title = document.head().selectFirst("meta[name=title]").attr("content");
         String image = document.head().selectFirst("meta[property=og:image]").attr("content");
@@ -345,9 +372,16 @@ public class Crawler {
 //                .build();
 
 //        saveRequiredLecture(lecture,hashtags);
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff udemy - "+(end-start)+" - "+Thread.currentThread().getName());
+
     }
 
+    @Async
     public void fastcampus(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         try {
@@ -384,9 +418,16 @@ public class Crawler {
 //                .build();
 
 //        saveRequiredLecture(lecture,hashtags);
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff fast campus - "+(end-start)+" - "+Thread.currentThread().getName());
+
     }
 
+    @Async
     public void codingEverybody(String url){
+        long start=System.currentTimeMillis();
+        log.info("start - "+start+" - "+Thread.currentThread().getName());
         Document document;
 
         int lastSlash = url.lastIndexOf("/");
@@ -408,17 +449,20 @@ public class Crawler {
         List<String> hashtags = findHashtagsInTitle(title, 3);
 
         // 토픽목록에서 추출
-        Elements elements = document.select("div.label");
+        if(hashtags.size()<3){
+            Elements elements = document.select("div.label");
 
-        for(Element e:elements){
-            String keyword = e.selectFirst("a").selectFirst("span").text();
-            if(keyword!=""){
+            for(Element e:elements){
                 if(hashtags.size()<3){
-                    List<String> hashtagsInDetail = findHashtagsInTitle(keyword, 3 - hashtags.size());
-                    hashtags.addAll(hashtagsInDetail);
-                }
+                    String keyword = e.selectFirst("a").selectFirst("span").text();
+                    if(keyword!=""){
+                        hashtags.addAll(findHashtagsInTitle(keyword,3-hashtags.size()));
+                    }
+                }else
+                    break;
             }
         }
+
 
 //        Lecture lecture = Lecture.builder()
 //                .lecturer(lecturer)
@@ -429,6 +473,9 @@ public class Crawler {
 //                .build();
 
 //        saveRequiredLecture(lecture,hashtags);
+        long end=System.currentTimeMillis();
+        log.info("end - "+end+" - "+Thread.currentThread().getName());
+        log.info("diff open tutorials- "+(end-start)+" - "+Thread.currentThread().getName());
     }
     private List<String> findHashtagsInTitle(String title, int needCount){
         return hashtagService.getAllHashtags()
