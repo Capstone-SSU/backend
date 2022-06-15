@@ -15,7 +15,7 @@ public class HashtagService {
 
     public List<Hashtag> getAllHashtags(){
         List<Hashtag> hashtags = hashtagRepository.findAll();
-        System.out.println("hashtags = " + hashtags);
+//        System.out.println("hashtags = " + hashtags);
         return hashtags;
     }
 
