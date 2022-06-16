@@ -76,7 +76,8 @@ public class CustomStudyPostRepositoryImpl implements CustomStudyPostRepository 
                                 studyPost.studyTitle,
                                 studyPost.studyLocation,
                                 studyPost.studyCategoryName,
-                                studyPost.studyRecruitStatus))
+                                studyPost.studyRecruitStatus,
+                                studyPost.studyCreatedDate))
                 .from(studyPost)
                 .where(studyPost.user.eq(user), studyPost.studyStatus.eq(1))
                 .fetch();

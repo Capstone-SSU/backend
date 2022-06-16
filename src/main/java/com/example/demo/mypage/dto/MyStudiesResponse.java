@@ -3,6 +3,8 @@ package com.example.demo.mypage.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class MyStudiesResponse {
@@ -12,12 +14,15 @@ public class MyStudiesResponse {
     private String studyTitle;
     private String studyRecruitStatus; // 모집중 or 모집완료
     private String profileImage;
+    private String writerNickname;
+    private LocalDateTime studyCreatedDate;
 
-    public MyStudiesResponse(long studyPostId, String studyLocation, String studyCategoryName, String studyTitle, Integer studyRecruitStatus) {
+    public MyStudiesResponse(long studyPostId, String studyLocation, String studyCategoryName, String studyTitle, Integer studyRecruitStatus, LocalDateTime createDate) {
         this.studyPostId = studyPostId;
         this.studyLocation = studyLocation;
         this.studyCategoryName = studyCategoryName;
         this.studyTitle = studyTitle;
         this.studyRecruitStatus = studyRecruitStatus==1?"모집중":"모집완료";
+        this.studyCreatedDate=createDate;
     }
 }
