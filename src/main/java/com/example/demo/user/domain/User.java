@@ -50,7 +50,7 @@ public class User {
     private String userCompany;
 
     @Column
-    private String userProfileImg;
+    private String userProfileImg="https://capstone2-images.s3.ap-northeast-2.amazonaws.com/basic-profile.png";
 
     @Column(unique=true)
     private String githubUrlName;
