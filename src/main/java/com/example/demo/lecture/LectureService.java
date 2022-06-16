@@ -17,6 +17,8 @@ import com.example.demo.review.Review;
 import com.example.demo.review.dto.DetailReviewResponse;
 import com.example.demo.review.repository.ReviewRepository;
 import com.example.demo.user.domain.User;
+import com.example.demo.util.Crawler;
+import com.sun.mail.iap.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,7 @@ public class LectureService {
     private final LectureHashtagRepository lectureHashtagRepository;
     private final HashtagRepository hashtagRepository;
     private final LikeRepository likeRepository;
+    private final Crawler crawler;
 
     // 전체 강의 조회 (페이지네이션)
     public Page<AllLecturesResponse> getLecturesByPage(Pageable pageable) {
@@ -258,9 +261,35 @@ public class LectureService {
     }
 
     // 강의 요청 url 등록
-    public void saveRequestedLecture(String url){
-        RequestedLecture requestedLecture = new RequestedLecture();
-        requestedLecture.setLectureUrl(url);
-        requestedLectureRepository.save(requestedLecture);
+    public Long saveRequestedLecture(String url,User user){
+        RequestedLecture lecture = RequestedLecture.builder()
+                .url(url)
+                .user(user)
+                .build();
+        return requestedLectureRepository.save(lecture).getRequestedLectureId();
+    }
+
+
+    public int callRequestedLectureCrawler(String url,Long lectureId){
+        if(url.contains("nomadcoders")){
+            crawler.nomadcoders(url,lectureId);
+        }else if(url.contains("projectlion")){
+            crawler.projectlion(url,lectureId);
+        }else if(url.contains("udemy")){
+            crawler.udemy(url,lectureId);
+        }else if(url.contains("youtu")){
+            crawler.youtube(url,lectureId);
+        }else if(url.contains("fastcampus")){
+            crawler.fastcampus(url,lectureId);
+        }else if(url.contains("inflearn")){
+            crawler.inflearn(url,lectureId);
+        }else if(url.contains("spartacoding")){
+            crawler.spartaCoding(url,lectureId);
+        }else if(url.contains("opentutorials")){
+            crawler.codingEverybody(url,lectureId);
+        }else{
+            return -1;
+        }
+        return 1;
     }
 }

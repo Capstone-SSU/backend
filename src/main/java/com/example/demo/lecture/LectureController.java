@@ -11,6 +11,7 @@ import com.example.demo.user.UserDetailsServiceImpl;
 import com.example.demo.user.domain.Role;
 import com.example.demo.user.domain.User;
 import com.example.demo.userPreferenceHashtag.UserPreferenceHashtagService;
+import com.example.demo.util.Crawler;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -205,8 +206,14 @@ public class LectureController {
         RequestedLecture requestedLecture = lectureService.findByRequestedLecture(requestUrl);
         if(requestedLecture != null)
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록 요청된 강의입니다"), HttpStatus.CONFLICT);
-        lectureService.saveRequestedLecture(requestUrl);
-        return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다."), HttpStatus.CREATED);
+        Long requestedLectureId = lectureService.saveRequestedLecture(requestUrl,user);//status 0 으로 기본 저장 (대기중인 상태)
+        int crawlerStatus = lectureService.callRequestedLectureCrawler(requestUrl,requestedLectureId);
+        if(crawlerStatus==-1){
+            //크롤러가 존재하지 않는 사이트에 대한 요청
+            return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다. 마이페이지에서 결과를 확인해주세요!"), HttpStatus.CREATED);
+        }
+        //크롤러가 존재하는 사이트에 대한 요청
+        return new ResponseEntity<>(new ResponseMessage(201, "강의가 요청되었습니다. 마이페이지에서 결과를 확인해주세요!"), HttpStatus.CREATED);
     }
 
     // 리뷰 화면 들어간 경우
