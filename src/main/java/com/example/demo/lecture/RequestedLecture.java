@@ -3,6 +3,7 @@ package com.example.demo.lecture;
 import com.example.demo.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,5 +35,11 @@ public class RequestedLecture {
 
     public void modifyManagedStatus(int status){
         this.managedStatus=status;
+    }
+
+    @Builder
+    public RequestedLecture(String url, User user){
+        this.lectureUrl=url;
+        this.user=user;
     }
 }

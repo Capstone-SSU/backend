@@ -261,10 +261,12 @@ public class LectureService {
     }
 
     // 강의 요청 url 등록
-    public Long saveRequestedLecture(String url){
-        RequestedLecture requestedLecture = new RequestedLecture();
-        requestedLecture.setLectureUrl(url);
-        return requestedLectureRepository.save(requestedLecture).getRequestedLectureId();
+    public Long saveRequestedLecture(String url,User user){
+        RequestedLecture lecture = RequestedLecture.builder()
+                .url(url)
+                .user(user)
+                .build();
+        return requestedLectureRepository.save(lecture).getRequestedLectureId();
     }
 
 

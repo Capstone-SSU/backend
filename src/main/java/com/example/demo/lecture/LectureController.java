@@ -206,7 +206,7 @@ public class LectureController {
         RequestedLecture requestedLecture = lectureService.findByRequestedLecture(requestUrl);
         if(requestedLecture != null)
             return new ResponseEntity<>(new ResponseMessage(409, "이미 등록 요청된 강의입니다"), HttpStatus.CONFLICT);
-        Long requestedLectureId = lectureService.saveRequestedLecture(requestUrl);//status 0 으로 기본 저장 (대기중인 상태)
+        Long requestedLectureId = lectureService.saveRequestedLecture(requestUrl,user);//status 0 으로 기본 저장 (대기중인 상태)
         int crawlerStatus = lectureService.callRequestedLectureCrawler(requestUrl,requestedLectureId);
         if(crawlerStatus==-1){
             //크롤러가 존재하지 않는 사이트에 대한 요청
