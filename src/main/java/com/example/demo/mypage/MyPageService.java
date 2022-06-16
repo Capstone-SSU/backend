@@ -173,6 +173,7 @@ public class MyPageService {
     // 작성한 스터디 조회
     public List<MyStudiesResponse> getMyStudies(User user){
         List<MyStudiesResponse> myStudies = studyPostRepository.findByUser(user);
+        myStudies.forEach(s->s.setProfileImage(user.getUserProfileImg()));
         return myStudies;
     }
 
