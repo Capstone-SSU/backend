@@ -183,4 +183,11 @@ public class MyPageController {
         List<AllLecturesResponse> recommendedLectures = recommendService.getRecommendedData(user);
         return new ResponseEntity<>(ResponseMessage.withData(200, "추천된 강의 목록", recommendedLectures), HttpStatus.OK);
     }
+
+    @GetMapping("/{userId}/requested-lectures")
+    public ResponseEntity<ResponseMessage> getRequestedLectures(@PathVariable("userId") Long userId){
+        User user = userService.findUserById(userId);
+        List<RequestedLectureResponse> myRequestedLectures = myPageService.getMyRequestedLectures(user);
+        return new ResponseEntity<>(ResponseMessage.withData(200,"강의 등록 요청 내역",myRequestedLectures),HttpStatus.OK);
+    }
 }
