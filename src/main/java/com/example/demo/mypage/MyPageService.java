@@ -174,6 +174,7 @@ public class MyPageService {
     public List<MyStudiesResponse> getMyStudies(User user){
         List<MyStudiesResponse> myStudies = studyPostRepository.findByUser(user);
         myStudies.forEach(s->s.setProfileImage(user.getUserProfileImg()));
+        myStudies.forEach(s->s.setWriterNickname(user.getUserNickname()));
         return myStudies;
     }
 
