@@ -62,6 +62,9 @@ public class ReviewService {
 
     public void deleteReview(Long reviewId, User user){
         reviewRepository.deleteReview(reviewId);
+
+        // 리뷰 삭제했을 때 평점에 반영 /
+        // 이걸 삭제했을 때 리뷰가 하나도 없다면 reviewWriteStatus 바꾸기
         user.updateReviewWriteStatus();
     }
 

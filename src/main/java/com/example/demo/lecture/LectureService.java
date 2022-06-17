@@ -134,12 +134,31 @@ public class LectureService {
         DetailLectureResponse detailLectureResponse = DetailLectureResponse.from(lecture);
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
+//        List<DetailReviewResponse> detailReviewResponses = reviews
+//                .stream()
+//                .map(review -> DetailReviewResponse.from(review, lecture) &&
+//
+//
+//                        )
+//                .collect(Collectors.toList());
+//
+//        reviews.forEach(review -> {
+//                    if (user.getUserId() == review.getUser().getUserId()) {
+//                        detailReviewResponses.stream()
+//                        // 리뷰 등록자와 로그인한 사용자가 같다면
+//                    }
+//
+//                }
+//        );
+
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             DetailReviewResponse detailReviewResponse = DetailReviewResponse.from(reviews.get(i), lecture); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
             if(user.getUserId() == reviews.get(i).getUser().getUserId()) // 리뷰 등록자와 로그인한 사용자가 같다면
                 detailReviewResponse.setWriterStatus(true);
             detailReviewResponses.add(detailReviewResponse);
         }
+
+        detailLectureResponse.setReviewCnt(this.getReviewCount(lecture));
         detailLectureResponse.setReviews(detailReviewResponses);
         detailLectureResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
 
@@ -186,40 +205,11 @@ public class LectureService {
         }
     }
 
-    // 특정 Lecture에 해당하는 해시태그 상위 3개 가져오는 함수
-//    public List<String> getBestHashtags(Lecture lecture){
-//        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-//        Map<Long, Integer> hashtagCnt = new HashMap<>(); // 해시태그 상위 3개 찾기 위해서
-//        for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 돌면서 해시태그 개수 세기
-//            List<LectureHashtag> reviewHashtags = lectureHashtagRepository.findByReview(reviews.get(i));
-//
-//            for(int j=0;j<reviewHashtags.size();j++){
-//                long hashtagId = reviewHashtags.get(j).getHashtag().getHashtagId();
-//                if(hashtagCnt.containsKey(hashtagId)){                 // 이미 키 값이 존재하면 해당 value + 1
-//                    int cnt = hashtagCnt.get(hashtagId);
-//                    hashtagCnt.put(hashtagId, cnt+1);
-//                }
-//                else{ // 키가 존재하지 않는 경우
-//                    hashtagCnt.put(hashtagId, 1);
-//                }
-//            }
-//        }
-//
-//        // hashmap 내림차순 정렬 후 3개까지만 자르기
-//        List<Map.Entry<Long, Integer>> entryList = new LinkedList<>(hashtagCnt.entrySet());
-//        entryList.sort((o1, o2) -> hashtagCnt.get(o1.getKey()) - hashtagCnt.get(o2.getKey()));
-//        int limit = 0;
-//        List<String> hashtags = new ArrayList<>(); // hashtag 담을 list 생성
-//        for(Map.Entry<Long, Integer> entry : entryList){
-//            if(limit == 3)
-//                break;
-//            Optional<Hashtag> hashtag = hashtagRepository.findById(entry.getKey());
-//            String hashtagName = hashtag.get().getHashtagName();
-//            hashtags.add(hashtagName);
-//            limit++;
-//        }
-//        return hashtags;
-//    }
+    // 강의에 달린 리뷰 갯수 가져오기
+    public int getReviewCount(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        return reviews.size();
+    }
 
     // 평균 평점 업데이트
     public void setAvgRate(Lecture lecture, int rate){
