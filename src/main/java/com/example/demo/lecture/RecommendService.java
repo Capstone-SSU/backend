@@ -76,7 +76,8 @@ public class RecommendService {
     public List<AllLecturesResponse> getRecommendedData(User user) {
         List<RecommendedLecture> rec = recommendedLectureRepository.findByUser(user);
         
-        // 추천할 거 없는 경우 추가해야 함
+        if(rec.size() == 0)
+            return null;
         return rec
                 .stream()
                 .skip(rec.size()-10)
