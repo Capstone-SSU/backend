@@ -2,15 +2,23 @@ package com.example.demo.hashtag;
 
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.hashtag.service.HashtagService;
+import com.example.demo.lecture.LectureService;
 import com.example.demo.util.Crawler;
 import com.sun.mail.iap.Response;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 @RequestMapping("/hashtags")
+@Slf4j
+@EnableAsync
 public class HashtagController {
     private final HashtagService hashtagService;
     private final Crawler crawler;
@@ -54,69 +64,36 @@ public class HashtagController {
         return new ResponseEntity<>(ResponseMessage.withData(200, "'"+keyword+"'키워드가 포함된 해시태그가 조회되었습니다", hashtagList), HttpStatus.OK);
     }
 
-    /**
-     *
-     * @param request_url
-     * @return
-     *
-     * 중복 검사 X , 크롤링 결과 데이터베이스에 저장 X
-     * url 요청 ~ 크롤링 까지의 시간만! (여러개의 탭을 띄워둔 상황 -> 여러 사용자가 한 개 씩 요청을 동시에 보낸다 가정)
-     */
-
+    //if else 를 안쓰려면 프론트에서 요청 url 에 따라 다른 controller 를 호출하는 방법 뿐,,,
     @GetMapping("/test")
-    public int test(@RequestParam String request_url){
+    public int test(@RequestParam String request_url) throws Exception {
         String url = request_url;
-//        String siteName;
-        // 노마드코더
-//        url="https://nomadcoders.co/javascript-for-beginners";
-        // 프로젝트 라이언
-//        url="https://projectlion.io/courses/technology/uxd";
-        // 유데미
-//        url = "https://www.udemy.com/course/clean-code-js";
-        // 유튜브
-//        String url="https://youtu.be/kWiCuklohdY";
-        // 패스트 캠퍼스
-//        url="https://fastcampus.co.kr/dev_academy_kmt3";
+        Long lectureId=null;
+        //lectureId 가 null 로 넘어가면 테스트용 크롤링이니까 실제 데이터베이스에 강의 저장 X
 
-        // 생활코딩
-//         url = "https://opentutorials.org/course/3086/18311";
-//        // 프로젝트 라이언
-////        url="https://projectlion.io/courses/technology/uxd";
-//        // 유데미
-////        url = "https://www.udemy.com/course/clean-code-js";
-//        // 유튜브
-////        String url="https://youtu.be/kWiCuklohdY";
-//        // 패스트 캠퍼스
-////        url="https://fastcampus.co.kr/dev_academy_kmt3";
-//        //스파르타코딩클럽
-////        url="https://spartacodingclub.kr/online/spring";
 
         if(url.contains("nomadcoders")){
-            crawler.nomadcoders(url);
+            crawler.nomadcoders(url, lectureId);
         }else if(url.contains("projectlion")){
-            crawler.projectlion(url);
+            crawler.projectlion(url, lectureId);
         }else if(url.contains("udemy")){
-            crawler.udemy(url);
+            crawler.udemy(url, lectureId);
         }else if(url.contains("youtu")){
-            crawler.youtube(url);
+            crawler.youtube(url, lectureId);
         }else if(url.contains("fastcampus")){
-            crawler.fastcampus(url);
+            crawler.fastcampus(url, lectureId);
         }else if(url.contains("inflearn")){
-            crawler.inflearn(url);
+            crawler.inflearn(url, lectureId);
         }else if(url.contains("spartacoding")){
-            crawler.spartaCoding(url);
+            crawler.spartaCoding(url, lectureId);
         }else if(url.contains("opentutorials")){
-            crawler.codingEverybody(url);
+            crawler.codingEverybody(url, lectureId);
         }else{
             return Response.BAD;
         }
 
-//        crawler.nomadcoders(url);
-//        crawler.youtube(url);
-//        crawler.projectlion(url);
-//        crawler.udemy(url);
-//        crawler.fastcampus(url);
-//         crawler.codingEverybody(url);
         return Response.OK;
     }
+
+
 }

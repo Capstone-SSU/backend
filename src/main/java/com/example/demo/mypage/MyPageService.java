@@ -1,6 +1,8 @@
 package com.example.demo.mypage;
 
 import com.example.demo.lecture.LectureService;
+import com.example.demo.lecture.RequestedLecture;
+import com.example.demo.lecture.repository.RequestedLectureRepository;
 import com.example.demo.like.repository.LikeRepository;
 import com.example.demo.mypage.dto.*;
 import com.example.demo.review.Review;
@@ -35,6 +37,7 @@ public class MyPageService {
     private final RoadmapRepository roadmapRepository;
     private final RoadmapGroupRepository roadmapGroupRepository;
     private final ImageService imageService;
+    private final RequestedLectureRepository  requestedLectureRepository;
 
     // 회원정보 수정 페이지 조회
     public InfoResponse getProfile(User user){
@@ -129,7 +132,7 @@ public class MyPageService {
         List<LikedStudiesResponse> likedStudies = new ArrayList<>();
         List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
         for(int i=0;i<studies.size();i++){
-            LikedStudiesResponse likedStudiesResponse = LikedStudiesResponse.from(studies.get(i), user);
+            LikedStudiesResponse likedStudiesResponse = LikedStudiesResponse.from(studies.get(i));
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;
@@ -170,6 +173,8 @@ public class MyPageService {
     // 작성한 스터디 조회
     public List<MyStudiesResponse> getMyStudies(User user){
         List<MyStudiesResponse> myStudies = studyPostRepository.findByUser(user);
+        myStudies.forEach(s->s.setProfileImage(user.getUserProfileImg()));
+        myStudies.forEach(s->s.setWriterNickname(user.getUserNickname()));
         return myStudies;
     }
 
@@ -193,5 +198,13 @@ public class MyPageService {
             myRoadmaps.add(myRoadmapsResponse);
         }
         return myRoadmaps;
+    }
+
+    public List<RequestedLectureResponse> getMyRequestedLectures(User user){
+        //url 로 강의 찾아서 lectureId 반환
+        List<RequestedLecture> allByUser = requestedLectureRepository.findAllByUser(user);
+        return allByUser.stream()
+                .map(r->RequestedLectureResponse.fromEntity(r,lectureService.findByUrl(r.getLectureUrl())))
+                .collect(Collectors.toList());
     }
 }

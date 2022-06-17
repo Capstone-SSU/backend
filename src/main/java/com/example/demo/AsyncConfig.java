@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -11,12 +12,13 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfig extends AsyncConfigurerSupport {
 
-    public Executor getAsyncExecutor() {
+    @Bean
+    public Executor asyncTaskExecutor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("pickit-async-");
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(100);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("async-task-");
         executor.initialize();
         return executor;
     }
