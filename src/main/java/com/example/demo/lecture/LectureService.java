@@ -134,22 +134,6 @@ public class LectureService {
         DetailLectureResponse detailLectureResponse = DetailLectureResponse.from(lecture);
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         List<DetailReviewResponse> detailReviewResponses = new ArrayList<>();
-//        List<DetailReviewResponse> detailReviewResponses = reviews
-//                .stream()
-//                .map(review -> DetailReviewResponse.from(review, lecture) &&
-//
-//
-//                        )
-//                .collect(Collectors.toList());
-//
-//        reviews.forEach(review -> {
-//                    if (user.getUserId() == review.getUser().getUserId()) {
-//                        detailReviewResponses.stream()
-//                        // 리뷰 등록자와 로그인한 사용자가 같다면
-//                    }
-//
-//                }
-//        );
 
         for(int i=0;i<reviews.size();i++){ // 특정 강의에 해당하는 리뷰들을 찾기 위해서
             DetailReviewResponse detailReviewResponse = DetailReviewResponse.from(reviews.get(i), lecture); // 해당 리뷰글 내가 쓴건지 니가 쓴건지 구분해야함
@@ -158,6 +142,8 @@ public class LectureService {
             detailReviewResponses.add(detailReviewResponse);
         }
 
+        detailLectureResponse.setAvgRate(this.getAvgRate(lecture));
+        detailLectureResponse.setLikeCnt(this.getLikeCount(lecture));
         detailLectureResponse.setReviewCnt(this.getReviewCount(lecture));
         detailLectureResponse.setReviews(detailReviewResponses);
         detailLectureResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
@@ -169,6 +155,13 @@ public class LectureService {
         else
             detailLectureResponse.setLikeStatus(false);
         return detailLectureResponse;
+    }
+
+    // 평점 계산
+    public double getAvgRate(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture);
+        double avgRate = Math.round((((reviews.stream().mapToDouble(i -> i.getRate()).sum())/reviews.size())*100)/100.0);
+        return avgRate;
     }
 
     // 강의 등록
@@ -209,6 +202,12 @@ public class LectureService {
     public int getReviewCount(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
         return reviews.size();
+    }
+
+    // 강의 좋아요 갯수 가져오기
+    public int getLikeCount(Lecture lecture){
+        List<Like> likes = likeRepository.findLikeByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
+        return likes.size();
     }
 
     // 평균 평점 업데이트

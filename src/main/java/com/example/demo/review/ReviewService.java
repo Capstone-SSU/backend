@@ -41,31 +41,20 @@ public class ReviewService {
                 .orElse(null);
     }
 
-    public List<Review> findByLecture(Lecture lecture){
-        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        return reviews;
-    }
-
     public void deleteReviews(Lecture lecture){
         reviewRepository.deleteReviews(lecture);
     }
 
     public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
-        int originalRate = review.getRate();
-        int newRate = reviewUpdateDto.getRate();
         reviewRepository.updateReview(reviewUpdateDto, review.getReviewId());
-        Lecture lecture = review.getLecture();
-        List<Review> reviews = findByLecture(lecture);
-        double newAvgRate = lecture.getAvgRate() - Math.round((double)(originalRate-newRate)/reviews.size()*10)/10.0;
-        lecture.setAvgRate(newAvgRate);
     }
 
     public void deleteReview(Long reviewId, User user){
         reviewRepository.deleteReview(reviewId);
 
-        // 리뷰 삭제했을 때 평점에 반영 /
         // 이걸 삭제했을 때 리뷰가 하나도 없다면 reviewWriteStatus 바꾸기
-        user.updateReviewWriteStatus();
+        if(reviewRepository.findByUser(user).isEmpty())
+            user.updateReviewWriteStatus();
     }
 
     public List<Review> findAllReviewsByUser(User user){
