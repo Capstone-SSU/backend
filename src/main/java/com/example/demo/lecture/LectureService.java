@@ -210,11 +210,6 @@ public class LectureService {
         return likes.size();
     }
 
-    // 평균 평점 업데이트
-    public void setAvgRate(Lecture lecture, int rate){
-        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        lecture.setAvgRate(Math.round((lecture.getAvgRate()+rate)/reviews.size()*10)/10.0);
-    }
 
     // 강의 해시태그 가져오기
     public List<String> getHashtags(Long lectureId){

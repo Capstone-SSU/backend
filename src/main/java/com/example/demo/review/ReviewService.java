@@ -18,13 +18,14 @@ import java.util.Optional;
 @Transactional
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final LectureService lectureService;
 
     public void saveReview(ReviewDto reviewDto, User user, Lecture lecture){
+        // 처음 리뷰 쓰는 경우 status 변경
+        if(reviewRepository.findByUser(user).isEmpty())
+            user.updateReviewWriteStatus();
+
         Review review = reviewDto.toEntity(user, lecture);
         reviewRepository.save(review);
-        user.updateReviewWriteStatus(); // 리뷰작성여부도 업데이트
-        lectureService.setAvgRate(lecture, review.getRate()); // 특정 강의의 평점 업뎃
     }
     
     public Review findByReviewId(Long reviewId){
