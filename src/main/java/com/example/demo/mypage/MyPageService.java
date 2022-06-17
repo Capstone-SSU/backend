@@ -132,7 +132,7 @@ public class MyPageService {
         List<LikedStudiesResponse> likedStudies = new ArrayList<>();
         List<StudyPost> studies = likeRepository.findStudyLikeByUser(user);
         for(int i=0;i<studies.size();i++){
-            LikedStudiesResponse likedStudiesResponse = LikedStudiesResponse.from(studies.get(i), user);
+            LikedStudiesResponse likedStudiesResponse = LikedStudiesResponse.from(studies.get(i));
             likedStudies.add(likedStudiesResponse);
         }
         return likedStudies;

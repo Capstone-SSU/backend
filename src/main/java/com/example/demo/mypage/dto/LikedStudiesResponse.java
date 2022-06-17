@@ -31,7 +31,8 @@ public class LikedStudiesResponse {
 //        this.nickname = nickname;
 //        this.profileImage = profileImage;
 //    }
-    public static LikedStudiesResponse from(StudyPost study, User user){
+    public static LikedStudiesResponse from(StudyPost study){
+        User user=study.getUser();
         return LikedStudiesResponse.builder()
                 .studyPostId(study.getStudyPostId())
                 .studyTitle(study.getStudyTitle())
