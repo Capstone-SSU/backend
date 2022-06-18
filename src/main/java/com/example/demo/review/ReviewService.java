@@ -32,7 +32,9 @@ public class ReviewService {
     // 평점 계산 (리뷰를 등록, 수정,삭제할 때마다 계산을 다시해서 SETTING 해야 함)
     public void updateAvgRate(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture);
-        double avgRate = Math.round((((reviews.stream().mapToDouble(i -> i.getRate()).sum())/reviews.size())*100)/100.0);
+
+        double rateSum = reviews.stream().mapToDouble(i -> i.getRate()).sum();
+        double avgRate = Math.round((rateSum/reviews.size()*10))/10.0;
         lecture.updateAvgRate(avgRate);
     }
 
