@@ -50,7 +50,7 @@ public class User {
     private String userCompany;
 
     @Column
-    private String userProfileImg="https://capstone2-images.s3.ap-northeast-2.amazonaws.com/basic-profile.png";
+    private String userProfileImg;
 
     @Column(unique=true)
     private String githubUrlName;
@@ -105,6 +105,7 @@ public class User {
         this.userEmail=email;
         this.userPassword=pwd;
         this.role=Role.USER;
+        this.userProfileImg="https://capstone2-images.s3.ap-northeast-2.amazonaws.com/basic-profile.png";
         // 이 외의 값은 초기 builder 패턴으로 생성 시에 NULL로 들어간다.
     }
 
