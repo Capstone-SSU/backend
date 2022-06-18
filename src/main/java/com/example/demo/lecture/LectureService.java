@@ -20,6 +20,7 @@ import com.example.demo.user.domain.User;
 import com.example.demo.util.Crawler;
 import com.sun.mail.iap.Response;
 import lombok.RequiredArgsConstructor;
+import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,11 +51,17 @@ public class LectureService {
 
     // 전체 강의 조회
     public List<AllLecturesResponse> getLectures(){
-        return lectureRepository
+        List<AllLecturesResponse> lectures = lectureRepository
                 .findAll()
                 .stream()
                 .map(AllLecturesResponse::from)
                 .collect(Collectors.toList());
+
+        for(int i=0;i<lectures.size();i++){
+            Lecture lecture = findById(lectures.get(i).getLectureId());
+            lectures.get(i).setLikeCnt(this.getLikeCount(lecture));
+        }
+        return lectures;
     }
 
     // 검색어별 조회

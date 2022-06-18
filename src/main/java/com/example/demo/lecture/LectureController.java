@@ -42,6 +42,7 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
+    private final RecommendService recommendService;
 
     // 관리자용 강의 등록
     @PostMapping("")
