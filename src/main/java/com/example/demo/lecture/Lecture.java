@@ -59,17 +59,17 @@ public class Lecture {
     // lecture : review = 1:N
     @OneToMany(mappedBy = "lecture", targetEntity = Review.class)
     @JsonManagedReference
-    private List<Review> reviews =new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
 
     // lecture : like = 1:N
     @OneToMany( mappedBy = "lecture", targetEntity = Like.class)
     @JsonManagedReference
-    private List<Like> likes =new ArrayList<>();
+    private List<Like> likes = new ArrayList<>();
 
     // lecture : lecture_hashtag = 1:N
     @OneToMany( mappedBy = "lecture", targetEntity = LectureHashtag.class)
     @JsonManagedReference
-    private List<LectureHashtag> lectureHashtags =new ArrayList<>();
+    private List<LectureHashtag> lectureHashtags = new ArrayList<>();
 
     @Builder
     public Lecture(String lectureTitle, String lecturer, String siteName, String lectureUrl, String thumbnailUrl) {
@@ -78,5 +78,9 @@ public class Lecture {
         this.siteName = siteName;
         this.lectureUrl = lectureUrl;
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public void updateAvgRate(double avgRate){
+        this.avgRate = avgRate;
     }
 }

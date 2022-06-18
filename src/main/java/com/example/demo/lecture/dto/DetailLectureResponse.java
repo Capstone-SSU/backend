@@ -34,8 +34,6 @@ public class DetailLectureResponse {
                 .lectureUrl(lecture.getLectureUrl())
                 .thumbnailUrl(lecture.getThumbnailUrl())
                 .avgRate(lecture.getAvgRate())
-                .reviewCnt(lecture.getReviews().size())
-                .likeCnt(lecture.getLikes().size())
                 .build();
     }
 

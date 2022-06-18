@@ -18,15 +18,26 @@ import java.util.Optional;
 @Transactional
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-    private final LectureService lectureService;
 
     public void saveReview(ReviewDto reviewDto, User user, Lecture lecture){
+        // 처음 리뷰 쓰는 경우 status 변경
+        if(reviewRepository.findByUser(user).isEmpty())
+            user.updateReviewWriteStatus();
+
         Review review = reviewDto.toEntity(user, lecture);
         reviewRepository.save(review);
-        user.updateReviewWriteStatus(); // 리뷰작성여부도 업데이트
-        lectureService.setAvgRate(lecture, review.getRate()); // 특정 강의의 평점 업뎃
+        this.updateAvgRate(lecture);
     }
-    
+
+    // 평점 계산 (리뷰를 등록, 수정,삭제할 때마다 계산을 다시해서 SETTING 해야 함)
+    public void updateAvgRate(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture);
+
+        double rateSum = reviews.stream().mapToDouble(i -> i.getRate()).sum();
+        double avgRate = Math.round((rateSum/reviews.size()*10))/10.0;
+        lecture.updateAvgRate(avgRate);
+    }
+
     public Review findByReviewId(Long reviewId){
         // 삭제된 것은 빼고 조회하기
         Optional<Review> review = reviewRepository
@@ -41,28 +52,25 @@ public class ReviewService {
                 .orElse(null);
     }
 
-    public List<Review> findByLecture(Lecture lecture){
-        List<Review> reviews = reviewRepository.findByLecture(lecture); // lecture 를 갖고 reviews 에 있는 모든 데이터 가져오기
-        return reviews;
-    }
-
     public void deleteReviews(Lecture lecture){
         reviewRepository.deleteReviews(lecture);
+        this.updateAvgRate(lecture);
     }
 
     public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
-        int originalRate = review.getRate();
-        int newRate = reviewUpdateDto.getRate();
         reviewRepository.updateReview(reviewUpdateDto, review.getReviewId());
-        Lecture lecture = review.getLecture();
-        List<Review> reviews = findByLecture(lecture);
-        double newAvgRate = lecture.getAvgRate() - Math.round((double)(originalRate-newRate)/reviews.size()*10)/10.0;
-        lecture.setAvgRate(newAvgRate);
+        this.updateAvgRate(review.getLecture());
     }
 
     public void deleteReview(Long reviewId, User user){
         reviewRepository.deleteReview(reviewId);
-        user.updateReviewWriteStatus();
+
+        // 이걸 삭제했을 때 리뷰가 하나도 없다면 reviewWriteStatus 바꾸기
+        if(reviewRepository.findByUser(user).isEmpty())
+            user.updateReviewWriteStatus();
+
+        Review review = this.findByReviewId(reviewId);
+        this.updateAvgRate(review.getLecture());
     }
 
     public List<Review> findAllReviewsByUser(User user){
