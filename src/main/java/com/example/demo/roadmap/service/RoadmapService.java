@@ -43,8 +43,14 @@ public class RoadmapService {
             lectureResponse.setLectureHashtags(lectureService.getHashtags(lecture.getLectureId()));
             lectureResponse.setLectureAvgRate(lecture.getAvgRate());
             Review review=reviewService.findByUserAndLecture(roadmapWriter,lecture); //로드맵 작성자의 리뷰를 찾아야함
-            lectureResponse.setLectureReviewTitle(review.getCommentTitle());
-            lectureResponse.setLectureReviewContent(review.getComment());
+            if(review==null){
+                lectureResponse.setLectureReviewTitle("삭제된 리뷰");
+                lectureResponse.setLectureReviewContent("해당 사용자에 의해 삭제된 리뷰입니다.");
+            }else{
+                lectureResponse.setLectureReviewTitle(review.getCommentTitle());
+                lectureResponse.setLectureReviewContent(review.getComment());
+            }
+
             lectures.add(lectureResponse);
         }
 
