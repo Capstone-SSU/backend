@@ -33,6 +33,7 @@ public class DetailLectureResponse {
                 .siteName(lecture.getSiteName())
                 .lectureUrl(lecture.getLectureUrl())
                 .thumbnailUrl(lecture.getThumbnailUrl())
+                .avgRate(lecture.getAvgRate())
                 .build();
     }
 

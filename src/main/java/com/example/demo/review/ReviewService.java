@@ -26,8 +26,16 @@ public class ReviewService {
 
         Review review = reviewDto.toEntity(user, lecture);
         reviewRepository.save(review);
+        this.updateAvgRate(lecture);
     }
-    
+
+    // 평점 계산 (리뷰를 등록, 수정,삭제할 때마다 계산을 다시해서 SETTING 해야 함)
+    public void updateAvgRate(Lecture lecture){
+        List<Review> reviews = reviewRepository.findByLecture(lecture);
+        double avgRate = Math.round((((reviews.stream().mapToDouble(i -> i.getRate()).sum())/reviews.size())*100)/100.0);
+        lecture.updateAvgRate(avgRate);
+    }
+
     public Review findByReviewId(Long reviewId){
         // 삭제된 것은 빼고 조회하기
         Optional<Review> review = reviewRepository
@@ -44,10 +52,12 @@ public class ReviewService {
 
     public void deleteReviews(Lecture lecture){
         reviewRepository.deleteReviews(lecture);
+        this.updateAvgRate(lecture);
     }
 
     public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
         reviewRepository.updateReview(reviewUpdateDto, review.getReviewId());
+        this.updateAvgRate(review.getLecture());
     }
 
     public void deleteReview(Long reviewId, User user){
@@ -56,6 +66,9 @@ public class ReviewService {
         // 이걸 삭제했을 때 리뷰가 하나도 없다면 reviewWriteStatus 바꾸기
         if(reviewRepository.findByUser(user).isEmpty())
             user.updateReviewWriteStatus();
+
+        Review review = this.findByReviewId(reviewId);
+        this.updateAvgRate(review.getLecture());
     }
 
     public List<Review> findAllReviewsByUser(User user){

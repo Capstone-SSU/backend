@@ -79,4 +79,8 @@ public class Lecture {
         this.lectureUrl = lectureUrl;
         this.thumbnailUrl = thumbnailUrl;
     }
+
+    public void updateAvgRate(double avgRate){
+        this.avgRate = avgRate;
+    }
 }

@@ -142,7 +142,6 @@ public class LectureService {
             detailReviewResponses.add(detailReviewResponse);
         }
 
-        detailLectureResponse.setAvgRate(this.getAvgRate(lecture));
         detailLectureResponse.setLikeCnt(this.getLikeCount(lecture));
         detailLectureResponse.setReviewCnt(this.getReviewCount(lecture));
         detailLectureResponse.setReviews(detailReviewResponses);
@@ -155,13 +154,6 @@ public class LectureService {
         else
             detailLectureResponse.setLikeStatus(false);
         return detailLectureResponse;
-    }
-
-    // 평점 계산
-    public double getAvgRate(Lecture lecture){
-        List<Review> reviews = reviewRepository.findByLecture(lecture);
-        double avgRate = Math.round((((reviews.stream().mapToDouble(i -> i.getRate()).sum())/reviews.size())*100)/100.0);
-        return avgRate;
     }
 
     // 강의 등록
