@@ -32,6 +32,7 @@ public class CustomLikeRepositoryImpl implements CustomLikeRepository{
         return jpaQueryFactory
                 .selectFrom(like)
                 .where(like.likeStatus.eq(1))
+                .where(like.lecture.eq(lecture))
                 .fetch();
     }
 

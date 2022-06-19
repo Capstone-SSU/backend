@@ -60,6 +60,8 @@ public class LectureService {
         for(int i=0;i<lectures.size();i++){
             Lecture lecture = findById(lectures.get(i).getLectureId());
             lectures.get(i).setLikeCnt(this.getLikeCount(lecture));
+
+            System.out.println(this.getLikeCount(lecture));
         }
         return lectures;
     }
@@ -155,10 +157,13 @@ public class LectureService {
         detailLectureResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
 
         // 좋아요 누른 여부
-        Like like = likeRepository.findLikeByLectureAndUser(lecture, user).get();
-        if(like.getLikeStatus() == 1)
-            detailLectureResponse.setLikeStatus(true);
-        else
+        Optional<Like> like = likeRepository.findLikeByLectureAndUser(lecture, user);
+        if(like.isPresent()) { // 좋아요 요청을 했던 경우
+            if (like.get().getLikeStatus() == 1)
+                detailLectureResponse.setLikeStatus(true);
+            else
+                detailLectureResponse.setLikeStatus(false);
+        } else
             detailLectureResponse.setLikeStatus(false);
         return detailLectureResponse;
     }
