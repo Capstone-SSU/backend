@@ -153,7 +153,7 @@ public class MyPageService {
             likedRoadmapsResponse.setRoadmapTitle(group.getRoadmapGroupTitle());
             likedRoadmapsResponse.setRoadmapWriterCompany(user.getUserCompany());
             likedRoadmapsResponse.setLectureThumbnails(thumbnails);
-            likedRoadmapsResponse.setRoadmapWriterNickname(user.getUserNickname());
+            likedRoadmapsResponse.setRoadmapWriterNickname(group.getUser().getUserNickname());
             likedRoadmapsResponse.setRoadmapCreatedDate(group.getRoadmapGroupCreatedDate());
             likedRoadmaps.add(likedRoadmapsResponse);
         }
