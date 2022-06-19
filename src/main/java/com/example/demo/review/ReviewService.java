@@ -10,14 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReviewService {
     private final ReviewRepository reviewRepository;
+    private final EntityManager em;
 
     public void saveReview(ReviewDto reviewDto, User user, Lecture lecture){
         // 처음 리뷰 쓰는 경우 status 변경
@@ -32,10 +33,14 @@ public class ReviewService {
     // 평점 계산 (리뷰를 등록, 수정,삭제할 때마다 계산을 다시해서 SETTING 해야 함)
     public void updateAvgRate(Lecture lecture){
         List<Review> reviews = reviewRepository.findByLecture(lecture);
-
+        System.out.println("reviews.size() = " + reviews.size());
         double rateSum = reviews.stream().mapToDouble(i -> i.getRate()).sum();
+        System.out.println("rateSum = " + rateSum);
         double avgRate = Math.round((rateSum/reviews.size()*10))/10.0;
+        System.out.println("avgRate = " + avgRate);
+        
         lecture.updateAvgRate(avgRate);
+        System.out.println("lecture.getAvgRate() = " + lecture.getAvgRate());
     }
 
     public Review findByReviewId(Long reviewId){
@@ -57,8 +62,10 @@ public class ReviewService {
         this.updateAvgRate(lecture);
     }
 
-    public void updateReview(ReviewPostDto reviewUpdateDto, Review review){
+    public void updateReview(ReviewPostDto reviewUpdateDto, Long reviewId){
+        Review review = this.findByReviewId(reviewId);
         reviewRepository.updateReview(reviewUpdateDto, review.getReviewId());
+        review.setRate(reviewUpdateDto.getRate());
         this.updateAvgRate(review.getLecture());
     }
 
