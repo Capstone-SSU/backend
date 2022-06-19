@@ -145,6 +145,8 @@ public class UserController {
 
     @GetMapping("/users/{userId}/company")
     public ResponseEntity<ResponseMessage> checkUserCompany(@PathVariable Long userId, @RequestParam("email") String email){
+        if(email.contains("'"))
+            email=email.replace("'","");
         String domain=email.split("@")[1];
         Company company= userService.checkCompanyExistence(domain);
         if(company==null){
