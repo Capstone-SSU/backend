@@ -155,8 +155,8 @@ public class LectureService {
         detailLectureResponse.setHashtags(this.getHashtags(lecture.getLectureId()));
 
         // 좋아요 누른 여부
-        Optional<Like> like = likeRepository.findLikeByLectureAndUser(lecture, user);
-        if(like.isPresent())
+        Like like = likeRepository.findLikeByLectureAndUser(lecture, user).get();
+        if(like.getLikeStatus() == 1)
             detailLectureResponse.setLikeStatus(true);
         else
             detailLectureResponse.setLikeStatus(false);

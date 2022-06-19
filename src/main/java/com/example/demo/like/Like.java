@@ -76,9 +76,8 @@ public class Like {
         this.user = user;
     }
 
-    public int changeLikeStatus(int status) {
+    public void changeLikeStatus(int status) {
         this.likeStatus = status;
-        return status;
     }
 
     @Builder
