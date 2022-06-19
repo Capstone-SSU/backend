@@ -88,7 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter { // 스프�
                 .antMatchers("/","/**/*.png","/**/*.jpg","/**/*.js","/**/*.css","/**/*.html","/**/*.gif","/**/*.svg","/signup","/signup/**","/signin","/oauth2/**","/nickname","/login/**").permitAll()
                 .antMatchers(PERMIT_URL_ARRAY).permitAll()
                 .antMatchers(HttpMethod.GET,"/lectures","/studies","/roadmaps","/hashtags").permitAll()
-                .antMatchers(HttpMethod.GET, "/lectures/recommend/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/recommended-lectures/**").permitAll()
 //                .antMatchers(HttpMethod.PATCH,"/lectures/**").hasRole("ADMIN") // ADMIN이라고 작성하면 자동으로 ROLE_ADMIN으로 검색이 이루어진다
 //                .antMatchers(HttpMethod.DELETE,"/lectures/**").hasRole("ADMIN") //ADMIN 권한을 가진 경우에만 접근 허용
                 .anyRequest().authenticated() //위를 제외한 다른 모든 요청은 권한 확인

@@ -42,6 +42,7 @@ public class LectureController {
     private final ReviewService reviewService;
     private final UserDetailsServiceImpl userDetailsService;
     private final LikeService likeService;
+    private final RecommendService recommendService;
 
     // 관리자용 강의 등록
     @PostMapping("")
@@ -102,15 +103,13 @@ public class LectureController {
     public ResponseEntity<ResponseMessage> deleteLecture(@PathVariable("lectureId") Long lectureId, Principal principal) {
         String email = principal.getName();
         User user = userDetailsService.findUserByEmail(email);
-        System.out.println("user.getUserId() = " + user.getUserId());
         if(user == null)
             return new ResponseEntity<>(new ResponseMessage(404, "존재하지 않는 유저"), HttpStatus.NOT_FOUND);
 
         if(!user.getRole().equals(Role.ADMIN)) {// 관리자 유저가 아닌경우
-            System.out.println("hi");
             return new ResponseEntity<>(new ResponseMessage(403, "관리자 권한이 아닌 유저입니다"), HttpStatus.FORBIDDEN);
-
         }
+
         Lecture lecture = lectureService.findById(lectureId);
         if(lecture != null) {
             lectureService.deleteLecture(lectureId);

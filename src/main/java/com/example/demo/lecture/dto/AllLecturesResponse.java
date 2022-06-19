@@ -20,7 +20,6 @@ public class AllLecturesResponse {
                 .lectureId(lecture.getLectureId())
                 .lectureTitle(lecture.getLectureTitle())
                 .thumbnailUrl(lecture.getThumbnailUrl())
-                .likeCnt(lecture.getLikes().size())
                 .avgRate(lecture.getAvgRate())
                 .build();
     }

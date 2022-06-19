@@ -108,7 +108,7 @@ public class MyPageController {
         return new ResponseEntity<>(new ResponseMessage(200, "좋아요한 강의 리뷰 조회", likedLectures), HttpStatus.OK);
     }
 
-    // 좋아요한 강의 조회
+    // 좋아요한 스터디 조회
     @GetMapping("/{userId}/liked-studies")
     public ResponseEntity<ResponseMessage> getLikedStudies(@PathVariable("userId") Long userId) {
         User user = userService.findUserById(userId);
