@@ -60,6 +60,8 @@ public class LectureService {
         for(int i=0;i<lectures.size();i++){
             Lecture lecture = findById(lectures.get(i).getLectureId());
             lectures.get(i).setLikeCnt(this.getLikeCount(lecture));
+
+            System.out.println(this.getLikeCount(lecture));
         }
         return lectures;
     }
