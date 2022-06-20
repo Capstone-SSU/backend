@@ -87,7 +87,7 @@ public class RecommendService {
     @Async
     // 사용자에게 현재 좋아요 관련 작업을 한 유저 정보 보내기
     public void sendUserInfoAboutLike(User user){
-        String url = "http://127.0.0.1:5000/recommend"; // flask로 보낼 url
+        String url = "http://13.125.218.246:5000/recommend"; // flask로 보낼 url
         UserIdDto userIdDto = new UserIdDto(user.getUserId());
         sendData(url, userIdDto);
     }
